@@ -5,7 +5,7 @@
   "main": "bin/cli.js",
   "type": "module",
   "bin": {
-    "md": "./bin/cli.js"
+    "md": "bin/cli.js"
   },
   "files": [
     "bin/"
