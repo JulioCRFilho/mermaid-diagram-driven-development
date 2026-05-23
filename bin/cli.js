@@ -102,8 +102,13 @@ Assinatura das interfaces/serviços (API contract).
 
 Versionamento: Mantenha o SPEC_VERSION sempre no topo.
 
-** REGRA DE SINTAXE MERMAID: **
-Ao gerar diagramas a partir do código, sempre escape ou remova parênteses de nomes de funções. Use aspas duplas (ex: A["main()"]) se o nome da função precisar ser preservado, ou simplifique o texto do nó (ex: A[main]) para manter o diagrama limpo e evitar erros de renderização.
+** REGRAS: **
+1. Ao gerar diagramas a partir do código, sempre escape ou remova parênteses de nomes de funções. Use aspas duplas (ex: A["main()"]) se o nome da função precisar ser preservado, ou simplifique o texto do nó (ex: A[main]) para manter o diagrama limpo e evitar erros de renderização.
+2. PROIBIDO Arte ASCII ou desenhos manuais.
+2. Todo diagrama deve ser encapsulado em blocos de código markdown com a linguagem 'mermaid'.
+3. Para fluxos de arquitetura ou lógica de negócio, use exclusivamente 'graph TD' ou 'graph LR'.
+4. Para estados de máquina (finitos), use 'stateDiagram-v2'.
+5. Nomeie os nós, use formas específicas ([...], ([...]), { ... }) para indicar intenção (Ação, Início/Fim, Decisão).
   `;
 
         fs.writeFileSync('system_prompt.md', promptContent);
