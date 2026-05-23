@@ -40,6 +40,13 @@ program
     .command('init')
     .description('Inicializa o prompt de sistema universal para guiar qualquer IA no projeto sob a metodologia MDDD')
     .action(() => {
+        const agentsDir = '.agents';
+        const skillsDir = path.join(agentsDir, 'skills');
+
+        // 1. Cria a estrutura de pastas
+        if (!fs.existsSync(agentsDir)) fs.mkdirSync(agentsDir);
+        if (!fs.existsSync(skillsDir)) fs.mkdirSync(skillsDir);
+
         const promptContent = `# Protocolo Mermaid Diagram Driven Development (MDDD)
 
 Você deve seguir estritamente a arquitetura de especificações modulares por feature antes de alterar, escrever ou auditar código produtivo.
@@ -100,8 +107,34 @@ Ao gerar diagramas a partir do código, sempre escape ou remova parênteses de n
   `;
 
         fs.writeFileSync('system_prompt.md', promptContent);
+
+        // 3. Definição das Skills
+        const skills = {
+            'md-new': "Modo Desenho. Você deve rodar o comando de terminal \`md new [caminho_da_nova_feature]\` (e incluir \`-p [caminho]\` se houver pai). Em seguida, monte o Mermaid e as tabelas dentro do arquivo gerado e pare para aguardar aprovação visual.",
+            'md-edit': "Modo Edição. Abra o arquivo especificado, aplique a alteração no Mermaid ou tabelas mantendo a sintaxe 100% válida e incremente o cabeçalho \`\`.",
+            'md-audit': "Modo Auditoria Drástica de Legado. Analise o arquivo de código existente sob a ótica de legibilidade visual (MDDD):\n1. Se o código for modular, coeso e limpo: Execute o comando de terminal \`md new [diretorio_do_arquivo]\`. Em seguida, mapeie o fluxo atual no Mermaid, preencha as tabelas de decisão e defina a versão inicial estável como \`\`.\n2. Se o código for caótico, acoplado ou complexo: VOCÊ ESTÁ PROIBIDO de criar um diagrama estável. Em vez disso, aponte os problemas arquiteturais, sugira uma proposta de REFATORAÇÃO separando as responsabilidades e monte o Mermaid de como o fluxo DEVERIA SER pós-refatoração. Salve este arquivo spec com o status de rascunho: \`\`.",
+            'md-impl': "Modo Implementação. Leia o arquivo \`.spec.md\` do caminho como sua única Fonte da Verdade e escreva o código produtivo e testes equivalentes."
+        };
+
+        Object.keys(skills).forEach(skillName => {
+            // 1. Cria a pasta da skill: .agents/skills/md-new/
+            const skillFolder = path.join(skillsDir, skillName);
+            if (!fs.existsSync(skillFolder)) {
+                fs.mkdirSync(skillFolder);
+            }
+
+            // 2. Cria o arquivo SKILL.md dentro dela: .agents/skills/md-new/SKILL.md
+            const skillFile = path.join(skillFolder, 'SKILL.md');
+
+            if (!fs.existsSync(skillFile)) {
+                // Adicionando um título automático para ficar mais organizado
+                const content = `# ${skillName.toUpperCase()}\n\n${skills[skillName]}`;
+                fs.writeFileSync(skillFile, content);
+                console.log(pc.green(`✅ Skill encapsulada: ${skillFile}`));
+            }
+        });
+
         console.log(pc.green('✅ Arquivo universal [system_prompt.md] gerado na raiz do projeto!'));
-        console.log(pc.cyan('💡 Qualquer IA (Cursor, Windsurf, Claude Code, etc.) agora lerá estas regras nativamente.'));
     });
 
 // ==========================================
