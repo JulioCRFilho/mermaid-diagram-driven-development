@@ -10,7 +10,7 @@ Esta ferramenta automatiza a criação e a conexão de arquivos de especificaç�
 
 No **Mermaid Diagram Driven Development**, invertemos o ciclo tradicional de desenvolvimento orientado por chat de IA:
 
-1. **Desenho (`/md-new`):** A IA ou você criam a regra de negócio visualmente dentro do arquivo colocalizado `.spec.md`.
+1. **Desenho (`/md-new`):** A IA e você criam a regra de negócio visualmente dentro do arquivo colocalizado `.spec.md`.
 2. **Aprovação:** Você revisa o fluxo visual direto no preview do Markdown do seu editor de código.
 3. **Edição (`/md-edit`):** Ajustes de escopo alteram o diagrama primeiro e incrementam a versão semântica do arquivo.
 4. **Implementação (`/md-impl`):** A IA lê a especificação assinada e versionada para escrever o código definitivo e os testes unitários.
