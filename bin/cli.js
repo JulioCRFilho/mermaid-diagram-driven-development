@@ -70,37 +70,15 @@ Sempre que você criar ou alterar uma funcionalidade usando um arquivo pai expl�
   - Mude o Minor (\`v1.0.0\` -> \`v1.1.0\`) para novos estados, novas transições ou novas colunas na matriz de decisão.
 - Nunca remova a tag de versão. Ela é a garantia de que a implementação de código está alinhada com o design correto.
 
-## 4. Atalhos de Chat (Comandos de Barra)
-Você deve monitorar o chat para os seguintes gatilhos. Se a mensagem começar com um deles, execute a ação estritamente como descrito:
-
-- \`/md-new [caminho_da_nova_feature] [--parent caminho/do/pai.spec.md]\`:
-  Modo Desenho. Você deve rodar o comando de terminal \`md new [caminho_da_nova_feature]\` (e incluir \`-p [caminho]\` se houver pai). Em seguida, monte o Mermaid e as tabelas dentro do arquivo gerado e pare para aguardar aprovação visual.
-
-- \`/md-edit [arquivo.spec.md] [instrução]\`:
-  Modo Edição. Abra o arquivo especificado, aplique a alteração no Mermaid ou tabelas mantendo a sintaxe 100% válida e incremente o cabeçalho \`\`.
-
-- \`/md-audit [caminho_do_arquivo_de_codigo]\`:
-  Modo Auditoria Drástica de Legado. Analise o arquivo de código existente sob a ótica de legibilidade visual (MDDD):
-  1. Se o código for modular, coeso e limpo: Execute o comando de terminal \`md new [diretorio_do_arquivo]\`. Em seguida, mapeie o fluxo atual no Mermaid, preencha as tabelas de decisão e defina a versão inicial estável como \`\`.
-  2. Se o código for caótico, acoplado ou complexo: VOCÊ ESTÁ PROIBIDO de criar um diagrama estável. Em vez disso, aponte os problemas arquiteturais, sugira uma proposta de REFATORAÇÃO separando as responsabilidades e monte o Mermaid de como o fluxo DEVERIA SER pós-refatoração. Salve este arquivo spec com o status de rascunho: \`\`.
-
-- \`/md-impl [caminho_da_feature]\`:
-  Modo Implementação. Leia o arquivo \`.spec.md\` do caminho como sua única Fonte da Verdade e escreva o código produtivo e testes equivalentes.
-
 ** DIRETRIZ DE ESCRITA DE ESPECIFICAÇÃO: **
+Sempre use Mermaid para descrever fluxos de negócio, arquitetura ou estados de máquina. Evite ao máximo o uso de texto corrido ou listas para descrever lógicas complexas.
 As especificações (.spec.md) devem ser documentos vivos focados no Contrato Atual, não em auditorias passadas.
 
-Se o arquivo for uma auditoria: Mantenha a seção de "Problemas Identificados", mas coloque-a no fim, sob uma tag <details> (para que fique colapsada no Markdown).
-
 Se o arquivo for o Contrato da Feature: Foque apenas no:
-
-Diagrama Mermaid (Fluxo real).
-
-Matriz de Decisão (Regras de negócio).
-
-Assinatura das interfaces/serviços (API contract).
-
-Versionamento: Mantenha o SPEC_VERSION sempre no topo.
+    - Diagrama Mermaid (Fluxo real).
+    - Matriz de Decisão (Regras de negócio).
+    - Assinatura das interfaces/serviços (API contract).
+    - Versionamento: Mantenha o SPEC_VERSION sempre no topo.
 
 ** REGRAS: **
 1. Ao gerar diagramas a partir do código, sempre escape ou remova parênteses de nomes de funções. Use aspas duplas (ex: A["main()"]) se o nome da função precisar ser preservado, ou simplifique o texto do nó (ex: A[main]) para manter o diagrama limpo e evitar erros de renderização.
