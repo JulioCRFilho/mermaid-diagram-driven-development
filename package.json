@@ -7,15 +7,35 @@
   "bin": {
     "md": "./bin/cli.js"
   },
+  "files": [
+    "bin/"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm prune --production"
+  },
   "keywords": [
     "mermaid",
     "md",
     "ai",
     "diagram-driven",
-    "architecture"
+    "architecture",
+    "cli",
+    "mddd"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Julio Cesar Reis Filho <reisfilho1116@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JulioCRFilho/mermaid-diagram-driven-development"
+  },
+  "bugs": {
+    "url": "https://github.com/JulioCRFilho/mermaid-diagram-driven-development/issues"
+  },
+  "homepage": "https://github.com/JulioCRFilho/mermaid-diagram-driven-development#readme",
   "dependencies": {
     "commander": "^12.0.0",
     "picocolors": "^1.0.0"
