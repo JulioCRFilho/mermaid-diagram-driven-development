@@ -36,6 +36,9 @@ No **Mermaid Diagram Driven Development**, invertemos o ciclo tradicional de des
 
 ## ✅ Pré-visualização dos Diagramas Mermaid
 
+### Exemplo diagrama de inicialização de um app Flutter
+<img width="1316" height="444" alt="image" src="https://github.com/user-attachments/assets/5cacc283-e517-4468-a8cd-d67442a75bf2" />
+
 Para visualizar os diagramas Mermaid diretamente no seu editor durante o fluxo MDDD, você pode utilizar extensões que renderizam blocos ````mermaid```` em arquivos Markdown:
 
 ### VS Code
