@@ -4,6 +4,19 @@
 ![npm](https://img.shields.io/npm/l/mddd-cli)
 ![Node](https://img.shields.io/node/v/mddd-cli)
 
+---
+
+<p align="center">
+  <a href="#português">🇧🇷 Português</a> •
+  <a href="#english">🇺🇸 English</a>
+</p>
+
+---
+
+<a id="português"></a>
+
+# 🇧🇷 Português
+
 Uma CLI agnóstica, ultra-leve e cirúrgica para implementar **MDDD (Mermaid Diagram Driven Development)** de forma modular, colocalizada e estritamente versionada.
 
 Esta ferramenta automatiza a criação e a conexão de arquivos de especificação visual (Markdown + Mermaid). O objetivo é envelopar as regras de negócio em arquivos `.spec.md` para que qualquer IA de mercado (**Cursor, Windsurf, Claude Code, GitHub Copilot**, etc.) use esses diagramas como a **Fonte Única da Verdade** antes de tocar no código produtivo.
@@ -153,3 +166,161 @@ Se encontrar qualquer problema, abra uma [Issue no GitHub](https://github.com/Ju
 ## 📄 Licença
 
 Distribuído sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais informações.
+
+---
+
+---
+
+<a id="english"></a>
+
+# 🇺🇸 English
+
+An agnostic, ultra-lightweight, and surgical CLI for implementing **MDDD (Mermaid Diagram Driven Development)** in a modular, co-located, and strictly versioned way.
+
+This tool automates the creation and connection of visual specification files (Markdown + Mermaid). The goal is to encapsulate business rules within `.spec.md` files so that any AI tool (**Cursor, Windsurf, Claude Code, GitHub Copilot**, etc.) uses these diagrams as the **Single Source of Truth** before touching production code.
+
+---
+
+## 📌 The Concept: MDDD
+
+In **Mermaid Diagram Driven Development**, we invert the traditional AI chat-driven development cycle:
+
+1. **Design (`/md-new`):** The AI and you create the business rule visually inside the co-located `.spec.md` file.
+2. **Approval:** You review the visual flow directly in your code editor's Markdown preview.
+3. **Editing (`/md-edit`):** Scope adjustments alter the diagram first and increment the file's semantic version.
+4. **Implementation (`/md-impl`):** The AI reads the signed and versioned specification to write the definitive code and unit tests.
+
+---
+
+## ✅ Mermaid Diagram Preview
+
+To preview Mermaid diagrams directly in your editor during the MDDD workflow, you can use extensions that render ````mermaid```` blocks in Markdown files:
+
+### VS Code
+- **Markdown Preview Mermaid Support** — Adds Mermaid diagram support to the native Markdown preview.
+- **Mermaid Editor** — Visual editor with side-by-side preview and export.
+- **bierner.markdown-mermaid** — Official extension that extends the Markdown preview to render Mermaid.
+
+### JetBrains (IntelliJ, WebStorm, GoLand, etc.)
+- Native Mermaid support starting from **2024.1** — Just open the `.spec.md` file and use the built-in Markdown preview.
+
+### Other Editors
+- **Neovim/Vim:** Use plugins like `iamcco/markdown-preview.nvim` (with `markdown-preview` configured for Mermaid).
+- **Sublime Text:** `Mermaid` package from Package Control that adds preview and snippets.
+- **Markdown Editors:** Tools like [Typora](https://typora.io), [Obsidian](https://obsidian.md), and [Notion](https://notion.so) already have native Mermaid support — just paste the `.spec.md` file and the diagram will render automatically.
+
+> 💡 **Tip:** The better you can visualize the diagrams, the easier it is to validate business flows before implementation.
+
+---
+
+## 📥 Installation
+
+Since the package is published on NPM, installation is global and simple:
+
+```bash
+# Global installation
+npm install -g mddd-cli
+```
+
+> **Note:** Make sure you have **Node.js v18 or higher** installed on your machine.
+
+---
+
+## 🚀 Quick Start Guide
+
+The MDDD workflow is based on CLI commands to manage the structure and slash commands (`/`) to orchestrate the AI in the chat.
+
+### 1. Initialize your project
+
+In your project root, run:
+
+```bash
+md init
+```
+
+This will create the `system_prompt.md` file in the root directory, containing the global instructions that will guide the AI in understanding the MDDD methodology.
+
+### 2. Create a new specification (Feature)
+
+When starting a new feature, create its visual contract:
+
+```bash
+# For a simple feature (micro)
+md new src/feature-name
+
+# For a complete module (macro)
+md new src/feature-name --macro
+```
+
+This will generate the `feature-name.spec.md` file with the Mermaid structure, Decision Matrix, and Versioning.
+
+### 3. Legacy Audit
+
+Need to refactor existing code? Audit it:
+
+```bash
+md audit src/path/to/legacy-file.dart
+```
+
+---
+
+## 🤖 Slash Commands (AI Triggers)
+
+After running `md init`, your AI will understand these shortcuts when you type them in the chat:
+
+| Command     | Description                                                                           |
+| :---------- | :------------------------------------------------------------------------------------ |
+| `/md-new`   | Starts design mode for a new feature (generates diagram and table).                   |
+| `/md-edit`  | Requests changes to an existing `.spec.md` file (increments semantic version).         |
+| `/md-audit` | Analyzes legacy code and proposes visual refactoring (Mermaid).                       |
+| `/md-impl`  | Generates code and tests strictly based on the `.spec.md` diagram.                    |
+
+---
+
+## 🏗️ Co-located Specification Architecture
+
+Visual specifications are not centralized in distant folders. They live in the **same directory** as the component, screen, or feature they describe.
+
+```
+src/
+└── home/
+    ├── home.spec.md          # 🌎 MACRO: Global module view (stateDiagram-v2)
+    ├── guest/
+    │   ├── guest.spec.md     # 🔬 MICRO: Screen flow (graph LR) + Decision Matrix
+    │   └── guest_page.dart   # 💻 Production code generated by AI
+    └── consumer/
+        └── consumer.spec.md  # 🔬 MICRO: Screen flow (graph LR) + Decision Matrix
+```
+
+---
+
+## 📦 CLI Commands
+
+| Command       | Description                                                                                            |
+| :------------ | :----------------------------------------------------------------------------------------------------- |
+| `md init`     | Initializes the universal system prompt and skills to guide any AI in the project.                     |
+| `md new`      | Creates a new co-located `.spec.md` specification with automatic versioning.                            |
+| `md edit`     | Signals a pending change in an existing specification file.                                            |
+| `md audit`    | Audits an existing code file to create a retroactive specification or suggest refactoring.             |
+| `md impl`     | Prepares the ecosystem to implement production code and tests based on the `.spec.md`.                 |
+
+---
+
+## 🧪 Technologies
+
+- **Node.js** >= 18
+- **Commander.js** — Robust and declarative CLI interface
+- **Picocolors** — Colorful and lightweight terminal output
+- **Mermaid.js** — Visual diagramming as the source of truth
+
+---
+
+## 💬 Need help?
+
+If you encounter any issues, open a [GitHub Issue](https://github.com/JulioCRFilho/mermaid-diagram-driven-development/issues).
+
+---
+
+## 📄 License
+
+Distributed under the MIT license. See the [LICENSE](LICENSE) file for more information.
