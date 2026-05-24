@@ -1,6 +1,6 @@
 {
   "name": "mddd-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI oficial para Mermaid Diagram Driven Development (MDDD) modular, colocalizado e versionado.",
   "main": "bin/cli.js",
   "type": "module",
