@@ -199,6 +199,9 @@ In **Mermaid Diagram Driven Development**, we invert the traditional AI chat-dri
 
 To preview Mermaid diagrams directly in your editor during the MDDD workflow, you can use extensions that render ````mermaid```` blocks in Markdown files:
 
+### Exemplo diagrama de inicialização de um app Flutter
+<img width="1316" height="444" alt="image" src="https://github.com/user-attachments/assets/5cacc283-e517-4468-a8cd-d67442a75bf2" />
+
 ### VS Code
 - **Markdown Preview Mermaid Support** — Adds Mermaid diagram support to the native Markdown preview.
 - **Mermaid Editor** — Visual editor with side-by-side preview and export.
