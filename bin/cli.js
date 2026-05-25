@@ -4,6 +4,9 @@ import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import pc from 'picocolors';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
 
 const program = new Command();
 
@@ -31,7 +34,7 @@ function findClosestMacro(currentDir) {
 program
     .name('md')
     .description('Manager for co-located specifications for Mermaid Diagram Driven Development (MDDD)')
-    .version('3.0.0');
+    .version(pkg.version);
 
 // ==========================================
 // COMMAND: md init
