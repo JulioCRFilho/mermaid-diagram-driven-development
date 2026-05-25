@@ -53,8 +53,8 @@ You must strictly follow the modular feature specification architecture before c
 
 ## 1. Tree Structure and Co-location
 Visual specifications live universally in Markdown format (.md) exactly at the same level as the code they describe:
-- Macro modules/domains have a \`[name].spec.md\` file containing the global diagram (stateDiagram-v2 syntax).
-- Micro screens or sub-rule flows have a \`[name].spec.md\` file containing the interface flow (graph LR syntax) + Decision Tables.
+- Macro modules/domains have a \`[name].spec.md\` file containing the global diagram.
+- Micro screens or sub-rule flows have a \`[name].spec.md\` file containing the interface flow + Decision Tables.
 
 ## 2. Connection Rule Between Existing Flows
 Whenever you create or change a functionality using an explicit parent file:
@@ -68,6 +68,7 @@ Whenever you create or change a functionality using an explicit parent file:
 - Whenever you change a Mermaid diagram or a decision table using the \`/md-edit\` command, you MUST increment the file's semantic version in the header before saving:
   - Change the Patch (\`v1.0.0\` -> \`v1.0.1\`) for syntax fixes or minor adjustments to node text.
   - Change the Minor (\`v1.0.0\` -> \`v1.1.0\`) for new states, new transitions, or new columns in the decision matrix.
+  - Change the Major (\`v1.0.0\` -> \`v2.0.0\`) for structural changes that affect the overall flow or significant refactoring of the business rules.
 - Never remove the version tag. It is the guarantee that the code implementation is aligned with the correct design.
 
 ** SPECIFICATION WRITING GUIDELINE: **
@@ -82,22 +83,19 @@ If the file is the Feature Contract: Focus only on:
 
 ** RULES: **
 1. When generating diagrams from code, always remove function name parentheses. Keep the diagram clean and avoid rendering errors.
-2. ASCII Art or drawings are PROHIBITED. Use only Mermaid diagrams for visual representation.
-2. Every diagram must be encapsulated in markdown code blocks with the language 'mermaid'.
-3. For architecture flows or business logic, use exclusively 'graph TD' or 'graph LR'.
-4. For (finite) state machines, use 'stateDiagram-v2'.
-5. Name the nodes, use specific shapes ([...], ([...]), { ... }) to indicate intent (Action, Start/End, Decision).
-6. ALWAYS WORK ON THE .SPEC.MD FILES. If they don't exist, create them. They are the single source of truth. Never make changes directly in the code without reflecting them in the diagrams.
+2. Use only Mermaid diagrams for visual representation using the 'mermaid' language.
+4. Use the diagram type that best fits the specification.
+5. ALWAYS WORK ON THE {fileName}.spec.md files (RESPECT the path for colocalization). If they don't exist, create them. They are the single source of truth. Never make changes directly in the code without reflecting them in the diagrams.
 `;
 
         fs.writeFileSync('system_prompt.md', promptContent);
 
         // 3. Skill Definitions
         const skills = {
-            'md-new': "Drawing Mode. You must run the terminal command \`md new [path_to_new_feature]\` (and include \`-p [path]\` if there is a parent). Then, assemble the Mermaid and tables within the generated file and pause to await visual approval.",
-            'md-edit': "Editing Mode. Open the specified file, apply the change to the Mermaid or tables while keeping the syntax 100% valid, and increment the header \`\`.",
-            'md-audit': "Drastic Legacy Audit Mode. Analyze the existing code file from the perspective of visual readability (MDDD):\n1. If the code is modular, cohesive, and clean: Run the terminal command \`md new [file_directory]\`. Then, map the current flow in Mermaid, fill in the decision tables, and set the initial stable version as \`\`.\n2. If the code is chaotic, coupled, or complex: YOU ARE PROHIBITED from creating a stable diagram. Instead, point out the architectural problems, suggest a REFACTORING proposal separating responsibilities, and assemble the Mermaid of how the flow SHOULD BE post-refactoring. Save this spec file with a draft status: \`\`.",
-            'md-impl': "Implementation Mode. Read the \`.spec.md\` file from the path as your only Source of Truth and write the productive code and equivalent tests."
+            'md-new': "Drawing Mode. You must run the terminal command \`md new [path_to_audited_file]\` (and include \`-p [path]\` if there is a parent). Then, assemble the Mermaid and tables within the generated file and pause to await visual approval.",
+            'md-edit': "Editing Mode. Open the .spec file, apply the required changes to it and increment the header.",
+            'md-audit': "Drastic Legacy Audit Mode. Analyze the existing code file from the perspective of visual readability (MDDD):\n1. Run the terminal command \`md new [file_directory]\`. If the code is modular, cohesive, and clean: map the current flow in Mermaid, fill in the decision tables, and set the initial stable version as v1.0.0. If the code is chaotic, coupled, or complex: point out the architectural problems, suggest a REFACTORING proposal separating responsibilities, and assemble the Mermaid of how the flow SHOULD BE post-refactoring. Save this spec file with a draft status.",
+            'md-impl': "Implementation Mode. Read the \`.spec.md\` file as your only Source of Truth and write the productive code and equivalent tests."
         };
 
         Object.keys(skills).forEach(skillName => {
@@ -110,15 +108,19 @@ If the file is the Feature Contract: Focus only on:
             // 2. Create SKILL.md file inside: .agents/skills/md-new/SKILL.md
             const skillFile = path.join(skillFolder, 'SKILL.md');
 
-            if (!fs.existsSync(skillFile)) {
-                // Adding an automatic title for better organization
-                const content = `# ${skillName.toUpperCase()}\n\n${skills[skillName]}`;
-                fs.writeFileSync(skillFile, content);
-                console.log(pc.green(`✅ Encapsulated skill: ${skillFile}`));
+            if (fs.existsSync(skillFile)) {
+                fs.unlinkSync(skillFile);
             }
+
+            // Adding an automatic title for better organization
+            const content = `# ${skillName.toUpperCase()}\n\n${skills[skillName]}`;
+            fs.writeFileSync(skillFile, content);
+            console.log(pc.green(`✅ Encapsulated skill: ${skillFile}`));
+
         });
 
-        console.log(pc.green('✅ Universal [system_prompt.md] file generated at the project root!'));
+        console.log(pc.green('✅ Universal [system_prompt.md] file generated at the project root! You should rename it according to your AI agent naming convention.'));
+        console.log(pc.green('Run the md init command everytime the npm package is updated.'));
     });
 
 // ==========================================
