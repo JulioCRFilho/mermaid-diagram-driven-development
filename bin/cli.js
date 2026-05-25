@@ -130,64 +130,56 @@ program
     .option('-m, --macro', 'Define se o novo arquivo será um macro de módulo contendo stateDiagram-v2')
     .option('-p, --parent <parentFile>', 'Caminho de um arquivo spec (.spec.md) existente para conectar este novo fluxo')
     .action((targetPath, options) => {
+        // Garante que o diretório base exista
         if (!fs.existsSync(targetPath)) {
             fs.mkdirSync(targetPath, { recursive: true });
         }
 
+        // Correção: Extrai o nome da feature para o arquivo
+        // Se targetPath terminar em /routing, folderName será 'routing'.
+        // O arquivo será 'routing.spec.md'.
         const folderName = path.basename(targetPath);
-        const isMacro = options.macro;
-
-        // Extensão universal .spec.md para absolutamente tudo
         const finalFile = path.join(targetPath, `${folderName}.spec.md`);
+
+        // Segurança: Verifica se o caminho final existe e é um diretório
+        if (fs.existsSync(finalFile) && fs.lstatSync(finalFile).isDirectory()) {
+            console.log(pc.red(`❌ Erro: Já existe um diretório com o nome ${finalFile}. Não é possível criar o arquivo spec.`));
+            process.exit(1);
+        }
 
         if (fs.existsSync(finalFile)) {
             console.log(pc.yellow(`⚠️  A especificação já existe em: ${finalFile}`));
             return;
         }
 
-        // Geração dos templates otimizados para Cline/MDDD
-        let template = '';
+        const isMacro = options.macro;
         const version = 'v1.0.0';
-
-        if (isMacro) {
-            template = `\n# Macro Módulo: ${folderName} | ${version}\n\n` +
-                `\`\`\`mermaid\n%% @spec-version ${version}\nstateDiagram-v2\n    [*] --> Inicial_${folderName}\n\`\`\`\n\n` +
-                `## 3. Histórico de Auditoria\n<details>\n<summary>Clique para expandir</summary>\n\n\n\n</details>\n`;
-        } else {
-            template = `\n# Especificação: ${folderName} | ${version}\n\n` +
-                `## 1. Contrato de Fluxo (Mermaid)\n\`\`\`mermaid\n%% @spec-version ${version}\ngraph LR\n    A([Início]) --> B[Processo]\n\`\`\`\n\n` +
-                `## 2. Matriz de Decisão\n| Condição | Ação | Próximo Estado |\n| :--- | :--- | :--- |\n| | | |\n\n` +
-                `## 3. Histórico de Auditoria\n<details>\n<summary>Clique para expandir</summary>\n\n\n\n</details>\n`;
-        }
+        let template = isMacro
+            ? `\n# Macro Módulo: ${folderName} | ${version}\n\n` +
+            `\`\`\`mermaid\n%% @spec-version ${version}\nstateDiagram-v2\n    [*] --> Inicial_${folderName}\n\`\`\`\n\n` +
+            `## 3. Histórico de Auditoria\n<details>\n<summary>Clique para expandir</summary>\n\n\n\n</details>\n`
+            : `\n# Especificação: ${folderName} | ${version}\n\n` +
+            `## 1. Contrato de Fluxo (Mermaid)\n\`\`\`mermaid\n%% @spec-version ${version}\ngraph LR\n    A([Início]) --> B[Processo]\n\`\`\`\n\n` +
+            `## 2. Matriz de Decisão\n| Condição | Ação | Próximo Estado |\n| :--- | :--- | :--- |\n| | | |\n\n` +
+            `## 3. Histórico de Auditoria\n<details>\n<summary>Clique para expandir</summary>\n\n\n\n</details>\n`;
 
         fs.writeFileSync(finalFile, template);
-        console.log(pc.green(`✅ Novo arquivo Markdown criado com controle de versão (v1.0.0): ${finalFile}`));
+        console.log(pc.green(`✅ Novo arquivo Markdown criado: ${finalFile}`));
 
-        // Lógica de Vinculação entre os arquivos Markdown
-        let macroPath = null;
-        if (options.parent) {
-            if (fs.existsSync(options.parent)) {
-                macroPath = options.parent;
-                console.log(pc.cyan('🎯 Usando o arquivo pai explícito enviado por parâmetro.'));
-            } else {
-                console.log(pc.red(`❌ O arquivo pai indicado não foi encontrado: ${options.parent}`));
-                process.exit(1);
-            }
-        } else if (!isMacro) {
-            macroPath = findClosestMacro(targetPath);
-        }
+        // Lógica de Vinculação
+        let macroPath = options.parent || (!isMacro ? findClosestMacro(targetPath) : null);
 
         if (macroPath) {
+            if (!fs.existsSync(macroPath)) {
+                console.log(pc.red(`❌ Arquivo pai não encontrado: ${macroPath}`));
+                process.exit(1);
+            }
             const relativePath = path.relative(path.dirname(macroPath), finalFile);
-            const cleanLinkPath = relativePath.replace(/\\/g, '/'); // Normaliza barras para padrão POSIX/Web
-
-            // Como o pai é um arquivo Markdown, injetamos uma seção de navegação limpa no fim do documento
+            const cleanLinkPath = relativePath.replace(/\\/g, '/');
             const injection = `\n\n%% Conexão automática para sub-fluxo\n- [Ir para as regras de ${folderName}](file://./${cleanLinkPath})\n`;
 
             fs.appendFileSync(macroPath, injection);
             console.log(pc.blue(`🔗 Vinculado com sucesso no arquivo pai: ${macroPath}`));
-        } else if (!isMacro) {
-            console.log(pc.yellow('⚠️  Aviso: Nenhum arquivo macro (*.spec.md) acima na árvore foi encontrado para auto-vinculação.'));
         }
     });
 
