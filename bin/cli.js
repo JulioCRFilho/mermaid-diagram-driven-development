@@ -89,6 +89,7 @@ If the file is the Feature Contract: Focus only on:
 2. Use only Mermaid diagrams for visual representation using the 'mermaid' language.
 4. Use the diagram type that best fits the specification.
 5. ALWAYS WORK ON THE {fileName}.spec.md files (RESPECT the path for colocalization). If they don't exist, create them. They are the single source of truth. Never make changes directly in the code without reflecting them in the diagrams.
+6. For audits, if the code is modular, cohesive, and clean: map the current flow in Mermaid, fill in the decision tables, and set the initial stable version as v1.0.0. If the code is chaotic, coupled, or complex: point out the architectural problems, suggest a REFACTORING proposal separating responsibilities, and assemble the Mermaid of how the flow SHOULD BE post-refactoring. Save this spec file with a draft status.
 `;
 
         fs.writeFileSync('system_prompt.md', promptContent);
