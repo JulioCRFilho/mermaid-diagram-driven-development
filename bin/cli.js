@@ -81,13 +81,14 @@ If the file is the Feature Contract: Focus only on:
     - Versioning: Keep SPEC_VERSION always at the top.
 
 ** RULES: **
-1. When generating diagrams from code, always escape or remove function name parentheses. Use double quotes (e.g., A["main()"]) if the function name needs to be preserved, or simplify the node text (e.g., A[main]) to keep the diagram clean and avoid rendering errors.
-2. ASCII Art or manual drawings are PROHIBITED.
+1. When generating diagrams from code, always remove function name parentheses. Keep the diagram clean and avoid rendering errors.
+2. ASCII Art or drawings are PROHIBITED. Use only Mermaid diagrams for visual representation.
 2. Every diagram must be encapsulated in markdown code blocks with the language 'mermaid'.
 3. For architecture flows or business logic, use exclusively 'graph TD' or 'graph LR'.
 4. For (finite) state machines, use 'stateDiagram-v2'.
 5. Name the nodes, use specific shapes ([...], ([...]), { ... }) to indicate intent (Action, Start/End, Decision).
-  `;
+6. ALWAYS WORK ON THE .SPEC.MD FILES. If they don't exist, create them. They are the single source of truth. Never make changes directly in the code without reflecting them in the diagrams.
+`;
 
         fs.writeFileSync('system_prompt.md', promptContent);
 
