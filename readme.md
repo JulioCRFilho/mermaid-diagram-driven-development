@@ -39,6 +39,9 @@ No **Mermaid Diagram Driven Development**, invertemos o ciclo tradicional de des
 ### Exemplo diagrama de inicialização de um app Flutter
 <img width="1316" height="444" alt="image" src="https://github.com/user-attachments/assets/5cacc283-e517-4468-a8cd-d67442a75bf2" />
 
+### Exemplo de matriz de decisão
+<img width="1237" height="702" alt="image" src="https://github.com/user-attachments/assets/e8ffc227-9b2a-44d5-ad66-116dffedc8ba" />
+
 Para visualizar os diagramas Mermaid diretamente no seu editor durante o fluxo MDDD, você pode utilizar extensões que renderizam blocos ````mermaid```` em arquivos Markdown:
 
 ### VS Code
@@ -199,8 +202,11 @@ In **Mermaid Diagram Driven Development**, we invert the traditional AI chat-dri
 
 To preview Mermaid diagrams directly in your editor during the MDDD workflow, you can use extensions that render ````mermaid```` blocks in Markdown files:
 
-### Exemplo diagrama de inicialização de um app Flutter
+### Flutter App Initialization Diagram Example
 <img width="1316" height="444" alt="image" src="https://github.com/user-attachments/assets/5cacc283-e517-4468-a8cd-d67442a75bf2" />
+
+### Decision Matrix Example
+<img width="1237" height="702" alt="image" src="https://github.com/user-attachments/assets/e8ffc227-9b2a-44d5-ad66-116dffedc8ba" />
 
 ### VS Code
 - **Markdown Preview Mermaid Support** — Adds Mermaid diagram support to the native Markdown preview.
