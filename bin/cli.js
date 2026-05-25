@@ -7,20 +7,20 @@ import pc from 'picocolors';
 
 const program = new Command();
 
-// Busca o macro (*.spec.md) mais próximo subindo recursivamente a árvore de diretórios
+// Searches for the closest macro (*.spec.md) by recursively traversing the directory tree
 function findClosestMacro(currentDir) {
     let dir = currentDir;
     while (dir !== path.parse(dir).root) {
         try {
             const files = fs.readdirSync(dir);
-            // Procura por qualquer arquivo .spec.md que esteja acima na árvore
+            // Looks for any .spec.md file that is higher in the tree
             const macroFile = files.find(f => f.endsWith('.spec.md') && f !== `${path.basename(currentDir)}.spec.md`);
 
             if (macroFile) {
                 return path.join(dir, macroFile);
             }
         } catch (e) {
-            // Silencia erros de permissão de leitura em pastas do sistema
+            // Silences read permission errors in system folders
             break;
         }
         dir = path.dirname(dir);
@@ -30,222 +30,222 @@ function findClosestMacro(currentDir) {
 
 program
     .name('md')
-    .description('Gerenciador de especificações colocalizadas para Mermaid Diagram Driven Development (MDDD)')
+    .description('Manager for co-located specifications for Mermaid Diagram Driven Development (MDDD)')
     .version('3.0.0');
 
 // ==========================================
-// COMANDO: md init
+// COMMAND: md init
 // ==========================================
 program
     .command('init')
-    .description('Inicializa o prompt de sistema universal para guiar qualquer IA no projeto sob a metodologia MDDD')
+    .description('Initializes the universal system prompt to guide any AI in the project under the MDDD methodology')
     .action(() => {
         const agentsDir = '.agents';
         const skillsDir = path.join(agentsDir, 'skills');
 
-        // 1. Cria a estrutura de pastas
+        // 1. Creates folder structure
         if (!fs.existsSync(agentsDir)) fs.mkdirSync(agentsDir);
         if (!fs.existsSync(skillsDir)) fs.mkdirSync(skillsDir);
 
-        const promptContent = `# Protocolo Mermaid Diagram Driven Development (MDDD)
+        const promptContent = `# Mermaid Diagram Driven Development (MDDD) Protocol
 
-Você deve seguir estritamente a arquitetura de especificações modulares por feature antes de alterar, escrever ou auditar código produtivo.
+You must strictly follow the modular feature specification architecture before changing, writing, or auditing productive code.
 
-## 1. Estrutura de Árvore e Co-location
-As especificações visuais vivem universalmente em formato Markdown (.md) exatamente no mesmo nível do código que descrevem:
-- Módulos/Domínios macros possuem um arquivo \`[nome].spec.md\` contendo o diagrama global (sintaxe stateDiagram-v2).
-- Telas ou fluxos de sub-regras micros possuem um arquivo \`[nome].spec.md\` contendo o fluxo da interface (sintaxe graph LR) + Tabelas de Decisão.
+## 1. Tree Structure and Co-location
+Visual specifications live universally in Markdown format (.md) exactly at the same level as the code they describe:
+- Macro modules/domains have a \`[name].spec.md\` file containing the global diagram (stateDiagram-v2 syntax).
+- Micro screens or sub-rule flows have a \`[name].spec.md\` file containing the interface flow (graph LR syntax) + Decision Tables.
 
-## 2. Regra de Conexão Entre Fluxos Existentes
-Sempre que você criar ou alterar uma funcionalidade usando um arquivo pai explícito:
-1. Abra o arquivo pai indicado ANTES de desenhar o fluxo novo.
-2. Localize o nó exato de onde a bifurcação de negócio deve nascer.
-3. Modifique o código Mermaid do arquivo PAI para fazer a seta apontar para o novo estado gerado.
-4. No arquivo FILHO, inicie o grafo usando um nó de entrada que herde o contexto do pai.
+## 2. Connection Rule Between Existing Flows
+Whenever you create or change a functionality using an explicit parent file:
+1. Open the indicated parent file BEFORE drawing the new flow.
+2. Locate the exact node from which the business bifurcation should be born.
+3. Modify the Mermaid code of the PARENT file to make the arrow point to the newly generated state.
+4. In the CHILD file, start the graph using an entry node that inherits the parent's context.
 
-## 3. Regra Estrita de Versionamento de Diagramas
-- Todo arquivo possui um cabeçalho de metadados \`\`.
-- Sempre que você alterar um diagrama Mermaid ou uma tabela de decisão usando o comando \`/md-edit\`, você DEVE incrementar a versão semântica do arquivo no cabeçalho antes de salvar:
-  - Mude o Patch (\`v1.0.0\` -> \`v1.0.1\`) para correções de sintaxe ou pequenos ajustes de texto nos nós.
-  - Mude o Minor (\`v1.0.0\` -> \`v1.1.0\`) para novos estados, novas transições ou novas colunas na matriz de decisão.
-- Nunca remova a tag de versão. Ela é a garantia de que a implementação de código está alinhada com o design correto.
+## 3. Strict Diagram Versioning Rule
+- Every file has a metadata header \`\`.
+- Whenever you change a Mermaid diagram or a decision table using the \`/md-edit\` command, you MUST increment the file's semantic version in the header before saving:
+  - Change the Patch (\`v1.0.0\` -> \`v1.0.1\`) for syntax fixes or minor adjustments to node text.
+  - Change the Minor (\`v1.0.0\` -> \`v1.1.0\`) for new states, new transitions, or new columns in the decision matrix.
+- Never remove the version tag. It is the guarantee that the code implementation is aligned with the correct design.
 
-** DIRETRIZ DE ESCRITA DE ESPECIFICAÇÃO: **
-Sempre use Mermaid para descrever fluxos de negócio, arquitetura ou estados de máquina. Evite ao máximo o uso de texto corrido ou listas para descrever lógicas complexas.
-As especificações (.spec.md) devem ser documentos vivos focados no Contrato Atual, não em auditorias passadas.
+** SPECIFICATION WRITING GUIDELINE: **
+Always use Mermaid to describe business flows, architecture, or state machines. Avoid as much as possible using running text or lists to describe complex logic.
+Specifications (.spec.md) must be living documents focused on the Current Contract, not on past audits.
 
-Se o arquivo for o Contrato da Feature: Foque apenas no:
-    - Diagrama Mermaid (Fluxo real).
-    - Matriz de Decisão (Regras de negócio).
-    - Assinatura das interfaces/serviços (API contract).
-    - Versionamento: Mantenha o SPEC_VERSION sempre no topo.
+If the file is the Feature Contract: Focus only on:
+    - Mermaid Diagram (Real flow).
+    - Decision Matrix (Business rules).
+    - Signature of interfaces/services (API contract).
+    - Versioning: Keep SPEC_VERSION always at the top.
 
-** REGRAS: **
-1. Ao gerar diagramas a partir do código, sempre escape ou remova parênteses de nomes de funções. Use aspas duplas (ex: A["main()"]) se o nome da função precisar ser preservado, ou simplifique o texto do nó (ex: A[main]) para manter o diagrama limpo e evitar erros de renderização.
-2. PROIBIDO Arte ASCII ou desenhos manuais.
-2. Todo diagrama deve ser encapsulado em blocos de código markdown com a linguagem 'mermaid'.
-3. Para fluxos de arquitetura ou lógica de negócio, use exclusivamente 'graph TD' ou 'graph LR'.
-4. Para estados de máquina (finitos), use 'stateDiagram-v2'.
-5. Nomeie os nós, use formas específicas ([...], ([...]), { ... }) para indicar intenção (Ação, Início/Fim, Decisão).
+** RULES: **
+1. When generating diagrams from code, always escape or remove function name parentheses. Use double quotes (e.g., A["main()"]) if the function name needs to be preserved, or simplify the node text (e.g., A[main]) to keep the diagram clean and avoid rendering errors.
+2. ASCII Art or manual drawings are PROHIBITED.
+2. Every diagram must be encapsulated in markdown code blocks with the language 'mermaid'.
+3. For architecture flows or business logic, use exclusively 'graph TD' or 'graph LR'.
+4. For (finite) state machines, use 'stateDiagram-v2'.
+5. Name the nodes, use specific shapes ([...], ([...]), { ... }) to indicate intent (Action, Start/End, Decision).
   `;
 
         fs.writeFileSync('system_prompt.md', promptContent);
 
-        // 3. Definição das Skills
+        // 3. Skill Definitions
         const skills = {
-            'md-new': "Modo Desenho. Você deve rodar o comando de terminal \`md new [caminho_da_nova_feature]\` (e incluir \`-p [caminho]\` se houver pai). Em seguida, monte o Mermaid e as tabelas dentro do arquivo gerado e pare para aguardar aprovação visual.",
-            'md-edit': "Modo Edição. Abra o arquivo especificado, aplique a alteração no Mermaid ou tabelas mantendo a sintaxe 100% válida e incremente o cabeçalho \`\`.",
-            'md-audit': "Modo Auditoria Drástica de Legado. Analise o arquivo de código existente sob a ótica de legibilidade visual (MDDD):\n1. Se o código for modular, coeso e limpo: Execute o comando de terminal \`md new [diretorio_do_arquivo]\`. Em seguida, mapeie o fluxo atual no Mermaid, preencha as tabelas de decisão e defina a versão inicial estável como \`\`.\n2. Se o código for caótico, acoplado ou complexo: VOCÊ ESTÁ PROIBIDO de criar um diagrama estável. Em vez disso, aponte os problemas arquiteturais, sugira uma proposta de REFATORAÇÃO separando as responsabilidades e monte o Mermaid de como o fluxo DEVERIA SER pós-refatoração. Salve este arquivo spec com o status de rascunho: \`\`.",
-            'md-impl': "Modo Implementação. Leia o arquivo \`.spec.md\` do caminho como sua única Fonte da Verdade e escreva o código produtivo e testes equivalentes."
+            'md-new': "Drawing Mode. You must run the terminal command \`md new [path_to_new_feature]\` (and include \`-p [path]\` if there is a parent). Then, assemble the Mermaid and tables within the generated file and pause to await visual approval.",
+            'md-edit': "Editing Mode. Open the specified file, apply the change to the Mermaid or tables while keeping the syntax 100% valid, and increment the header \`\`.",
+            'md-audit': "Drastic Legacy Audit Mode. Analyze the existing code file from the perspective of visual readability (MDDD):\n1. If the code is modular, cohesive, and clean: Run the terminal command \`md new [file_directory]\`. Then, map the current flow in Mermaid, fill in the decision tables, and set the initial stable version as \`\`.\n2. If the code is chaotic, coupled, or complex: YOU ARE PROHIBITED from creating a stable diagram. Instead, point out the architectural problems, suggest a REFACTORING proposal separating responsibilities, and assemble the Mermaid of how the flow SHOULD BE post-refactoring. Save this spec file with a draft status: \`\`.",
+            'md-impl': "Implementation Mode. Read the \`.spec.md\` file from the path as your only Source of Truth and write the productive code and equivalent tests."
         };
 
         Object.keys(skills).forEach(skillName => {
-            // 1. Cria a pasta da skill: .agents/skills/md-new/
+            // 1. Create skill folder: .agents/skills/md-new/
             const skillFolder = path.join(skillsDir, skillName);
             if (!fs.existsSync(skillFolder)) {
                 fs.mkdirSync(skillFolder);
             }
 
-            // 2. Cria o arquivo SKILL.md dentro dela: .agents/skills/md-new/SKILL.md
+            // 2. Create SKILL.md file inside: .agents/skills/md-new/SKILL.md
             const skillFile = path.join(skillFolder, 'SKILL.md');
 
             if (!fs.existsSync(skillFile)) {
-                // Adicionando um título automático para ficar mais organizado
+                // Adding an automatic title for better organization
                 const content = `# ${skillName.toUpperCase()}\n\n${skills[skillName]}`;
                 fs.writeFileSync(skillFile, content);
-                console.log(pc.green(`✅ Skill encapsulada: ${skillFile}`));
+                console.log(pc.green(`✅ Encapsulated skill: ${skillFile}`));
             }
         });
 
-        console.log(pc.green('✅ Arquivo universal [system_prompt.md] gerado na raiz do projeto!'));
+        console.log(pc.green('✅ Universal [system_prompt.md] file generated at the project root!'));
     });
 
 // ==========================================
-// COMANDO: md new <targetPath>
+// COMMAND: md new <targetPath>
 // ==========================================
 program
     .command('new')
-    .description('Cria uma nova especificação colocalizada em Markdown, injeta versionamento e vincula ao fluxo pai')
-    .argument('<targetPath>', 'Caminho do diretório da feature (ex: src/home/guest)')
-    .option('-m, --macro', 'Define se o novo arquivo será um macro de módulo contendo stateDiagram-v2')
-    .option('-p, --parent <parentFile>', 'Caminho de um arquivo spec (.spec.md) existente para conectar este novo fluxo')
+    .description('Creates a new co-located specification in Markdown, injects versioning, and links to the parent flow')
+    .argument('<targetPath>', 'Path to the feature directory (e.g., src/home/guest)')
+    .option('-m, --macro', 'Defines if the new file will be a module macro containing stateDiagram-v2')
+    .option('-p, --parent <parentFile>', 'Path to an existing spec (.spec.md) file to connect this new flow')
     .action((targetPath, options) => {
-        // Garante que o diretório base exista
+        // Ensures the base directory exists
         if (!fs.existsSync(targetPath)) {
             fs.mkdirSync(targetPath, { recursive: true });
         }
 
-        // Correção: Extrai o nome da feature para o arquivo
-        // Se targetPath terminar em /routing, folderName será 'routing'.
-        // O arquivo será 'routing.spec.md'.
+        // Correction: Extracts feature name for the file
+        // If targetPath ends in /routing, folderName will be 'routing'.
+        // The file will be 'routing.spec.md'.
         const folderName = path.basename(targetPath);
         const finalFile = path.join(targetPath, `${folderName}.spec.md`);
 
-        // Segurança: Verifica se o caminho final existe e é um diretório
+        // Security: Verifies if the final path exists and is a directory
         if (fs.existsSync(finalFile) && fs.lstatSync(finalFile).isDirectory()) {
-            console.log(pc.red(`❌ Erro: Já existe um diretório com o nome ${finalFile}. Não é possível criar o arquivo spec.`));
+            console.log(pc.red(`❌ Error: A directory with the name ${finalFile} already exists. Cannot create spec file.`));
             process.exit(1);
         }
 
         if (fs.existsSync(finalFile)) {
-            console.log(pc.yellow(`⚠️  A especificação já existe em: ${finalFile}`));
+            console.log(pc.yellow(`⚠️  The specification already exists at: ${finalFile}`));
             return;
         }
 
         const isMacro = options.macro;
         const version = 'v1.0.0';
         let template = isMacro
-            ? `\n# Macro Módulo: ${folderName} | ${version}\n\n` +
-            `\`\`\`mermaid\n%% @spec-version ${version}\nstateDiagram-v2\n    [*] --> Inicial_${folderName}\n\`\`\`\n\n` +
-            `## 3. Histórico de Auditoria\n<details>\n<summary>Clique para expandir</summary>\n\n\n\n</details>\n`
-            : `\n# Especificação: ${folderName} | ${version}\n\n` +
-            `## 1. Contrato de Fluxo (Mermaid)\n\`\`\`mermaid\n%% @spec-version ${version}\ngraph LR\n    A([Início]) --> B[Processo]\n\`\`\`\n\n` +
-            `## 2. Matriz de Decisão\n| Condição | Ação | Próximo Estado |\n| :--- | :--- | :--- |\n| | | |\n\n` +
-            `## 3. Histórico de Auditoria\n<details>\n<summary>Clique para expandir</summary>\n\n\n\n</details>\n`;
+            ? `\n# Macro Module: ${folderName} | ${version}\n\n` +
+            `\`\`\`mermaid\n%% @spec-version ${version}\nstateDiagram-v2\n    [*] --> Initial_${folderName}\n\`\`\`\n\n` +
+            `## 3. Audit History\n<details>\n<summary>Click to expand</summary>\n\n\n\n</details>\n`
+            : `\n# Specification: ${folderName} | ${version}\n\n` +
+            `## 1. Flow Contract (Mermaid)\n\`\`\`mermaid\n%% @spec-version ${version}\ngraph LR\n    A([Start]) --> B[Process]\n\`\`\`\n\n` +
+            `## 2. Decision Matrix\n| Condition | Action | Next State |\n| :--- | :--- | :--- |\n| | | |\n\n` +
+            `## 3. Audit History\n<details>\n<summary>Click to expand</summary>\n\n\n\n</details>\n`;
 
         fs.writeFileSync(finalFile, template);
-        console.log(pc.green(`✅ Novo arquivo Markdown criado: ${finalFile}`));
+        console.log(pc.green(`✅ New Markdown file created: ${finalFile}`));
 
-        // Lógica de Vinculação
+        // Linking Logic
         let macroPath = options.parent || (!isMacro ? findClosestMacro(targetPath) : null);
 
         if (macroPath) {
             if (!fs.existsSync(macroPath)) {
-                console.log(pc.red(`❌ Arquivo pai não encontrado: ${macroPath}`));
+                console.log(pc.red(`❌ Parent file not found: ${macroPath}`));
                 process.exit(1);
             }
             const relativePath = path.relative(path.dirname(macroPath), finalFile);
             const cleanLinkPath = relativePath.replace(/\\/g, '/');
-            const injection = `\n\n%% Conexão automática para sub-fluxo\n- [Ir para as regras de ${folderName}](file://./${cleanLinkPath})\n`;
+            const injection = `\n\n%% Automatic connection for sub-flow\n- [Go to ${folderName} rules](file://./${cleanLinkPath})\n`;
 
             fs.appendFileSync(macroPath, injection);
-            console.log(pc.blue(`🔗 Vinculado com sucesso no arquivo pai: ${macroPath}`));
+            console.log(pc.blue(`🔗 Successfully linked in parent file: ${macroPath}`));
         }
     });
 
 // ==========================================
-// COMANDO: md edit <specFilePath> <instruction>
+// COMMAND: md edit <specFilePath> <instruction>
 // ==========================================
 program
     .command('edit')
-    .description('Sinaliza uma alteração pendente em um arquivo de especificação Mermaid existente')
-    .argument('<specFilePath>', 'Caminho do arquivo spec (.spec.md)')
-    .argument('<instruction...>', 'A instrução de alteração ou ajuste de fluxo')
+    .description('Signals a pending change in an existing Mermaid specification file')
+    .argument('<specFilePath>', 'Path to the spec file (.spec.md)')
+    .argument('<instruction...>', 'The change instruction or flow adjustment')
     .action((specFilePath, instruction) => {
         if (!fs.existsSync(specFilePath)) {
-            console.log(pc.red(`❌ Arquivo de especificação não encontrado: ${specFilePath}`));
+            console.log(pc.red(`❌ Specification file not found: ${specFilePath}`));
             process.exit(1);
         }
 
         const fullInstruction = instruction.join(' ');
-        console.log(pc.cyan(`📝 Solicitando alteração no fluxo: "${specFilePath}"`));
-        console.log(pc.yellow(`⚙️  Instrução avaliada: ${fullInstruction}`));
-        console.log(pc.green(`\n🚀 Pronto! Use o atalho /md-edit no chat para a IA aplicar as alterações e incrementar a versão.`));
+        console.log(pc.cyan(`📝 Requesting change to flow: "${specFilePath}"`));
+        console.log(pc.yellow(`⚙️  Evaluated instruction: ${fullInstruction}`));
+        console.log(pc.green(`\n🚀 Ready! Use the /md-edit shortcut in the chat for the AI to apply the changes and increment the version.`));
     });
 
 // ==========================================
-// COMANDO: md audit <codeFilePath>
+// COMMAND: md audit <codeFilePath>
 // ==========================================
 program
     .command('audit')
-    .description('Audita um arquivo de código existente para criar uma especificação retroativa ou sugerir refatoração')
-    .argument('<codeFilePath>', 'Caminho do arquivo de código existente (ex: src/services/user.go)')
+    .description('Audits an existing code file to create a retroactive specification or suggest refactoring')
+    .argument('<codeFilePath>', 'Path to existing code file (e.g., src/services/user.go)')
     .action((codeFilePath) => {
         if (!fs.existsSync(codeFilePath)) {
-            console.log(pc.red(`❌ Arquivo de código não encontrado: ${codeFilePath}`));
+            console.log(pc.red(`❌ Code file not found: ${codeFilePath}`));
             process.exit(1);
         }
 
         const targetDir = path.dirname(codeFilePath);
         const fileName = path.basename(codeFilePath);
 
-        console.log(pc.cyan(`🔍 Auditando estrutura de código para acoplamento em: ${fileName}...`));
-        console.log(pc.yellow(`⚡ Solicitando que a IA valide a complexidade antes de gerar a especificação MDDD.`));
+        console.log(pc.cyan(`🔍 Auditing code structure for coupling in: ${fileName}...`));
+        console.log(pc.yellow(`⚡ Requesting AI to validate complexity before generating MDDD specification.`));
 
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
         }
 
-        console.log(pc.green(`\n🚀 Pronto! Use o atalho /md-audit no chat para receber a análise ou o diagrama de refatoração.`));
+        console.log(pc.green(`\n🚀 Ready! Use the /md-audit shortcut in the chat to receive the analysis or refactoring diagram.`));
     });
 
 // ==========================================
-// COMANDO: md impl <specFilePath>
+// COMMAND: md impl <specFilePath>
 // ==========================================
 program
     .command('impl')
-    .description('Prepara o ecossistema para implementar código produtivo e testes com base no arquivo spec')
-    .argument('<specFilePath>', 'Caminho do arquivo de especificação (.spec.md)')
+    .description('Prepares the ecosystem to implement productive code and tests based on the spec file')
+    .argument('<specFilePath>', 'Path to the specification file (.spec.md)')
     .action((specFilePath) => {
         if (!fs.existsSync(specFilePath)) {
-            console.log(pc.red(`❌ Arquivo de especificação não encontrado: ${specFilePath}`));
+            console.log(pc.red(`❌ Specification file not found: ${specFilePath}`));
             process.exit(1);
         }
 
         const fileName = path.basename(specFilePath);
-        console.log(pc.cyan(`🛠️  Lendo o blueprint de negócio a partir de: ${fileName}...`));
-        console.log(pc.yellow(`🎯 Estabelecendo o diagrama assinado como Fonte Única da Verdade.`));
-        console.log(pc.green(`\n🚀 Pronto! Use o atalho /md-impl no chat para a IA iniciar a geração do código produtivo e dos testes.`));
+        console.log(pc.cyan(`🛠️  Reading business blueprint from: ${fileName}...`));
+        console.log(pc.yellow(`🎯 Establishing the signed diagram as the Single Source of Truth.`));
+        console.log(pc.green(`\n🚀 Ready! Use the /md-impl shortcut in the chat for the AI to start generating productive code and tests.`));
     });
 
 program.parse(process.argv);
