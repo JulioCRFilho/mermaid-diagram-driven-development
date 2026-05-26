@@ -1,9 +1,9 @@
-# CLI: mddd-cli | v1.2.1
+# CLI: mddd-cli | v1.3.0
 
 ## 1. Flow Contract (Mermaid)
 
 ```mermaid
-%% @spec-version v1.2.1
+%% @spec-version v1.3.0
 stateDiagram-v2
     [*] --> Idle
     Idle --> ParseArgs: md <command> [args]
@@ -40,7 +40,12 @@ stateDiagram-v2
     CmdAudit --> ValidateCodeFile: file exists?
     ValidateCodeFile --> NotFoundAudit: no → ❌ Error
     ValidateCodeFile --> PrepareDir: yes → ensure targetDir
-    PrepareDir --> ReadyAudit: 🚀 Ready
+    PrepareDir --> DeriveSpecName: get codeBasename.spec.md
+    DeriveSpecName --> CheckSpecExists: spec file exists?
+    CheckSpecExists --> CreateSpec: no → write template
+    CheckSpecExists --> LogExisting: yes → 📄 Existing found
+    CreateSpec --> ReadyAudit: 🚀 Ready
+    LogExisting --> ReadyAudit: 🚀 Ready
 
     CmdImpl --> ValidateSpecFile: file exists?
     ValidateSpecFile --> NotFoundImpl: no → ❌ Error
@@ -64,7 +69,7 @@ stateDiagram-v2
 | `md init` | `init` | Create `.agents/` + `system_prompt.md` + 4 skill files | ✅ Created / ✅ Already exists |
 | `md new <path>` | `new` | Create co-located `.spec.md` at path; optional parent linking | ✅ Created / ⚠️ Exists / ❌ Error |
 | `md edit <file> <msg>` | `edit` | Validate file, print instruction to stdout | 📝 Ready / ❌ Not found |
-| `md audit <file>` | `audit` | Validate code file, ensure dir exists | 🚀 Ready / ❌ Not found |
+| `md audit <file>` | `audit` | Validate code file, create/co-locate `.spec.md` for audit output | 🚀 Ready / ❌ Not found |
 | `md impl <file>` | `impl` | Validate spec file exists | 🚀 Ready / ❌ Not found |
 
 ### 2.2 `init` Command — File Generation
@@ -85,7 +90,18 @@ stateDiagram-v2
 | `--parent` provided AND file NOT found | `process.exit(1)` with error | ❌ Fatal |
 | `--parent` NOT provided | Auto-search via `findClosestMacro()` | ✅ Linked (if found) / No link (if none) |
 
-### 2.4 `findClosestMacro(currentDir)` — Traversal Logic
+### 2.4 `audit` Command — Spec File Generation
+
+| Condition | Action | Next State |
+| :--- | :--- | :--- |
+| Code file does not exist | `process.exit(1)` with error | ❌ Fatal |
+| Code file exists, target dir does not exist | `mkdir -p <targetDir>` | Continue |
+| Code file exists, target dir exists | No action | Continue |
+| Co-located `.spec.md` does NOT exist | Write template with `# Audit: <basename> | v1.0.0` | ⚡ Ready |
+| Co-located `.spec.md` already exists | Log `📄 Existing specification found` | ⚡ Ready |
+| Always after file ready | Print instruction: AI writes analysis into `<details>` in `.spec.md` | 🚀 Ready |
+
+### 2.5 `findClosestMacro(currentDir)` — Traversal Logic
 
 | Condition | Action | Return |
 | :--- | :--- | :--- |
@@ -101,6 +117,7 @@ stateDiagram-v2
 - **Runtime**: Node.js >= 18 (ESM — `"type": "module"`)
 - **Pattern**: Each command is a self-contained `.action()` callback. Shared utility (`findClosestMacro`) is a module-level function with clear single responsibility.
 - **Error handling**: Consistent pattern — validate file existence early, exit with code 1 + red message on failure, green/blue/yellow for success/warnings.
+- **`md audit` spec generation**: The audit command derives the spec file name by stripping the code file extension and appending `.spec.md` (e.g., `user.go` → `user.spec.md`). The generated template includes a Decision Matrix, a placeholder Mermaid diagram, and an Audit History `<details>` section where the AI writes its full analysis.
 
 ## 4. Audit History
 
@@ -112,6 +129,7 @@ stateDiagram-v2
 | 2026-05-26 | AI (MDDD audit) | v1.0.0 | Initial spec: code is modular, cohesive, clean. Mapped as-is. |
 | 2026-05-26 | AI (MDDD audit) | v1.1.0 | Deep audit of `bin/cli.js` source code. Code is clean and modular — mapped as-is (architecture diagram below). |
 | 2026-05-26 | AI (MDDD audit) | v1.2.0 | Re-audit `bin/cli.js` v1.0.10 vs spec v1.1.0. Minor divergences found in `init` flow granularity and `new` guard logic. Spec updated to reflect real code. |
+| 2026-05-26 | AI (MDDD audit) | v1.3.0 | `md audit` now auto-creates/co-locates `[basename].spec.md` for AI audit output. Skill `md-audit` updated to instruct AI to write analysis into that file. |
 
 ### Audit Report: `bin/cli.js` (2026-05-26)
 
@@ -192,6 +210,7 @@ graph LR
         SK3[.agents/skills/md-audit/SKILL.md]
         SK4[.agents/skills/md-impl/SKILL.md]
         SPEC[targetPath/name.spec.md]
+        ASPEC[srcDir/codeBasename.spec.md]
     end
 
     CLI --> CMD
@@ -210,6 +229,7 @@ graph LR
 
     AUDIT --> FS
     AUDIT --> PC
+    AUDIT --> ASPEC
     IMPL --> FS
     IMPL --> PC
     EDIT --> FS

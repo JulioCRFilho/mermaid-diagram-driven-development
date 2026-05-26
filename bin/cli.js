@@ -40,7 +40,7 @@ function findClosestMacro(currentDir) {
 program
     .name('md')
     .description('Manager for co-located specifications for Mermaid Diagram Driven Development (MDDD)')
-    .version('1.0.11');
+    .version('1.0.12');
 
 // ==========================================
 // COMMAND: md init
@@ -110,12 +110,13 @@ Operational instructions for modifying existing specifications:
 
             'md-audit': `[ROLE: SECURITY & QUALITY AUDITOR] [STRICT CONTRACT]
 Operational instructions for reverse engineering and legacy code analysis:
-1. EXECUTION: Execute the terminal command \`md audit [code_file_path]\`.
+1. EXECUTION: Execute the terminal command \`md audit [code_file_path]\`. This creates or locates a co-located \`[code_basename].spec.md\` file for audit output.
 2. COMPLEXITY ANALYSIS: Evaluate the provided code file. Check for coupling, scope leaks, and clarity of business rules.
-3. RETROACTIVE MAPPING: 
+3. RETROACTIVE MAPPING (DOCUMENTATION ONLY):
    - If the code is clean and modular: Write a Mermaid diagram corresponding to the current state of the code (v1.0.0).
-   - If the code is chaotic/coupled: Draw the Mermaid diagram of how the flow SHOULD ideally be structured after a refactoring.
-4. HISTORY ISOLATION: Insert your technical analysis report and the generated diagram strictly inside the \`<details><summary>Audit History</summary>\` tag at the end of the corresponding file. Never pollute the main scope with drafts.`,
+   - If the code is chaotic/coupled: Draw the Mermaid diagram of how the flow SHOULD ideally be restructured for future implementation. Do NOT modify the audited code file.
+4. WRITE TO SPEC FILE: Write ALL results — the technical analysis report, the generated diagram (in code fences), and any decision tables — directly into the co-located \`.spec.md\` file found at the path printed by the \`md audit\` command. Insert the analysis strictly inside the \`<details><summary>Audit History</summary>\` tag at the end of that file. Never pollute the main scope with drafts. If the spec file has empty sections, fill them with the retroactive content.
+5. CODE IMMUTABILITY: You are FORBIDDEN from changing, refactoring, or editing the audited code file. Only the \`md-impl\` command/skill is authorized to modify production code based on a signed spec file. If the audit reveals the code needs refactoring, document the ideal diagram in the spec file and stop.`,
 
             'md-impl': `[ROLE: SOFTWARE ENGINEER] [STRICT CONTRACT]
 Operational instructions for generating production code and unit tests:
@@ -241,16 +242,31 @@ program
         }
 
         const targetDir = path.dirname(codeFilePath);
-        const fileName = path.basename(codeFilePath);
+        const codeBaseName = path.basename(codeFilePath, path.extname(codeFilePath));
+        const specFileName = `${codeBaseName}.spec.md`;
+        const specFilePath = path.join(targetDir, specFileName);
 
-        console.log(pc.cyan(`🔍 Auditing code structure for coupling in: ${fileName}...`));
-        console.log(pc.yellow(`⚡ Requesting AI to validate complexity before generating MDDD specification.`));
-
+        // Ensures the target directory exists
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
         }
 
-        console.log(pc.green(`\n🚀 Ready! Use the /md-audit shortcut in chat to receive the analysis and structural refactoring diagram.`));
+        // Creates the .spec.md file if it doesn't exist
+        if (!fs.existsSync(specFilePath)) {
+            const version = 'v1.0.0';
+            const template = `# Audit: ${codeBaseName} | ${version}\n\n` +
+                `## 1. Flow Contract (Mermaid)\n\`\`\`mermaid\n%% @spec-version ${version}\ngraph LR\n    A([Start]) --> B[Process]\n\`\`\`\n\n` +
+                `## 2. Decision Matrix\n| Condition | Action | Next State |\n| :---: | :--- | :---: |\n| | | |\n\n` +
+                `## 3. Audit History\n<details>\n<summary>Click to expand</summary>\n\n\n\n</details>\n`;
+            fs.writeFileSync(specFilePath, template);
+            console.log(pc.green(`✅ Co-located specification file created: ${specFilePath}`));
+        } else {
+            console.log(pc.blue(`📄 Existing specification found: ${specFilePath}`));
+        }
+
+        console.log(pc.cyan(`🔍 Auditing code structure for coupling in: ${path.basename(codeFilePath)}...`));
+        console.log(pc.yellow(`⚡ The AI will validate complexity and write the analysis to: ${specFilePath}`));
+        console.log(pc.green(`\n🚀 Ready! Use the /md-audit shortcut in chat for the AI to write the analysis and structural refactoring diagram into the co-located spec file.`));
     });
 
 // ==========================================
