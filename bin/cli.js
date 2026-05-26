@@ -40,7 +40,7 @@ function findClosestMacro(currentDir) {
 program
     .name('md')
     .description('Manager for co-located specifications for Mermaid Diagram Driven Development (MDDD)')
-    .version('1.0.10');
+    .version('1.0.11');
 
 // ==========================================
 // COMMAND: md init
