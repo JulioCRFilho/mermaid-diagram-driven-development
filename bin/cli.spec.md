@@ -1,9 +1,9 @@
-# CLI: mddd-cli | v1.0.0
+# CLI: mddd-cli | v1.1.0
 
 ## 1. Flow Contract (Mermaid)
 
 ```mermaid
-%% @spec-version v1.0.0
+%% @spec-version v1.1.0
 stateDiagram-v2
     [*] --> Idle
     Idle --> ParseArgs: md <command> [args]
@@ -110,5 +110,92 @@ stateDiagram-v2
 | Date | Auditor | Version | Notes |
 | :--- | :--- | :--- | :--- |
 | 2026-05-26 | AI (MDDD audit) | v1.0.0 | Initial spec: code is modular, cohesive, clean. Mapped as-is. |
+| 2026-05-26 | AI (MDDD audit) | v1.1.0 | Deep audit of `bin/cli.js` source code. Code is clean and modular — mapped as-is (architecture diagram below). |
+
+### Audit Report: `bin/cli.js` (2026-05-26)
+
+**Target**: `bin/cli.js` — CLI entry point (v1.0.8)
+
+**Complexity Analysis**:
+
+| Metric | Assessment |
+| :--- | :--- |
+| Total lines | ~250 |
+| Commands | 5 (`init`, `new`, `edit`, `audit`, `impl`) |
+| Shared utilities | 1 (`findClosestMacro`) |
+| External deps | 3 (`commander`, `picocolors`, `fs`/`path` native) |
+| Cyclomatic complexity | Low — each action is linear with early-exit guards |
+| Coupling | Low — standalone CLI, no cross-module dependencies |
+| Testability | Medium — `process.exit()` scattered across callbacks hinders unit testing |
+| Business rule clarity | High — each `.action()` maps 1:1 to the Decision Matrix rows |
+
+**Structural Observations**:
+1. ✅ **Cohesion**: Each command maps to a single responsibility. No cross-command shared state.
+2. ✅ **Error handling**: Consistent pattern — validate → exit with colored message.
+3. ✅ **Single Source of Truth alignment**: Code follows the spec's Decision Matrix exactly. No undocumented logic.
+4. ⚠️ **`skills` object** (~80 lines inline in `init` action): For future growth, extract to `skills/` JSON files.
+5. ⚠️ **Template strings** in `new` action: Extract to `templates/` directory for maintainability.
+6. ⚠️ **`process.exit()` scattering**: If this grows into a library, consider centralizing error handling and returning exit codes.
+
+**Architecture Diagram (Current State — v1.0.8)**:
+
+```mermaid
+%% @spec-version v1.1.0
+graph LR
+    subgraph "Entry Point"
+        CLI["bin/cli.js"]
+    end
+
+    subgraph "External Dependencies"
+        CMD[commander]
+        PC[picocolors]
+        FS[fs / path]
+    end
+
+    subgraph "Shared Utility"
+        FCM[findClosestMacro]
+    end
+
+    subgraph "Commands"
+        INIT[cmd: init]
+        NEW[cmd: new]
+        EDIT[cmd: edit]
+        AUDIT[cmd: audit]
+        IMPL[cmd: impl]
+    end
+
+    subgraph "Generated Artifacts"
+        SP[system_prompt.md]
+        SK1[.agents/skills/md-new/SKILL.md]
+        SK2[.agents/skills/md-edit/SKILL.md]
+        SK3[.agents/skills/md-audit/SKILL.md]
+        SK4[.agents/skills/md-impl/SKILL.md]
+        SPEC[targetPath/name.spec.md]
+    end
+
+    CLI --> CMD
+    CLI --> PC
+    CLI --> FS
+    CLI --> FCM
+
+    INIT --> SP
+    INIT --> SK1
+    INIT --> SK2
+    INIT --> SK3
+    INIT --> SK4
+
+    NEW --> SPEC
+    NEW --> FCM
+
+    AUDIT --> FS
+    AUDIT --> PC
+    IMPL --> FS
+    IMPL --> PC
+    EDIT --> FS
+    EDIT --> PC
+```
+
+**Recommendations for v2.0.0** (future):
+- Replace `process.exit()` with thrown exceptions or a centralized error handler for better testability
 
 </details>
