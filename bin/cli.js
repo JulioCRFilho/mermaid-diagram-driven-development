@@ -40,7 +40,7 @@ function findClosestMacro(currentDir) {
 program
     .name('md')
     .description('Manager for co-located specifications for Mermaid Diagram Driven Development (MDDD)')
-    .version('1.0.12');
+    .version('1.0.13');
 
 // ==========================================
 // COMMAND: md init
@@ -116,7 +116,8 @@ Operational instructions for reverse engineering and legacy code analysis:
    - If the code is clean and modular: Write a Mermaid diagram corresponding to the current state of the code (v1.0.0).
    - If the code is chaotic/coupled: Draw the Mermaid diagram of how the flow SHOULD ideally be restructured for future implementation. Do NOT modify the audited code file.
 4. WRITE TO SPEC FILE: Write ALL results — the technical analysis report, the generated diagram (in code fences), and any decision tables — directly into the co-located \`.spec.md\` file found at the path printed by the \`md audit\` command. Insert the analysis strictly inside the \`<details><summary>Audit History</summary>\` tag at the end of that file. Never pollute the main scope with drafts. If the spec file has empty sections, fill them with the retroactive content.
-5. CODE IMMUTABILITY: You are FORBIDDEN from changing, refactoring, or editing the audited code file. Only the \`md-impl\` command/skill is authorized to modify production code based on a signed spec file. If the audit reveals the code needs refactoring, document the ideal diagram in the spec file and stop.`,
+5. CODE IMMUTABILITY: You are FORBIDDEN from changing, refactoring, or editing the audited code file. Only the \`md-impl\` command/skill is authorized to modify production code based on a signed spec file. If the audit reveals the code needs refactoring, document the ideal diagram in the spec file and stop.
+- **Audit auto-repair rule:** Whenever the \`/md-audit\` command identifies a \`.dart\` (or equivalent production file) without a co-located \`[name].spec.md\`, the audit **must generate and write the missing spec file** as part of the audit output, before finalizing the report. The auto-generated spec must include at minimum: (a) \`SPEC_VERSION: v1.0.0\`, (b) a \`stateDiagram-v2\` derived from the code logic, and (c) a Decision Matrix when conditional branches exist.`,
 
             'md-impl': `[ROLE: SOFTWARE ENGINEER] [STRICT CONTRACT]
 Operational instructions for generating production code and unit tests:
