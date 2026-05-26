@@ -1,9 +1,9 @@
-# CLI: mddd-cli | v1.1.0
+# CLI: mddd-cli | v1.2.1
 
 ## 1. Flow Contract (Mermaid)
 
 ```mermaid
-%% @spec-version v1.1.0
+%% @spec-version v1.2.1
 stateDiagram-v2
     [*] --> Idle
     Idle --> ParseArgs: md <command> [args]
@@ -17,8 +17,9 @@ stateDiagram-v2
         DetectCommand --> CmdImpl: impl <file>
     }
 
-    CmdInit --> CreateDotAgents: mkdir .agents/skills/
-    CreateDotAgents --> WriteSystemPrompt: write system_prompt.md
+    CmdInit --> MkdirDotAgents: mkdir .agents/
+    MkdirDotAgents --> MkdirSkills: mkdir .agents/skills/
+    MkdirSkills --> WriteSystemPrompt: write system_prompt.md
     WriteSystemPrompt --> WriteSkills: write 4 SKILL.md files
     WriteSkills --> Done: ✅ Success
 
@@ -74,7 +75,7 @@ stateDiagram-v2
 | `./.agents/skills` does not exist | `mkdir .agents/skills` | Continue |
 | Always | Write `system_prompt.md` | Continue |
 | For each skill (`md-new`, `md-edit`, `md-audit`, `md-impl`) | Create folder + `SKILL.md` | Continue → Done |
-| Skill `SKILL.md` already exists | Delete old, write new | Replace |
+| Skill `SKILL.md` already exists | Overwrite silently via `fs.writeFileSync` | Replace |
 
 ### 2.3 `new` Command — Parent Linking
 
@@ -82,8 +83,7 @@ stateDiagram-v2
 | :--- | :--- | :--- |
 | `--parent` provided AND file exists | Append link line to parent | ✅ Linked |
 | `--parent` provided AND file NOT found | `process.exit(1)` with error | ❌ Fatal |
-| `--parent` NOT provided AND NOT `--macro` | Auto-search via `findClosestMacro()` | ✅ Linked (if found) / No link (if none) |
-| `--macro` flag set | Skip parent linking (unless `-p` explicit) | Macro template generated |
+| `--parent` NOT provided | Auto-search via `findClosestMacro()` | ✅ Linked (if found) / No link (if none) |
 
 ### 2.4 `findClosestMacro(currentDir)` — Traversal Logic
 
@@ -111,6 +111,7 @@ stateDiagram-v2
 | :--- | :--- | :--- | :--- |
 | 2026-05-26 | AI (MDDD audit) | v1.0.0 | Initial spec: code is modular, cohesive, clean. Mapped as-is. |
 | 2026-05-26 | AI (MDDD audit) | v1.1.0 | Deep audit of `bin/cli.js` source code. Code is clean and modular — mapped as-is (architecture diagram below). |
+| 2026-05-26 | AI (MDDD audit) | v1.2.0 | Re-audit `bin/cli.js` v1.0.10 vs spec v1.1.0. Minor divergences found in `init` flow granularity and `new` guard logic. Spec updated to reflect real code. |
 
 ### Audit Report: `bin/cli.js` (2026-05-26)
 
@@ -137,10 +138,30 @@ stateDiagram-v2
 5. ⚠️ **Template strings** in `new` action: Extract to `templates/` directory for maintainability.
 6. ⚠️ **`process.exit()` scattering**: If this grows into a library, consider centralizing error handling and returning exit codes.
 
-**Architecture Diagram (Current State — v1.0.8)**:
+### Audit Report: `bin/cli.js` (2026-05-26) — v1.2.0 Re-audit
+
+**Target**: `bin/cli.js` — CLI entry point (v1.0.10)
+
+**Discrepancies Found vs Spec v1.1.0**:
+
+| Item | Spec Said | Code Does | Verdict |
+| :--- | :--- | :--- | :--- |
+| `init` flow — directory creation | `CreateDotAgents: mkdir .agents/skills/` | Two separate conditional mkdir: `mkdir .agents/` then `mkdir .agents/skills/` | ⚠️ Minor — spec combined into one state; fixed in v1.2.0 diagram |
+| `init` — SKILL.md overwrite | "Delete old, write new" | `fs.writeFileSync` overwrites silently, no deletion | ⚠️ Minor — wording fixed in v1.2.0 matrix |
+| `new` — `CheckExists` guard order | CheckExists branches to Skip or GenerateSpec | Code checks `fs.existsSync(normalizedPath)` for mkdir, then checks `fs.existsSync(finalFile)` separately | ✅ Correct — diagram simplified, no semantic error |
+| `new` — trailing slash normalization | Not mentioned | `normalizedPath` uses `.replace(/[\\/]+$/, '')` | ✅ Enhancement — documented below |
+| `findClosestMacro` — dir exclusion | Not specified | Excludes file named `${path.basename(currentDir)}.spec.md` | ✅ Enhancement — documented in matrix |
+| Version metadata | N/A (spec refers to v1.0.8) | Code declares `v1.0.10` | ✅ Cosmetic — spec now at v1.2.0 |
+
+**Newly Documented Behaviors**:
+- **Trailing slash cleanup**: `path.normalize(targetPath).replace(/[\\/]+$/, '')` strips trailing slashes before mkdir.
+- **Self-exclusion in `findClosestMacro`**: The macro search excludes `${path.basename(currentDir)}.spec.md` to avoid matching the directory's own spec file.
+- **Permission-denied break**: On `EACCES`/`EPERM`, the loop breaks and returns `null`. All other `fs.readdirSync` errors are rethrown.
+
+**Architecture Diagram (Current State — v1.0.10)**:
 
 ```mermaid
-%% @spec-version v1.1.0
+%% @spec-version v1.2.0
 graph LR
     subgraph "Entry Point"
         CLI["bin/cli.js"]
@@ -194,8 +215,5 @@ graph LR
     EDIT --> FS
     EDIT --> PC
 ```
-
-**Recommendations for v2.0.0** (future):
-- Replace `process.exit()` with thrown exceptions or a centralized error handler for better testability
 
 </details>
