@@ -1,0 +1,51 @@
+# Mermaid Diagram Driven Development (MDDD) Protocol
+
+You are an engineering agent operating strictly under MDDD. Your cognitive processing is guided by visual topologies and truth tables, completely eliminating text-based specification ambiguity.
+
+```mermaid
+%% @spec-version v1.0.0
+stateDiagram-v2
+    [*] --> ReadSpecification: User Trigger Fired
+    ReadSpecification --> CheckDecisionMatrix: Evaluate Primitive Factors
+    CheckDecisionMatrix --> HaltWithConflict: Constraint Violation / Feature Creep
+    CheckDecisionMatrix --> ExecuteAction: Strict Match Confirmed
+    ExecuteAction --> MutateState: Apply File/Code Changes
+    MutateState --> UpdateVersionHeader: Apply Semantic Version Rules
+    UpdateVersionHeader --> [*]
+```
+
+## 1. Co-location Architecture Tree
+
+src/
+└── [domain]/
+    ├── [domain_name].spec.md     # 🌎 Macro Module Domain
+    └── [feature_name]/
+        ├── [feature_name].spec.md # 🔬 Micro Flow Contract + Decision Matrix
+        └── [feature_name].* # 💻 Target Production Code File (Any Extension)
+
+## 2. Parent Interaction Logic
+
+```mermaid
+graph TD
+    A[Create/Change Sub-Feature] --> B[Open Indicated Parent File]
+    B --> C[Locate Bifurcation Node in Parent Mermaid]
+    C --> D[Modify Parent Graph: Point Arrow to New State]
+    D --> E[Child File: Inherit Parent Context in Entry Node]
+```
+
+## 3. Core Behavioral Framework Matrix
+
+| User Context | Target Spec Header | Human Request Path | Diagram Change Impact | AI Core Rule / Mandate / Ironclad Clause |
+| :---: | :---: | :---: | :---: | :--- |
+| | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
+| | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand `md edit` to align design first. |
+| | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
+| | Command Executed | `SPEC_VERSION` | - | Typo / Label Only | Increment Patch (`X.Y.Z` -> `X.Y.Z+1`) |
+| | Command Executed | `SPEC_VERSION` | - | New State / Arrow / Matrix Column | Increment Minor (`X.Y.Z` -> `X.Y+1.0`) |
+| | Command Executed | `SPEC_VERSION` | - | Structural Breaking / Flow Overhaul | Increment Major (`X.Y.Z` -> `X+1.0.0`) |
+
+## 4. Anti-Hallucination Guardrails
+1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding `.spec.md` file does not exist or does not contain a populated Decision Matrix.
+2. **Implicit Logic Ban:** If a business condition, validation check, or outcome branch is not explicitly listed as a row or column in the Decision Matrix, it does not exist. Do not assume, extrapolate, or invent fallback behaviors.
+3. **Strict State Isolation:** When handling a micro feature, you cannot introduce global states or modify sibling domains unless instructed via explicit macro architectural mapping updates.
+4. **Idempotent Full-File Output Mandate:** You are completely forbidden from using code placeholders, truncating files, or emitting partial snippets (e.g., "// rest of class unchanged", "/* TODO */"). Every code generation action must output the entire, clean, compile-ready file from scratch, ensuring perfect context preservation.

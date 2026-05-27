@@ -1,11 +1,11 @@
-# Audit: cli | v1.0.0
+# Refactoring Plan: cli | v2.0.0
 
 ## 1. Flow Contract (Mermaid)
 
 ### 1.1 Topologia Atual (As-Is)
 
 ```mermaid
-%% @spec-version v1.0.0
+%% @spec-version v2.0.0
 graph TD
     subgraph "CLI Entry (cli.js)"
         A[index.js#!/usr/bin/env node] --> B[Commander: program.parse]
@@ -69,10 +69,10 @@ graph TD
     end
 ```
 
-### 1.2 Topologia Refatorada Proposta (To-Be)
+### 1.2 Topologia Aprovada (To-Be → Refactoring Target)
 
 ```mermaid
-%% @spec-version v1.0.0
+%% @spec-version v2.0.0
 graph TD
     subgraph "CLI Entry (cli.js)"
         A[bin/cli.js] --> B[Commander Router]
@@ -126,6 +126,7 @@ graph TD
 | Código Atual | Co-located .spec.md Exists? | Design Assessment | Ação de Auditoria | Manipulação de Código Permitida? | Versão Inicial |
 | :--- | :---: | :---: | :--- | :---: | :---: |
 | `bin/cli.js` (421 linhas) | ❌ NO | Caótico / Acoplado | Auto-gerar Spec + Mapear Lógica Atual E Proposta | ❌ **FORBIDDEN (Immutability)** | `v1.0.0` |
+| `src/commands/*.js` + `src/services/*.js` (refatorado) | ✅ YES (this spec) | Refatorado / Modular | Aprovado com diagrama To-Be como alvo de implementação | ✅ **ALLOW (Refactoring)** | `v2.0.0` |
 
 ### Fatores Primitivos de Acoplamento
 
@@ -147,6 +148,7 @@ graph TD
 | Data | Auditor | Versão | Resumo das Mudanças |
 | :--- | :--- | :---: | :--- |
 | 2026-05-27 | MDDD-Audit Agent (Cline) | v1.0.0 | Auditoria inicial. Código classificado como **Caótico/Acoplado**. Diagrama As-Is documenta a topologia real (monolítica). Diagrama To-Be propõe separação em Commands Layer + Shared Services + Template Engine + Testes. Decisão de imutabilidade: código de produção não foi modificado. |
+| 2026-05-27 | Cline (Agent-Actor) | v2.0.0 | **MAJOR Mutation (v1.0.0 → v2.0.0):** Aprovada refatoração estrutural do monolito `bin/cli.js` (421 linhas) para arquitetura modular: Commands Layer (`src/commands/*.js`) + Shared Services (`src/services/*.js`) + Template Engine (`src/services/TemplateFactory.js`) + Unit Tests. Removida restrição FORBIDDEN (Immutability). Diagrama To-Be promovido a alvo de implementação oficial. |
 
 ### Análise de Qualidade
 
