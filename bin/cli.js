@@ -15,23 +15,20 @@ function findClosestMacro(currentDir) {
     while (dir !== root) {
         try {
             const files = fs.readdirSync(dir);
-            // Looks for any .spec.md file that is higher in the tree
-            // Ignores current directory's specification file if it already exists
             const macroFile = files.find(f => f.endsWith('.spec.md') && f !== `${path.basename(currentDir)}.spec.md`);
 
             if (macroFile) {
                 return path.join(dir, macroFile);
             }
         } catch (e) {
-            // Silences only read permission errors (EACCES/EPERM) common in system folders
             if (e.code === 'EACCES' || e.code === 'EPERM') {
                 break;
             }
-            throw e; // Throws any other critical I/O errors
+            throw e;
         }
 
         const parent = path.dirname(dir);
-        if (parent === dir) break; // Avoids infinite loop in restricted environments
+        if (parent === dir) break;
         dir = parent;
     }
     return null;
@@ -40,91 +37,234 @@ function findClosestMacro(currentDir) {
 program
     .name('md')
     .description('Manager for co-located specifications for Mermaid Diagram Driven Development (MDDD)')
-    .version('1.0.13');
+    .version('2.0.0');
 
 // ==========================================
 // COMMAND: md init
 // ==========================================
 program
     .command('init')
-    .description('Initializes the universal system prompt to guide any AI in the project under the MDDD methodology')
+    .description('Initializes the universal system prompt and matrix-driven skills to guide the AI under the MDDD methodology')
     .action(() => {
         const agentsDir = '.agents';
         const skillsDir = path.join(agentsDir, 'skills');
 
-        // 1. Creates folder structure if it doesn't exist
         if (!fs.existsSync(agentsDir)) fs.mkdirSync(agentsDir);
         if (!fs.existsSync(skillsDir)) fs.mkdirSync(skillsDir);
 
+        // SYSTEM PROMPT: Uso de 4 crases externas para isolar com precisão o bloco Mermaid interno
         const promptContent = `# Mermaid Diagram Driven Development (MDDD) Protocol
 
-You must strictly follow the modular feature specification architecture before changing, writing, or auditing production code.
+You are an engineering agent operating strictly under MDDD. Your cognitive processing is guided by visual topologies and truth tables, completely eliminating text-based specification ambiguity.
 
-## 1. Tree Structure and Co-location
-Visual specifications live universally in Markdown (.md) format at the exact same level as the code they describe:
-- Macro Modules/Domains have a \`[name].spec.md\` file containing the global diagram (stateDiagram-v2).
-- Micro Screens or sub-rule flows have a \`[name].spec.md\` file containing the UI flow + Decision Matrices (Truth Tables).
+\`\`\`mermaid
+%% @spec-version v1.0.0
+stateDiagram-v2
+    [*] --> ReadSpecification: User Trigger Fired
+    ReadSpecification --> CheckDecisionMatrix: Evaluate Primitive Factors
+    CheckDecisionMatrix --> HaltWithConflict: Constraint Violation / Feature Creep
+    CheckDecisionMatrix --> ExecuteAction: Strict Match Confirmed
+    ExecuteAction --> MutateState: Apply File/Code Changes
+    MutateState --> UpdateVersionHeader: Apply Semantic Version Rules
+    UpdateVersionHeader --> [*]
+\`\`\`
 
-## 2. Connection Rule Between Existing Flows
-Whenever you create or change a feature that has an explicit parent file:
-1. Open the indicated parent file BEFORE drawing the new flow.
-2. Locate the exact node where the business bifurcation should be born.
-3. Modify the Mermaid code of the PARENT file to make the arrow point to the new generated state.
-4. In the CHILD file, start the graph using an entry node that inherits the parent's context.
+## 1. Co-location Architecture Tree
 
-## 3. Strict Diagram Versioning Rule
-- Every file has a \`SPEC_VERSION\` metadata header.
-- Whenever you change a Mermaid diagram or a decision table using the \`md edit\` command, you MUST increment the semantic version of the file in the header before saving:
-  - Change the Patch (\`v1.0.0\` -> \`v1.0.1\`) for syntax corrections or minor text adjustments in nodes.
-  - Change the Minor (\`v1.0.0\` -> \`v1.1.0\`) for new states, new transitions, or new columns in the decision matrix.
-  - Change the Major (\`v1.0.0\` -> \`v2.0.0\`) for structural changes that break the previous flow or deep refactoring of the business rule.
-- Never remove the version tag. It is the guarantee that code implementation is aligned with the correct design.
+src/
+└── [domain]/
+├── [name].spec.md       # 🌎 Macro Module Domain (stateDiagram-v2 Global Map)
+└── [feature]/
+├── [name].spec.md   # 🔬 Micro Flow Contract (graph LR) + Decision Matrix
+└── [code].dart       # 💻 Target Production Code File
 
-## 4. Decision Matrices vs Continuous Text
-Avoid long descriptions in text paragraphs (OpenSpec/SDD standard). Use structured tables of primitive factors (yes/no columns or rigid values) for complex logical cross-referencing. This ensures that the AI processes logic as a predictable binary matrix, eliminating ambiguity and hallucinations.
+## 2. Parent Interaction Logic
 
-**SPECIFICATION WRITING DIRECTIVE:**
-Always use Mermaid to describe business flows, architecture, or state machines. Specifications (.spec.md) must focus on the Current Contract, not on historical past audits.
+\`\`\`mermaid
+graph TD
+    A[Create/Change Sub-Feature] --> B[Open Indicated Parent File]
+    B --> C[Locate Bifurcation Node in Parent Mermaid]
+    C --> D[Modify Parent Graph: Point Arrow to New State]
+    D --> E[Child File: Inherit Parent Context in Entry Node]
+\`\`\`
+
+## 3. Core Behavioral Framework Matrix
+
+| User Context | Target Spec Header | Human Request Path | Diagram Change Impact | AI Core Rule / Mandate / Ironclad Clause |
+| :---: | :---: | :---: | :---: | :--- |
+| - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
+| Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand \`md edit\` to align design first. |
+| Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
+| Command Executed | \`SPEC_VERSION\` | - | Typo / Label Only | Increment Patch (\`v1.0.0\` -> \`v1.0.1\`) |
+| Command Executed | \`SPEC_VERSION\` | - | New State / Arrow / Matrix Column | Increment Minor (\`v1.0.0\` -> \`v1.1.0\`) |
+| Command Executed | \`SPEC_VERSION\` | - | Structural Breaking / Flow Overhaul | Increment Major (\`v1.0.0\` -> \`v2.0.0\`) |
+
+## 4. Anti-Hallucination Guardrails
+1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding `.spec.md` file does not exist or does not contain a populated Decision Matrix.
+2. **Implicit Logic Ban:** If a business condition, validation check, or outcome branch is not explicitly listed as a row or column in the Decision Matrix, it does not exist. Do not assume or extrapolate rules.
+3. **Strict State Isolation:** When handling a micro feature, you cannot introduce global states or modify sibling domains unless instructed via explicit macro architectural mapping updates.
 `;
 
         fs.writeFileSync('system_prompt.md', promptContent);
 
-        // Standardized English Skills for AI ingestion
+        // SKILLS AUTOMATION: Resolvido o aninhamento de strings escapando as crases internas com barras triplas
         const skills = {
             'md-new': `[ROLE: ARCHITECT] [STRICT CONTRACT]
-Operational instructions for creating new features:
-1. VERIFICATION: Before running any command, verify if the ".spec.md" file already exists in the target path. If it exists, STOP and use the 'md-edit' skill instead of this one.
-2. EXECUCTION: Strictly execute the terminal command \`md new [feature_path]\`. If this feature inherits context from another screen or macro flow, you must include the \`-p [parent_file.spec.md]\` flag.
-3. VISUAL CONCEPTION: In the generated file, build the appropriate Mermaid diagram (graph LR for screens/rules or stateDiagram-v2 for macros) and the Factual Decision Matrix in a Markdown table format (Truth Table with yes/no/rigid values columns).
-4. AWAIT: Do not attempt to generate production code or tests now. Write the specification, save the file, and STOP execution immediately, requesting user review and visual approval in the chat.`,
+
+\`\`\`mermaid
+%% @spec-version v1.1.0
+stateDiagram-v2
+    [*] --> TargetVerification
+    TargetVerification --> StopAndSwitchToEdit: .spec.md File Already Exists
+    TargetVerification --> EvaluateContext: File Does Not Exist
+    
+    state EvaluateContext {
+        [*] --> CheckDirectoryDepth
+        CheckDirectoryDepth --> InferMacro: Target is Domain Root (e.g., src/domain)
+        CheckDirectoryDepth --> InferMicro: Target is Sub-Feature (e.g., src/domain/feature)
+    }
+
+    InferMacro --> ExecCliNew: Apply stateDiagram-v2 Template
+    InferMicro --> ExecCliNew: Apply graph LR + Matrix Template
+    
+    ExecCliNew --> AwaitHumanReview: Run "md new [path]" & Populate Blueprint
+    AwaitHumanReview --> [*]: Pause Code & Test Generation
+\`\`\`
+
+### Operational Execution Matrix
+
+| File Exists? | Path Depth Type | Parent Indicated? | CLI Execution Syntax | Target Payload Blueprint | Next AI Action |
+| :---: | :---: | :---: | :--- | :--- | :---: |
+| ✅ YES | - | - | *None* (Aborted) | *None* | 🛑 **STOP** (Call md-edit instead) |
+| ❌ NO | Domain Root | ❌ NO | \`md new [domain_path]\` | \`stateDiagram- v2\` Placeholder Domain Map | ⏳ **AWAIT_VISUAL_APPROVAL** |
+| ❌ NO | Sub-Feature | ❌ NO | \`md new [feature_path]\` | \`graph LR\` + Auto-scanned parent link reference | ⏳ **AWAIT_VISUAL_APPROVAL** |
+| ❌ NO | Sub-Feature | ✅ YES | \`md new [feature_path] - p[parent]\` | \`graph LR\` + Explicit link injected to designated Parent | ⏳ **AWAIT_VISUAL_APPROVAL** |
+
+### Automation & Inference Ironclad Rules
+1. **Deterministic Inference:** You must strictly follow the directory depth. If the target path is a top-level domain folder inside your source root, treat it as a Module Macro. If it is nested inside a domain, it is a Micro Feature. Never ask the user to declare this.
+2. **Implicit Parent Binding:** When creating a Sub-Feature without an explicit \`- p\` parameter, acknowledge that the CLI tool will automatically scan and mutate the nearest parent macro file via recursive climbing. You must read the updated parent immediately after execution to synchronize your internal context map.`,
 
             'md-edit': `[ROLE: ARCHITECT] [STRICT CONTRACT]
-Operational instructions for modifying existing specifications:
-1. READING: Open the target ".spec.md" file and read the current version header (\`SPEC_VERSION\` or \`@spec-version\`).
-2. VISUAL MODIFICATION: Apply the structural modifications requested by the user directly into the Mermaid diagrams or the Decision Matrix rows/columns.
-3. STRICT SEMANTIC VERSIONING: You MUST increment the file version before saving:
-   - Patch (v1.0.x): Simple text adjustments in nodes, labels, or typo corrections.
-   - Minor (v1.x.0): Addition of new states, new transition arrows, or new factor columns in the matrix.
-   - Major (v2.0.0): Structural changes that break previous logic or completely restructure the software flow.
-4. AWAIT: Save the altered file and pause for user validation.`,
+
+\`\`\`mermaid
+%% @spec-version v1.1.0
+stateDiagram-v2
+    [*] --> TargetVerification
+    TargetVerification --> StopAndSwitchToEdit: .spec.md File Already Exists
+    TargetVerification --> EvaluateContext: File Does Not Exist
+    
+    state EvaluateContext {
+        [*] --> CheckDirectoryDepth
+        CheckDirectoryDepth --> InferMacro: Target is Domain Root (e.g., src/domain)
+        CheckDirectoryDepth --> InferMicro: Target is Sub-Feature (e.g., src/domain/feature)
+    }
+
+    InferMacro --> ExecCliNew: Apply stateDiagram-v2 Template
+    InferMicro --> ExecCliNew: Apply graph LR + Matrix Template
+    
+    ExecCliNew --> AwaitHumanReview: Run "md new [path]" & Populate Blueprint
+    AwaitHumanReview --> [*]: Pause Code & Test Generation
+\`\`\`
+
+### Operational Execution Matrix
+
+| File Exists? | Path Depth Type | Parent Indicated? | CLI Execution Syntax | Target Payload Blueprint | Next AI Action |
+| :---: | :---: | :---: | :--- | :--- | :---: |
+| ✅ YES | - | - | *None* (Aborted) | *None* | 🛑 **STOP** (Call md-edit instead) |
+| ❌ NO | Domain Root | ❌ NO | \`md new [domain_path]\` | \`stateDiagram-v2\` Placeholder Domain Map | ⏳ **AWAIT_VISUAL_APPROVAL** |
+| ❌ NO | Sub-Feature | ❌ NO | \`md new [feature_path]\` | \`graph LR\` + Auto-scanned parent link reference | ⏳ **AWAIT_VISUAL_APPROVAL** |
+| ❌ NO | Sub-Feature | ✅ YES | \`md new [feature_path] -p [parent]\` | \`graph LR\` + Explicit link injected to designated Parent | ⏳ **AWAIT_VISUAL_APPROVAL** |
+
+### Automation & Inference Ironclad Rules
+1. **Deterministic Inference:** You must strictly follow the directory depth. If the target path is a top-level domain folder inside your source root, treat it as a Module Macro. If it is nested inside a domain, it is a Micro Feature. Never ask the user to declare this.
+2. **Implicit Parent Binding:** When creating a Sub-Feature without an explicit \`-p\` parameter, acknowledge that the CLI tool will automatically scan and mutate the nearest parent macro file via recursive climbing. You must read the updated parent immediately after execution to synchronize your internal context map.`,
 
             'md-audit': `[ROLE: SECURITY & QUALITY AUDITOR] [STRICT CONTRACT]
-Operational instructions for reverse engineering and legacy code analysis:
-1. EXECUTION: Execute the terminal command \`md audit [code_file_path]\`. This creates or locates a co-located \`[code_basename].spec.md\` file for audit output.
-2. COMPLEXITY ANALYSIS: Evaluate the provided code file. Check for coupling, scope leaks, and clarity of business rules.
-3. RETROACTIVE MAPPING (DOCUMENTATION ONLY):
-   - If the code is clean and modular: Write a Mermaid diagram corresponding to the current state of the code (v1.0.0).
-   - If the code is chaotic/coupled: Draw the Mermaid diagram of how the flow SHOULD ideally be restructured for future implementation. Do NOT modify the audited code file.
-4. WRITE TO SPEC FILE: Write ALL results — the technical analysis report, the generated diagram (in code fences), and any decision tables — directly into the co-located \`.spec.md\` file found at the path printed by the \`md audit\` command. Insert the analysis strictly inside the \`<details><summary>Audit History</summary>\` tag at the end of that file. Never pollute the main scope with drafts. If the spec file has empty sections, fill them with the retroactive content.
-5. CODE IMMUTABILITY: You are FORBIDDEN from changing, refactoring, or editing the audited code file. Only the \`md-impl\` command/skill is authorized to modify production code based on a signed spec file. If the audit reveals the code needs refactoring, document the ideal diagram in the spec file and stop.
-- **Audit auto-repair rule:** Whenever the \`/md-audit\` command identifies a \`.dart\` (or equivalent production file) without a co-located \`[name].spec.md\`, the audit **must generate and write the missing spec file** as part of the audit output, before finalizing the report. The auto-generated spec must include at minimum: (a) \`SPEC_VERSION: v1.0.0\`, (b) a \`stateDiagram-v2\` derived from the code logic, and (c) a Decision Matrix when conditional branches exist.`,
+
+\`\`\`mermaid
+%% @spec-version v1.1.0
+stateDiagram-v2
+    [*] --> AnalyzeLegacyCode: Evaluate Coupling & Scope Leaks
+    AnalyzeLegacyCode --> FileSystemCheck
+    
+    state FileSystemCheck {
+        [*] --> CheckCoLocation
+        CheckCoLocation --> CreateMissingSpec: Target Co-located .spec.md Missing
+        CheckCoLocation --> AppendToExisting: Target Co-located .spec.md Exists
+    }
+    
+    CreateMissingSpec --> RenderTopology: Initialize New .spec.md
+    AppendToExisting --> InjectAuditBlock: Target Existing File Preservation Map
+    
+    state RenderTopology {
+        [*] --> CodeIsClean: Map exact architecture as-is (v1.0.0)
+        [*] --> CodeIsChaotic: Draw BOTH current real logic AND ideal target refactored graph
+    }
+    
+    RenderTopology --> WriteToAuditTag: Inject payloads inside <details> block
+    InjectAuditBlock --> WriteToAuditTag: Append to existing <details> block without overwriting business specs
+    WriteToAuditTag --> EnforceImmutability: Lock Production Code File
+    EnforceImmutability --> [*]
+\`\`\`
+
+### Reverse Engineering & Auto-Repair Decision Matrix
+
+| Source File State | Co-located .spec.md Exists? | Code Design Assessment | Target Output Destination | Code File Manipulation Allowed? | Initial Compiled Version |
+| :--- | :---: | :---: | :--- | :---: | :---: |
+| Legacy Code Active | ✅ YES | Clean / Modular | Append to existing \`<details><summary>Audit History</summary>\` | ❌ **FORBIDDEN (Immutability)** | Retain Current |
+| Legacy Code Active | ✅ YES | Chaotic / Coupled | Append to existing \`<details><summary>Audit History</summary>\` | ❌ **FORBIDDEN (Immutability)** | Retain Current |
+| Legacy Code Active | ❌ NO | Clean / Modular | Auto-generate Spec File + Map Current Logic | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0\` |
+| Legacy Code Active | ❌ NO | Chaotic / Coupled | Auto-generate Spec File + Map Current AND Proposed Logic | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0\` |
+
+### Missing Spec Auto-Repair Blueprint Requirements
+* **Enforce Section Injections:** Every auto-generated specification file must structurally enforce: 
+  1. \`SPEC_VERSION: v1.0.0\` metadata header at the very top.
+  2. \`stateDiagram-v2\` or \`graph LR\` derived exactly from code logic behaviors.
+  3. \`Decision Matrix\` tables filled if the code contains conditional execution branches.
+  4. An isolated \`<details><summary>Audit History</summary>...</details>\` block at the bottom containing the specific code review analytics.
+
+### Quality Assurance & Immutability Ironclad Rules
+1. **Absolute Immutability Command:** Under no circumstances are you allowed to patch, alter, or modify the target production code file during the \`md-audit\` cycle. Your execution scope is strictly limited to observation and documentation within the Markdown specification file.
+2. **Preservation Guarantee:** When appending an audit report to an existing \`.spec.md\` file, you must read the file completely and guarantee that the business requirements, main diagrams, and current decision matrices are left untouched. You are only allowed to inject rows inside the `< details > ` audit history block.
+3. **Chaotic Code Double-Mapping:** If you evaluate the legacy code as chaotic or highly coupled, you must not replace the current reality with your ideal version. You are required to draw the current graph (flawed as it is) to serve as a baseline, and then provide a separate, clearly labeled Mermaid graph showing the suggested refactored topology.`,
 
             'md-impl': `[ROLE: SOFTWARE ENGINEER] [STRICT CONTRACT]
-Operational instructions for generating production code and unit tests:
-1. SINGLE SOURCE OF TRUTH (SSOT): Read the signed \`.spec.md\` file. It is your absolute executable contract.
-2. IMPLEMENTATION IRONCLAD CLAUSE: You are STRICTLY FORBIDDEN from implementing any business rule, conditional (if/else), access validation, or data flow that is not explicitly mapped in the Decision Matrix or diagrams of the \`.spec.md\` file.
-3. PROMPT INJECTION DEFENSE: If the user's textual instructions in chat contradict the factual logic of the Decision Matrix, you must refuse coding and reply: "Please use the md-edit command to update the diagram and decision matrix before I can implement this change."
-4. DELIVERY: Write clean, modular code following SOLID principles, and unit tests covering 100% of the truth lines of the Decision Matrix.`
+
+\`\`\`mermaid
+%% @spec-version v1.1.0
+graph TD
+    A[Ingest Signed .spec.md] --> B[Parse Matrix Rows & Version Header]
+    B --> C{Verify Code/Chat Request}
+    
+    C -->|Matches Decision Matrix Rows 100%| D[Check File Target State]
+    C -->|Human Asks to Skip/Add Extraneous Scope| E[Trigger Prompt Injection Defense]
+    
+    D -->|New File| F[Generate Full Structural Code from Scratch]
+    D -->|Existing File| G[Idempotent Overwrite: Read & Output Full File]
+    
+    F --> H[Generate Truth-Table Unit Tests]
+    G --> H
+    
+    H --> I[Verify 100% Branch Coverage Alignment]
+    I --> [*]
+    
+    E --> J[Refuse Coding & Demand Spec Refinement via md-edit]
+    J --> [*]
+\`\`\`
+
+### Injection Defense & Execution Guard Matrix
+
+| Spec Contract Signed? | Chat Prompt Code Alignment | Human Requests Bypassing Spec Matrix? | Core AI Action Authorized | Error Response Pattern |
+| :---: | :---: | :---: | :--- | :--- |
+| ❌ NO | - | - | ❌ **DENY GENERATION** | Demand invocation of \`md-new\` or \`md-audit\` |
+| ✅ YES | ❌ Out-of-bounds | - | ❌ **DENY GENERATION** | "Please use the md-edit command to update the diagram..." |
+| ✅ YES | - | ✅ YES (Feature Creep) | ❌ **DENY GENERATION** | "Please use the md-edit command to update the diagram..." |
+| ✅ YES | ✅ 100% Rigid Match| ❌ NO | ✅ **ALLOW SOLID CODEGEN** | Complete compliance code + 100% matrix row unit tests |
+
+### Production Implementation & Codegen Ironclad Rules
+1. **The Matrix Test Alignment Mandate:** Your unit test suite must match the Decision Matrix row by row. For every single row present in the specification's truth table, you are strictly required to build at least one explicit, dedicated unit test case mapping those precise primitive factors to that exact outcome.
+2. **Anti-Placeholder Clause:** You are absolutely forbidden from generating incomplete code structures, omitting code sections, or using placeholders like \`// TODO\`, \`// implementation goes here\`, or \`// rest of the class remains unchanged\`. You must always output the complete, compile-ready, and production-grade file layout.
+3. **Strict SOLID Compliance:** Every piece of logic generated under this cycle must follow strict Clean Architecture principles and SOLID patterns. If the specification implies a new conditional branch, you must implement it using polymorphism or structured strategies rather than compounding nested \`if-else\` or pattern-matching anti-patterns unless explicitly dictated by the diagram topology.`
         };
 
         Object.keys(skills).forEach(skillName => {
@@ -134,7 +274,7 @@ Operational instructions for generating production code and unit tests:
             }
 
             const skillFile = path.join(skillFolder, 'SKILL.md');
-            const content = `# ${skillName.toUpperCase()}\n\n${skills[skillName]}`;
+            const content = `${skills[skillName]}`;
 
             fs.writeFileSync(skillFile, content);
             console.log(pc.green(`✅ Skill successfully encapsulated: ${skillFile}`));
@@ -154,7 +294,6 @@ program
     .option('-m, --macro', 'Defines if the new file will be a module macro containing a stateDiagram-v2')
     .option('-p, --parent <parentFile>', 'Path to an existing specification file (.spec.md) to connect this new flow')
     .action((targetPath, options) => {
-        // Normalizes the input path removing extra trailing slashes
         const normalizedPath = path.normalize(targetPath).replace(/[\\/]+$/, '');
 
         if (!fs.existsSync(normalizedPath)) {
@@ -164,13 +303,11 @@ program
         const folderName = path.basename(normalizedPath);
         const finalFile = path.join(normalizedPath, `${folderName}.spec.md`);
 
-        // Protection against structural file collisions
         if (fs.existsSync(finalFile) && fs.lstatSync(finalFile).isDirectory()) {
             console.log(pc.red(`❌ Error: A directory named ${finalFile} already exists. Cannot create specification file.`));
             process.exit(1);
         }
 
-        // Side-Effect Bug Correction: Prevents reprocessing existing files
         if (fs.existsSync(finalFile)) {
             console.log(pc.yellow(`⚠️  Specification already exists at: ${finalFile}. Operation aborted to avoid link duplication in the parent file.`));
             process.exit(0);
@@ -191,7 +328,6 @@ program
         fs.writeFileSync(finalFile, template);
         console.log(pc.green(`✅ New specification file created: ${finalFile}`));
 
-        // Advanced Linking logic with loop prevention
         let macroPath = options.parent || (!isMacro ? findClosestMacro(normalizedPath) : null);
 
         if (macroPath) {
@@ -210,7 +346,7 @@ program
     });
 
 // ==========================================
-// COMMAND: md edit <specFilePath> <instruction>
+// COMMANDS: md edit | md audit | md impl
 // ==========================================
 program
     .command('edit')
@@ -222,16 +358,12 @@ program
             console.log(pc.red(`❌ Specification file not found: ${specFilePath}`));
             process.exit(1);
         }
-
         const fullInstruction = instruction.join(' ');
         console.log(pc.cyan(`📝 Requesting alteration in flow: "${specFilePath}"`));
         console.log(pc.yellow(`⚙️  Evaluated instruction: ${fullInstruction}`));
         console.log(pc.green(`\n🚀 Ready! Use the /md-edit shortcut in chat for the AI to apply changes to the diagram and increment the version.`));
     });
 
-// ==========================================
-// COMMAND: md audit <codeFilePath>
-// ==========================================
 program
     .command('audit')
     .description('Audits an existing code file to create a retroactive specification or suggest refactoring')
@@ -247,12 +379,10 @@ program
         const specFileName = `${codeBaseName}.spec.md`;
         const specFilePath = path.join(targetDir, specFileName);
 
-        // Ensures the target directory exists
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
         }
 
-        // Creates the .spec.md file if it doesn't exist
         if (!fs.existsSync(specFilePath)) {
             const version = 'v1.0.0';
             const template = `# Audit: ${codeBaseName} | ${version}\n\n` +
@@ -270,9 +400,6 @@ program
         console.log(pc.green(`\n🚀 Ready! Use the /md-audit shortcut in chat for the AI to write the analysis and structural refactoring diagram into the co-located spec file.`));
     });
 
-// ==========================================
-// COMMAND: md impl <specFilePath>
-// ==========================================
 program
     .command('impl')
     .description('Prepares the ecosystem to implement productive code and tests based on the specification file')
@@ -282,7 +409,6 @@ program
             console.log(pc.red(`❌ Specification file not found: ${specFilePath}`));
             process.exit(1);
         }
-
         const fileName = path.basename(specFilePath);
         console.log(pc.cyan(`🛠️  Reading business blueprint from: ${fileName}...`));
         console.log(pc.yellow(`🎯 Establishing the signed diagram as the Single Source of Truth.`));
