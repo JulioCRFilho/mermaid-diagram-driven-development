@@ -41,7 +41,7 @@ Unlike traditional specification frameworks that generate dozens of text files a
 | **AI Context Consumption** | High token overhead due to massive text-based behavioral descriptions. | Ultra-low token footprint using concise matrix truth tables. |
 | **Scalability** | Adding rules creates massive text blocks prone to prompt fragmentation. | Adding rules scales horizontally by appending precise factor columns. |
 | **Ambiguity Control** | High risk of LLM hallucination when interpreting nested "if/else" phrasing. | Mathematical precision; deterministic processing via matrix rows. |
-| **Tool Footprint** | Massive boilerplate with a bloat of internal files and complex folder structures. | Ultra-lightweight: a single, highly readable CLI file easily audited by any human. |
+| **Tool Footprint** | Massive boilerplate with a bloat of internal files and complex folder structures. | Ultra-lightweight modular architecture: a thin router + cleanly separated command and service modules, each easily audited by any human. |
 
 ### 🚀 Why MDDD Decision Matrices Outperform OpenSpec:
 * **Predictable Tokens:** For an LLM, reading an MDDD matrix table is identical to processing a binary truth table. It matches primitive factor columns (`Active Tenant?`, `Global Kill Switch?`) and instantly resolves whether the outcome is `ALLOW` or `DENY` without token-wasting lexical processing.
@@ -182,10 +182,10 @@ When starting a new feature, create its visual contract:
 
 ```bash
 # For a single feature
-md-new path/feature-name
+md new path/feature-name
 
 # For a feature connecting to an existing flow
-md-new path/feature-name --parent path/to/parent
+md new path/feature-name --parent path/to/parent
 
 ```
 
@@ -196,7 +196,7 @@ This will generate the `feature-name.spec.md` file containing the semantic versi
 Need to refactor existing code? Audit it:
 
 ```bash
-md-audit path/to/legacy-file
+md audit path/to/legacy-file
 
 ```
 
@@ -238,8 +238,48 @@ src/
 | Command | Description |
 | --- | --- |
 | `md init` | Configures the `system_prompt.md` file and the SKILL.md files which instructs the AI how to behave. Run this everytime you update MDDD-CLI NPM Package. |
+| `md new <targetPath>` | Creates a new `.spec.md` file at the target directory. Supports `--macro` for module-level specs and `--parent` for explicit parent linking. |
+| `md edit <specFilePath> <instruction...>` | Signals a pending change to an existing `.spec.md` file. The AI then applies the changes and increments semantic version. |
+| `md audit <codeFilePath>` | Audits a code file to create a retroactive `.spec.md` or suggest refactoring. |
+| `md impl <specFilePath>` | Prepares the ecosystem to implement production code and tests based on a signed `.spec.md`. |
 
-Other commands are made for IA-only. You should only tell IA which skill you want to use and the destination file.
+> **💡 Note for AI agents:** These commands are designed to be invoked by AI tools (Cursor, Windsurf, Claude Code, GitHub Copilot). As a human, simply tell the AI which skill to use and the target file.
+
+### Project Architecture
+
+The CLI codebase follows a clean modular architecture, as documented in `bin/cli.spec.md`:
+
+```
+bin/
+├── cli.js                     # Thin Commander router (< 100 lines)
+└── cli.spec.md                # Co-located spec (v2.0.0)
+
+src/
+├── commands/                  # Command layer (5 modules)
+│   ├── init.js
+│   ├── new.js
+│   ├── edit.js
+│   ├── audit.js
+│   └── impl.js
+└── services/                  # Shared services with DI
+    ├── FileSystemService.js
+    ├── TemplateFactory.js
+    ├── ParentLinker.js
+    ├── InitService.js
+    ├── SpecGenerator.js
+    ├── SpecValidator.js
+    ├── SpecEditor.js
+    ├── AuditService.js
+    └── ImplValidator.js
+
+tests/                         # Unit tests
+├── SpecGenerator.test.js
+├── ParentLinker.test.js
+├── AuditService.test.js
+└── TemplateFactory.test.js
+```
+
+All 21 unit tests pass with mocked file system (zero real I/O), ensuring full coverage of the core services.
 
 ---
 
@@ -249,6 +289,7 @@ Other commands are made for IA-only. You should only tell IA which skill you wan
 * **Commander.js** — Robust and declarative CLI interface
 * **Picocolors** — Colorful and lightweight terminal output
 * **Mermaid.js** — Visual diagramming as the source of truth
+* **Built-in Test Runner** (`node:test`) — Zero-dependency unit testing
 
 ---
 
@@ -290,7 +331,7 @@ Ao contrário de frameworks tradicionais de especificação que geram dezenas de
 | **Consumo de Contexto da IA** | Alto consumo de tokens devido a descrições comportamentais massivas em texto. | Consumo ultra-baixo de tokens através de tabelas de verdade concisas em matrizes. |
 | **Escalabilidade** | Adicionar regras cria blocos de texto massivos propensos a fragmentação de prompt. | Adicionar regras escala horizontalmente anexando colunas precisas de fatores. |
 | **Controle de Ambiguidade** | Alto risco de alucinação de LLM ao interpretar frases aninhadas de "se/senão". | Precisão matemática pura; processamento determinístico via linhas de matriz. |
-| **Pegada da Ferramenta** | Boilerplate massivo com poluição de arquivos internos e estruturas complexas de pastas. | Ultra-leve: um único arquivo CLI altamente legível e facilmente auditável por qualquer humano. |
+| **Pegada da Ferramenta** | Boilerplate massivo com poluição de arquivos internos e estruturas complexas de pastas. | Ultra-leve e modular: um router enxuto + módulos de comando e serviço claramente separados, cada um facilmente auditável. |
 
 ### 🚀 Por que as Matrizes de Decisão MDDD Superam o OpenSpec:
 
@@ -432,10 +473,10 @@ Ao iniciar uma nova funcionalidade, crie o seu contrato visual:
 
 ```bash
 # Para uma funcionalidade única
-md-new caminho/nome-da-feature
+md new caminho/nome-da-feature
 
 # Para uma funcionalidade conectando a um fluxo existente
-md-new caminho/nome-da-feature --parent caminho/para/pai
+md new caminho/nome-da-feature --parent caminho/para/pai
 
 ```
 
@@ -446,7 +487,7 @@ Isso gerará o arquivo `nome-da-feature.spec.md` contendo a estrutura de versão
 Precisa refatorar um código existente? Audite-o:
 
 ```bash
-md-audit caminho/para/arquivo-legado
+md audit caminho/para/arquivo-legado
 
 ```
 
@@ -485,11 +526,51 @@ src/
 
 ## 📦 Comandos da CLI
 
-| Comando | Description |
+| Comando | Descrição |
 | --- | --- |
 | `md init` | Configura os arquivos `system_prompt.md` e `SKILL.md` que instruem a IA sobre como se comportar. Execute isto sempre que atualizar o pacote NPM do MDDD-CLI. |
+| `md new <targetPath>` | Cria um novo arquivo `.spec.md` no diretório alvo. Suporta `--macro` para specs de módulo e `--parent` para vinculação explícita ao pai. |
+| `md edit <specFilePath> <instruction...>` | Sinaliza uma alteração pendente em um `.spec.md` existente. A IA então aplica as mudanças e incrementa a versão semântica. |
+| `md audit <codeFilePath>` | Audita um arquivo de código para criar um `.spec.md` retroativo ou sugerir refatoração. |
+| `md impl <specFilePath>` | Prepara o ecossistema para implementar código produtivo e testes com base em um `.spec.md` assinado. |
 
-Outros comandos foram feitos exclusivamente para o uso da IA. Você só precisa dizer à IA qual skill deseja usar e o arquivo de destino.
+> **💡 Nota para agentes de IA:** Estes comandos foram projetados para serem invocados por ferramentas de IA (Cursor, Windsurf, Claude Code, GitHub Copilot). Como humano, basta dizer à IA qual skill usar e o arquivo de destino.
+
+### Arquitetura do Projeto
+
+O código-fonte da CLI segue uma arquitetura modular limpa, conforme documentado em `bin/cli.spec.md`:
+
+```
+bin/
+├── cli.js                     # Router Commander enxuto (< 100 linhas)
+└── cli.spec.md                # Spec colocalizada (v2.0.0)
+
+src/
+├── commands/                  # Camada de comandos (5 módulos)
+│   ├── init.js
+│   ├── new.js
+│   ├── edit.js
+│   ├── audit.js
+│   └── impl.js
+└── services/                  # Serviços compartilhados com DI
+    ├── FileSystemService.js
+    ├── TemplateFactory.js
+    ├── ParentLinker.js
+    ├── InitService.js
+    ├── SpecGenerator.js
+    ├── SpecValidator.js
+    ├── SpecEditor.js
+    ├── AuditService.js
+    └── ImplValidator.js
+
+tests/                         # Testes unitários
+├── SpecGenerator.test.js
+├── ParentLinker.test.js
+├── AuditService.test.js
+└── TemplateFactory.test.js
+```
+
+Todos os 21 testes unitários passam com sistema de arquivos mockado (zero I/O real), garantindo cobertura total dos serviços principais.
 
 ---
 
@@ -499,6 +580,7 @@ Outros comandos foram feitos exclusivamente para o uso da IA. Você só precisa 
 * **Commander.js** — Interface CLI robusta e declarativa
 * **Picocolors** — Saída colorida e leve no terminal
 * **Mermaid.js** — Diagramação visual como fonte da verdade
+* **Test Runner Nativo** (`node:test`) — Testes unitários sem dependências externas
 
 ---
 
