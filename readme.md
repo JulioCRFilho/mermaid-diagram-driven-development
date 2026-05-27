@@ -39,12 +39,15 @@ Unlike traditional specification frameworks that generate dozens of text files a
 | :--- | :--- | :--- |
 | **Logic Structure** | Textual paragraphs, verbose rules, and conversational scenarios. | Binary/Factual Decision Matrices + Strict Structural Topologies. |
 | **AI Context Consumption** | High token overhead due to massive text-based behavioral descriptions. | Ultra-low token footprint using concise matrix truth tables. |
+| **Estimated Tokens per Rule (10 rules)** | **~8,000 – 12,000 tokens** (paragraphs + scenario descriptions + edge case text) | **~800 – 1,500 tokens** (10 matrix rows × 6 factor columns ≈ 60 cells of short text) |
+| **Estimated Tokens per Rule (50 rules)** | **~40,000 – 60,000 tokens** (entire context window may be consumed) | **~4,000 – 7,500 tokens** (still fits comfortably within a small context) |
 | **Scalability** | Adding rules creates massive text blocks prone to prompt fragmentation. | Adding rules scales horizontally by appending precise factor columns. |
 | **Ambiguity Control** | High risk of LLM hallucination when interpreting nested "if/else" phrasing. | Mathematical precision; deterministic processing via matrix rows. |
 | **Tool Footprint** | Massive boilerplate with a bloat of internal files and complex folder structures. | Ultra-lightweight modular architecture: a thin router + cleanly separated command and service modules, each easily audited by any human. |
 
 ### 🚀 Why MDDD Decision Matrices Outperform OpenSpec:
 * **Predictable Tokens:** For an LLM, reading an MDDD matrix table is identical to processing a binary truth table. It matches primitive factor columns (`Active Tenant?`, `Global Kill Switch?`) and instantly resolves whether the outcome is `ALLOW` or `DENY` without token-wasting lexical processing.
+* **10× to 15× Less Tokens:** A complex business rule with 6 variable factors costs ~800 tokens in MDDD vs ~8,000+ tokens in OpenSpec (paragraphs + edge case descriptions). As rules grow, MDDD stays linear while OpenSpec grows exponentially in verbosity.
 * **Infinite Columns = Infinite Variables:** If your system gains a new architectural constraint (e.g., `Is Environment Production?` or `IP Whitelisted?`), you simply append a new column to the matrix. The business logic scales horizontally without bloating or breaking Mermaid visual flows.
 * **A True Replacement for OpenSpec:** OpenSpec requires writing multiple paragraphs and descriptive test scenarios to cover complex constraint combinations. MDDD completely handles this in a single, deterministic table row—slashing prompt context overhead and completely eliminating AI hallucinations.
 
@@ -329,6 +332,8 @@ Ao contrário de frameworks tradicionais de especificação que geram dezenas de
 | --- | --- | --- |
 | **Estrutura Lógica** | Parágrafos textuais, regras verbosas e cenários conversacionais. | Matrizes de Decisão Binárias/Factuais + Topologias Estruturais Estritas. |
 | **Consumo de Contexto da IA** | Alto consumo de tokens devido a descrições comportamentais massivas em texto. | Consumo ultra-baixo de tokens através de tabelas de verdade concisas em matrizes. |
+| **Estimativa de Tokens (10 regras)** | **~8.000 – 12.000 tokens** (parágrafos + descrições de cenário + casos de borda) | **~800 – 1.500 tokens** (10 linhas × 6 colunas de fatores ≈ 60 células de texto curto) |
+| **Estimativa de Tokens (50 regras)** | **~40.000 – 60.000 tokens** (janela de contexto inteira pode ser consumida) | **~4.000 – 7.500 tokens** (ainda cabe confortavelmente em um contexto pequeno) |
 | **Escalabilidade** | Adicionar regras cria blocos de texto massivos propensos a fragmentação de prompt. | Adicionar regras escala horizontalmente anexando colunas precisas de fatores. |
 | **Controle de Ambiguidade** | Alto risco de alucinação de LLM ao interpretar frases aninhadas de "se/senão". | Precisão matemática pura; processamento determinístico via linhas de matriz. |
 | **Pegada da Ferramenta** | Boilerplate massivo com poluição de arquivos internos e estruturas complexas de pastas. | Ultra-leve e modular: um router enxuto + módulos de comando e serviço claramente separados, cada um facilmente auditável. |
@@ -336,6 +341,7 @@ Ao contrário de frameworks tradicionais de especificação que geram dezenas de
 ### 🚀 Por que as Matrizes de Decisão MDDD Superam o OpenSpec:
 
 * **Tokens Previsíveis:** Para uma LLM, ler essa tabela é idêntico a processar uma matriz binária de verdade. Ela bate o olho nas colunas de fatores primitivos (`Tenant Ativo?`, `Kill Switch Global Ativo?`) e sabe exatamente se a combinação resulta em `ALLOW` ou `DENY` sem gastar processamento léxico ou tokens desnecessários.
+* **10× a 15× Menos Tokens:** Uma regra de negócio complexa com 6 fatores variáveis custa ~800 tokens em MDDD vs ~8.000+ tokens em OpenSpec (parágrafos + descrições de casos de borda). Conforme as regras crescem, MDDD se mantém linear enquanto OpenSpec cresce exponencialmente em verborragia.
 * **Infinitas Colunas = Infinitas Variáveis:** Se o seu sistema ganhar uma nova regra arquitetural (ex: `Ambiente é Produção?` ou `IP em White-list?`), basta adicionar uma nova coluna na matriz. A lógica de negócio expande horizontalmente sem poluir ou quebrar os fluxos visuais do Mermaid.
 * **Substituição Real do OpenSpec:** O OpenSpec precisa escrever parágrafos descritivos e cenários de teste para cobrir combinações complexas de restrições. O MDDD resolve isso em uma única linha de tabela determinística, economizando o contexto do prompt e eliminando completamente alucinações da IA.
 
