@@ -179,6 +179,21 @@ md init
 
 This will create the `system_prompt.md` and `SKILL.md` files in the root directory, containing the global instructions that will guide the AI in understanding the MDDD methodology and interacting with Git logs. You can rename `system_prompt.md` to any .rules file you need (.cursorrules, .clinerules, etc.).
 
+### 2. Audit legacy files or make new ones.
+
+ - Tell AI to `md-audit` the file you want to review. If it's clean and concise, AI will create the spec based on it. If it's not, then AI will propose a refactoring with the "to-be" spec.
+
+ - Tell AI to `md-new` a specification you need, connect to a Jira/Task, to a Figma/Design or simple tell AI what you need.
+
+### 3. Implement the specification.
+
+Tell AI to `md-impl` pointing to a .spec file. It will read all the specification, create the task list and start working on it.
+
+### 4. Edit existing specifications.
+
+If you need to add a new feature or modify an existing one, just tell AI to `md-edit` the .spec file with the modifications you want.
+Review it until you get exactly the specification you need and then tell AI to `md-impl` it.
+
 ---
 
 ## 🤖 SKILLS (AI Triggers)
@@ -217,8 +232,6 @@ src/
 | Command | Description |
 | --- | --- |
 | `md init` | Configures the `system_prompt.md` file and the SKILL.md files which instructs the AI how to behave. Run this everytime you update MDDD-CLI NPM Package. |
-
-> **💡 Note for AI agents:** These commands are designed to be invoked by AI tools (Cursor, Windsurf, Claude Code, GitHub Copilot). As a human, simply tell the AI which skill to use and the target file.
 
 ### Project Architecture
 
@@ -425,7 +438,21 @@ md init
 
 ```
 
-Isso criará os arquivos `system_prompt.md` e `SKILL.md` no diretório raiz, contendo as instruções globais que guiarão a IA no entendimento da metodologia MDDD e na interação com os logs do Git. Você pode renomear `system_prompt.md` para qualquer nomenclatura que precise (.cursorrules, .clinerules, etc.).
+Isso criará os arquivos `system_prompt.md` e `SKILL.md` no diretório raiz, contendo as instruções globais que guiarão a IA na compreensão da metodologia MDDD e na interação com os logs do Git. Você pode renomear `system_prompt.md` para qualquer arquivo .rules que precisar (.cursorrules, .clinerules, etc.).
+
+### 2. Auditar arquivos legados ou criar novos.
+
+* Diga à IA para executar `md-audit` no arquivo que você deseja revisar. Se ele estiver limpo e conciso, a IA criará a especificação com base nele. Caso contrário, a IA proporá uma refatoração com a especificação ideal ("to-be").
+* Diga à IA para executar `md-new` para uma especificação que você precisa, conectar a um Jira/Tarefa, a um Figma/Design ou simplesmente diga à IA o que você precisa.
+
+### 3. Implementar a especificação.
+
+Diga à IA para executar `md-impl` apontando para um arquivo .spec. Ela lerá toda a especificação, criará a lista de tarefas e começará a trabalhar nela.
+
+### 4. Editar especificações existentes.
+
+Se você precisar adicionar uma nova funcionalidade ou modificar uma existente, basta dizer à IA para executar `md-edit` no arquivo .spec com as modificações desejadas.
+Revise até obter exatamente a especificação de que precisa e, em seguida, diga à IA para executá-lo com `md-impl`.
 
 ---
 
@@ -465,8 +492,6 @@ src/
 | Comando | Descrição |
 | --- | --- |
 | `md init` | Configura os arquivos `system_prompt.md` e `SKILL.md` que instruem a IA sobre como se comportar. Execute isto sempre que atualizar o pacote NPM do MDDD-CLI. |
-
-> **💡 Nota para agentes de IA:** Estes comandos foram projetados para serem invocados por ferramentas de IA (Cursor, Windsurf, Claude Code, GitHub Copilot). Como humano, basta dizer à IA qual skill usar e o arquivo de destino.
 
 ### Arquitetura do Projeto
 
