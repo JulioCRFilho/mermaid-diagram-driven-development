@@ -57,11 +57,11 @@ Unlike traditional specification frameworks that generate dozens of text files a
 
 | Phase | Actor | Action / Trigger | What Happens |
 | :--- | :--- | :--- | :--- |
-| **1. Input** | Human | `md-new` / `md-audit` | The user proposes a feature using natural language, points the AI directly to a Jira/GitHub Issue/Task, or asks AI to audit a legacy file. |
+| **1. Input** | Human | Feature Request | The user proposes a feature using natural language, points the AI directly to a Jira/GitHub Issue/Task, or asks AI to audit a legacy file. |
 | **2. Conception** | AI | Autogeneration | The AI assesses the scope and builds the `.spec.md` file complete with flowcharts, lifecycles, and required **Decision Matrices**. |
 | **3. Alignment** | Human | Interactive Review | The user reviews the specification within the editor. Refinements are handled iteratively by chatting with the AI. |
 | **4. Planning** | AI | Task Breakdown | Once the spec is approved, the AI extracts a granular, atomic checklist of development steps directly within the file. |
-| **5. Execution** | Human | `md-impl` | The user fires the execution trigger. The AI implements production code and tests strictly adhering to the specs, updating the semantic versioning on completion. |
+| **5. Execution** | AI | Code Generation | The AI implements production code and tests strictly adhering to the specs, updating the semantic versioning on completion. |
 
 ---
 
@@ -69,7 +69,7 @@ Unlike traditional specification frameworks that generate dozens of text files a
 
 To preview Mermaid diagrams directly in your editor during the MDDD workflow, you can use extensions that render ````mermaid```` blocks in Markdown files:
 
-### Architectural Diagram
+### Architectural Diagram Example
 
 ```mermaid
 sequenceDiagram
@@ -114,7 +114,7 @@ sequenceDiagram
 
 ```
 
-### Micro-App Runtime & Lifecycle Decision Matrix
+### Micro-App Runtime & Lifecycle Decision Matrix Example
 
 | Active Tenant? | Premium App? | Active Billing Tier? | User Has Role Admin? | App Whitelisted? | Global Kill Switch? | Proposed Action | Decision (Outcome) | Transition State (New Status) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -130,7 +130,7 @@ sequenceDiagram
 
 ---
 
-### VS Code
+### VS Code and derivated
 
 * **Markdown Preview Mermaid Support** — Adds Mermaid diagram support to the native Markdown preview.
 * **Mermaid Editor** — Visual editor with side-by-side preview and export.
@@ -166,7 +166,7 @@ npm install -g mddd-cli
 
 ## 🚀 Quick Start Guide
 
-The MDDD workflow is based on CLI commands to manage the structure and slash commands (`/`) to orchestrate the AI in the chat.
+The MDDD workflow is based on skills to orchestrate the AI in the chat.
 
 ### 1. Initialize your project
 
@@ -177,31 +177,7 @@ md init
 
 ```
 
-This will create the `system_prompt.md` and `SKILL.md` files in the root directory, containing the global instructions that will guide the AI in understanding the MDDD methodology and interacting with Git logs.
-
-### 2. Create a new specification (Feature)
-
-When starting a new feature, create its visual contract:
-
-```bash
-# For a single feature
-md new path/feature-name
-
-# For a feature connecting to an existing flow
-md new path/feature-name --parent path/to/parent
-
-```
-
-This will generate the `feature-name.spec.md` file containing the semantic version structure, Mermaid placeholders, Decision Matrix matrices, and the implementation checklist.
-
-### 3. Legacy Audit
-
-Need to refactor existing code? Audit it:
-
-```bash
-md audit path/to/legacy-file
-
-```
+This will create the `system_prompt.md` and `SKILL.md` files in the root directory, containing the global instructions that will guide the AI in understanding the MDDD methodology and interacting with Git logs. You can rename `system_prompt.md` to any .rules file you need (.cursorrules, .clinerules, etc.).
 
 ---
 
@@ -241,10 +217,6 @@ src/
 | Command | Description |
 | --- | --- |
 | `md init` | Configures the `system_prompt.md` file and the SKILL.md files which instructs the AI how to behave. Run this everytime you update MDDD-CLI NPM Package. |
-| `md new <targetPath>` | Creates a new `.spec.md` file at the target directory. Supports `--macro` for module-level specs and `--parent` for explicit parent linking. |
-| `md edit <specFilePath> <instruction...>` | Signals a pending change to an existing `.spec.md` file. The AI then applies the changes and increments semantic version. |
-| `md audit <codeFilePath>` | Audits a code file to create a retroactive `.spec.md` or suggest refactoring. |
-| `md impl <specFilePath>` | Prepares the ecosystem to implement production code and tests based on a signed `.spec.md`. |
 
 > **💡 Note for AI agents:** These commands are designed to be invoked by AI tools (Cursor, Windsurf, Claude Code, GitHub Copilot). As a human, simply tell the AI which skill to use and the target file.
 
@@ -254,35 +226,16 @@ The CLI codebase follows a clean modular architecture, as documented in `bin/cli
 
 ```
 bin/
-├── cli.js                     # Thin Commander router (< 100 lines)
-└── cli.spec.md                # Co-located spec (v2.0.0)
+├── cli.js                     # Thin Commander router (< 30 lines)
+└── cli.spec.md                # Co-located spec (v3.0.0)
 
 src/
-├── commands/                  # Command layer (5 modules)
-│   ├── init.js
-│   ├── new.js
-│   ├── edit.js
-│   ├── audit.js
-│   └── impl.js
+├── commands/                  # Command layer
+│   └── init.js
 └── services/                  # Shared services with DI
     ├── FileSystemService.js
-    ├── TemplateFactory.js
-    ├── ParentLinker.js
-    ├── InitService.js
-    ├── SpecGenerator.js
-    ├── SpecValidator.js
-    ├── SpecEditor.js
-    ├── AuditService.js
-    └── ImplValidator.js
-
-tests/                         # Unit tests
-├── SpecGenerator.test.js
-├── ParentLinker.test.js
-├── AuditService.test.js
-└── TemplateFactory.test.js
+    └── InitService.js
 ```
-
-All 21 unit tests pass with mocked file system (zero real I/O), ensuring full coverage of the core services.
 
 ---
 
@@ -313,7 +266,7 @@ Distributed under the MIT license. See the [LICENSE](https://www.google.com/sear
 
 Uma CLI agnóstica, ultra-leve e cirúrgica para implementar **MDDD (Mermaid Diagram Driven Development)** de forma modular, colocalizada e estritamente versionada.
 
-Esta ferramenta automatiza a criação e a conexão de arquivos de especificação visual (Markdown + Mermaid + Matrizes de Decisão). O objetivo é envelopar as regras de negócio em arquivos `.spec.md` para que qualquer ferramenta de IA (**Cursor, Windsurf, Claude Code, GitHub Copilot**, etc.) use esses assets como a **Fonte Única da Verdade** antes de tocar no código produtivo.
+Esta ferramenta automatiza a criação e a conexão de arquivos de especificação visual (Markdown + Mermaid + Matrizes de Decisão) através do comando `md init`. O objetivo é envelopar as regras de negócio em arquivos `.spec.md` para que qualquer ferramenta de IA (**Cursor, Windsurf, Claude Code, GitHub Copilot**, etc.) use esses assets como a **Fonte Única da Verdade** antes de tocar no código produtivo.
 
 ---
 
@@ -352,11 +305,11 @@ Ao contrário de frameworks tradicionais de especificação que geram dezenas de
 
 | Etapa | Ator | Ação / Gatilho | O que acontece |
 | --- | --- | --- | --- |
-| **1. Entrada** | Humano | `md-new` / `md-audit` | O usuário propõe uma funcionalidade em linguagem natural, aponta a IA diretamente para uma Issue/Task do Jira ou GitHub, ou pede para a IA auditar um arquivo legado. |
+| **1. Entrada** | Humano | Solicitação de Funcionalidade | O usuário propõe uma funcionalidade em linguagem natural, aponta a IA diretamente para uma Issue/Task do Jira ou GitHub, ou pede para a IA auditar um arquivo legado. |
 | **2. Concepção** | IA | Autogeração | A IA avalia o escopo e constrói o arquivo `.spec.md` completo com diagramas de fluxo, ciclos de vida e as **Matrizes de Decisão** necessárias. |
 | **3. Alinhamento** | Humano | Revisão Interativa | O usuário revisa a especificação dentro do editor. Os refinamentos são feitos de forma iterativa conversando com a IA. |
 | **4. Planning** | IA | Quebra de Tarefas | Com a spec aprovada, a IA extrai um checklist granular e atômico dos passos de desenvolvimento diretamente dentro do arquivo. |
-| **5. Execução** | Humano | `md-impl` | O usuário dispara o gatilho de execução. A IA implementa o código produtivo e os testes baseando-se estritamente nas specs, atualizando o versionamento semântico ao concluir. |
+| **5. Execução** | IA | Geração de Código | A IA implementa o código produtivo e os testes baseando-se estritamente nas specs, atualizando o versionamento semântico ao concluir. |
 
 ---
 
@@ -364,7 +317,7 @@ Ao contrário de frameworks tradicionais de especificação que geram dezenas de
 
 Para visualizar diagramas Mermaid diretamente no seu editor durante o fluxo MDDD, você pode usar extensões que renderizam blocos `mermaid` em arquivos Markdown:
 
-### Diagrama Arquitetural
+### Exemplo de Diagrama Arquitetural
 
 ```mermaid
 sequenceDiagram
@@ -409,7 +362,7 @@ sequenceDiagram
 
 ```
 
-### Matriz de Decisão de Ciclo de Vida & Runtime de Micro-Apps
+### Exemplo de Matriz de Decisão de Ciclo de Vida & Runtime de Micro-Apps
 
 | Tenant Ativo? | App Premium? | Tier de Faturamento Ativo? | Usuário é Admin? | App em White-list? | Kill Switch Global Ativo? | Ação Proposta | Decisão (Resultado) | Estado de Transição (Novo Status) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -425,7 +378,7 @@ sequenceDiagram
 
 ---
 
-### VS Code
+### VS Code e derivados
 
 * **Markdown Preview Mermaid Support** — Adiciona suporte a diagramas Mermaid no preview nativo do Markdown.
 * **Mermaid Editor** — Editor visual com preview lado a lado e exportação.
@@ -461,9 +414,9 @@ npm install -g mddd-cli
 
 ## 🚀 Guia de Uso Rápido
 
-O fluxo MDDD é baseado em comandos de CLI para gerenciar a estrutura e comandos de barra (`/`) para orquestrar a IA no chat.
+O fluxo MDDD é baseado em skills para orquestrar a IA no chat.
 
-### 1. Initialize your project
+### 1. Inicialize seu projeto
 
 Na raiz do seu projeto, execute:
 
@@ -472,31 +425,7 @@ md init
 
 ```
 
-Isso criará os arquivos `system_prompt.md` e `SKILL.md` no diretório raiz, contendo as instruções globais que guiarão a IA no entendimento da metodologia MDDD e na interação com os logs do Git.
-
-### 2. Crie uma nova especificação (Feature)
-
-Ao iniciar uma nova funcionalidade, crie o seu contrato visual:
-
-```bash
-# Para uma funcionalidade única
-md new caminho/nome-da-feature
-
-# Para uma funcionalidade conectando a um fluxo existente
-md new caminho/nome-da-feature --parent caminho/para/pai
-
-```
-
-Isso gerará o arquivo `nome-da-feature.spec.md` contendo a estrutura de versão semântica, placeholders do Mermaid, tabelas de Matrizes de Decisão e o checklist de tarefas de implementação.
-
-### 3. Auditoria de Legado
-
-Precisa refatorar um código existente? Audite-o:
-
-```bash
-md audit caminho/para/arquivo-legado
-
-```
+Isso criará os arquivos `system_prompt.md` e `SKILL.md` no diretório raiz, contendo as instruções globais que guiarão a IA no entendimento da metodologia MDDD e na interação com os logs do Git. Você pode renomear `system_prompt.md` para qualquer nomenclatura que precise (.cursorrules, .clinerules, etc.).
 
 ---
 
@@ -536,10 +465,6 @@ src/
 | Comando | Descrição |
 | --- | --- |
 | `md init` | Configura os arquivos `system_prompt.md` e `SKILL.md` que instruem a IA sobre como se comportar. Execute isto sempre que atualizar o pacote NPM do MDDD-CLI. |
-| `md new <targetPath>` | Cria um novo arquivo `.spec.md` no diretório alvo. Suporta `--macro` para specs de módulo e `--parent` para vinculação explícita ao pai. |
-| `md edit <specFilePath> <instruction...>` | Sinaliza uma alteração pendente em um `.spec.md` existente. A IA então aplica as mudanças e incrementa a versão semântica. |
-| `md audit <codeFilePath>` | Audita um arquivo de código para criar um `.spec.md` retroativo ou sugerir refatoração. |
-| `md impl <specFilePath>` | Prepara o ecossistema para implementar código produtivo e testes com base em um `.spec.md` assinado. |
 
 > **💡 Nota para agentes de IA:** Estes comandos foram projetados para serem invocados por ferramentas de IA (Cursor, Windsurf, Claude Code, GitHub Copilot). Como humano, basta dizer à IA qual skill usar e o arquivo de destino.
 
@@ -549,35 +474,16 @@ O código-fonte da CLI segue uma arquitetura modular limpa, conforme documentado
 
 ```
 bin/
-├── cli.js                     # Router Commander enxuto (< 100 linhas)
-└── cli.spec.md                # Spec colocalizada (v2.0.0)
+├── cli.js                     # Router Commander enxuto (< 30 linhas)
+└── cli.spec.md                # Spec colocalizada (v3.0.0)
 
 src/
-├── commands/                  # Camada de comandos (5 módulos)
-│   ├── init.js
-│   ├── new.js
-│   ├── edit.js
-│   ├── audit.js
-│   └── impl.js
+├── commands/                  # Camada de comandos
+│   └── init.js
 └── services/                  # Serviços compartilhados com DI
     ├── FileSystemService.js
-    ├── TemplateFactory.js
-    ├── ParentLinker.js
-    ├── InitService.js
-    ├── SpecGenerator.js
-    ├── SpecValidator.js
-    ├── SpecEditor.js
-    ├── AuditService.js
-    └── ImplValidator.js
-
-tests/                         # Testes unitários
-├── SpecGenerator.test.js
-├── ParentLinker.test.js
-├── AuditService.test.js
-└── TemplateFactory.test.js
+    └── InitService.js
 ```
-
-Todos os 21 testes unitários passam com sistema de arquivos mockado (zero I/O real), garantindo cobertura total dos serviços principais.
 
 ---
 

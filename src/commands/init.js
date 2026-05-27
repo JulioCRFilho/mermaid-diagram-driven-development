@@ -170,7 +170,7 @@ stateDiagram-v2
 | Legacy Code Active | ❌ NO | Chaotic / Coupled | Auto-generate Spec File + Map Current AND Proposed Logic | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0\` |
 
 ### Missing Spec Auto-Repair Blueprint Requirements
-* **Enforce Section Injections:** Every auto-generated specification file must structurally enforce: 
+* **Enforce Section Injections:** Every generated specification file must structurally enforce: 
   1. \`SPEC_VERSION: v1.0.0\` metadata header at the very top.
   2. \`stateDiagram-v2\` or \`graph LR\` derived exactly from code logic behaviors.
   3. \`Decision Matrix\` tables filled if the code contains conditional execution branches.
@@ -179,7 +179,10 @@ stateDiagram-v2
 ### Quality Assurance & Immutability Ironclad Rules
 1. **Absolute Immutability Command:** Under no circumstances are you allowed to patch, alter, or modify the target production code file during the \`md-audit\` cycle. Your execution scope is strictly limited to observation and documentation within the Markdown specification file.
 2. **Preservation Guarantee:** When appending an audit report to an existing \`.spec.md\` file, you must read the file completely and guarantee that the business requirements, main diagrams, and current decision matrices are left untouched. You are only allowed to inject rows inside the \`<details>\` audit history block.
-3. **Chaotic Code Double-Mapping:** If you evaluate the legacy code as chaotic or highly coupled, you must not replace the current reality with your ideal version. You are required to draw the current graph (flawed as it is) to serve as a baseline, and then provide a separate, clearly labeled Mermaid graph showing the suggested refactored topology.`,
+3. **Chaotic Code Double-Mapping:** If you evaluate the legacy code as chaotic or highly coupled, you must not replace the current reality with your ideal version. You are required to draw the current graph (flawed as it is) to serve as a baseline, and then provide a separate, clearly labeled Mermaid graph showing the suggested refactored topology.
+
+**Rule:** ALWAYS GENERATE THE .SPEC.MD FILE OR UPDATE THE EXISTING ONE.
+`,
 
   'md-impl': `[ROLE: SOFTWARE ENGINEER] [STRICT CONTRACT]
 
