@@ -18,7 +18,7 @@ export async function execute(specGenerator, parentLinker, fs, targetPath, optio
   const folderName = path.basename(normalizedPath);
   const finalFile = path.join(normalizedPath, `${folderName}.spec.md`);
 
-  if (fs.existsSync(finalFile) && fs.existsSync(finalFile)) {
+  if (fs.existsSync(finalFile)) {
     // Check if it's a directory (edge case)
     try {
       const stats = await fs.getRaw().stat?.(finalFile);

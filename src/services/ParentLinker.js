@@ -54,15 +54,17 @@ export class ParentLinker {
    * @param {string} parentSpecPath - Path to the parent .spec.md
    * @param {string} childSpecPath - Path to the child .spec.md
    * @param {string} folderName - Name of the child feature folder
-   * @returns {Promise<void>}
-   */
+   * @returns {Promise<void>}\n   */
   async linkToParent(parentSpecPath, childSpecPath, folderName) {
     const relativePath = path
       .relative(path.dirname(parentSpecPath), childSpecPath)
-      .replace(/\\/g, '/');
+      .replace(/\\/g, '/'); // Garante compatibilidade de paths no estilo POSIX para o Markdown
 
-    const injection = `\n\n%% Automatic connection for sub-flow\n- [Go to ${folderName} rules](file://./${relativePath})\n`;
+    const parentContent = await this.#fs.readFile(parentSpecPath);
 
-    await this.#fs.appendFile(parentSpecPath, injection);
+    // Injeta o link logo após o fim do bloco do Mermaid ou no topo do arquivo estruturado
+    const linkAddition = `\n\n- [Micro Feature: ${folderName}](${relativePath})`;
+
+    await this.#fs.writeFile(parentSpecPath, parentContent + linkAddition);
   }
 }

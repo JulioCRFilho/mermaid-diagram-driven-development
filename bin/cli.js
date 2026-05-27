@@ -75,9 +75,9 @@ program
   .description('Signals a pending change in an existing Mermaid specification file')
   .argument('<specFilePath>', 'Path to the specification file (.spec.md)')
   .argument('<instruction...>', 'The change instruction or flow adjustment')
-  .action((specFilePath, instruction) => {
+  .action(async (specFilePath, instruction) => {
     try {
-      editCmd.execute(specEditor, specFilePath, instruction);
+      await editCmd.execute(specEditor, specFilePath, instruction);
     } catch (err) {
       console.error(pc.red(`❌ ${err.message}`));
       process.exit(1);
@@ -107,9 +107,9 @@ program
   .command('impl')
   .description('Prepares the ecosystem to implement productive code and tests based on the specification file')
   .argument('<specFilePath>', 'Path to the specification file (.spec.md)')
-  .action((specFilePath) => {
+  .action(async (specFilePath) => {
     try {
-      implCmd.execute(implValidator, specFilePath);
+      await implCmd.execute(implValidator, specFilePath);
     } catch (err) {
       console.error(pc.red(`❌ ${err.message}`));
       process.exit(1);
