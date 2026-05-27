@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="#english">🇺🇸 English</a> •
-  <a href="#português">🇧🇷 Português</a>
+  <a href="#portuguese">🇧🇷 Português</a>
 </p>
 
 ---
@@ -307,6 +307,7 @@ If you encounter any issues, open a [GitHub Issue](https://github.com/JulioCRFil
 Distributed under the MIT license. See the [LICENSE](https://www.google.com/search?q=LICENSE) file for more information.
 
 ---
+<a id="portuguese"></a>
 
 # 🇧🇷 Português
 
