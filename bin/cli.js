@@ -100,7 +100,7 @@ graph TD
 | Command Executed | \`SPEC_VERSION\` | - | Structural Breaking / Flow Overhaul | Increment Major (\`v1.0.0\` -> \`v2.0.0\`) |
 
 ## 4. Anti-Hallucination Guardrails
-1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding `.spec.md` file does not exist or does not contain a populated Decision Matrix.
+1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding \`.spec.md\` file does not exist or does not contain a populated Decision Matrix.
 2. **Implicit Logic Ban:** If a business condition, validation check, or outcome branch is not explicitly listed as a row or column in the Decision Matrix, it does not exist. Do not assume or extrapolate rules.
 3. **Strict State Isolation:** When handling a micro feature, you cannot introduce global states or modify sibling domains unless instructed via explicit macro architectural mapping updates.
 `;
