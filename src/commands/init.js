@@ -137,7 +137,7 @@ graph LR
 \`\`\`mermaid
 %% @spec-version v1.1.0
 stateDiagram-v2
-    [*] --> AnalyzeLegacyCode: Evaluate Coupling & Scope Leaks
+    [*] --> AnalyzeLegacyCode: Evaluate code quality, conciseness, and coupling
     AnalyzeLegacyCode --> FileSystemCheck
     
     state FileSystemCheck {
@@ -146,12 +146,12 @@ stateDiagram-v2
         CheckCoLocation --> AppendToExisting: Target Co-located .spec.md Exists
     }
     
-    CreateMissingSpec --> RenderTopology: Initialize New .spec.md
+    CreateMissingSpec --> RenderTopology: Create new colocated .spec.md
     AppendToExisting --> InjectAuditBlock: Target Existing File Preservation Map
     
     state RenderTopology {
-        [*] --> CodeIsClean: Map exact architecture as-is (v1.0.0)
-        [*] --> CodeIsChaotic: Draw BOTH current real logic AND ideal target refactored graph
+        [*] --> CodeIsClean: Map exact architecture as-is (v1.0.0 - stable)
+        [*] --> CodeIsChaotic: Draw BOTH current real logic AND ideal target refactored graph (v1.0.0 - draft)
     }
     
     RenderTopology --> WriteToAuditTag: Inject payloads inside <details> block
@@ -166,8 +166,8 @@ stateDiagram-v2
 | :--- | :---: | :---: | :--- | :---: | :---: |
 | Legacy Code Active | ✅ YES | Clean / Modular | Append to existing \`<details><summary>Audit History</summary>\` | ❌ **FORBIDDEN (Immutability)** | Retain Current |
 | Legacy Code Active | ✅ YES | Chaotic / Coupled | Append to existing \`<details><summary>Audit History</summary>\` | ❌ **FORBIDDEN (Immutability)** | Retain Current |
-| Legacy Code Active | ❌ NO | Clean / Modular | Auto-generate Spec File + Map Current Logic | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0\` |
-| Legacy Code Active | ❌ NO | Chaotic / Coupled | Auto-generate Spec File + Map Current AND Proposed Logic | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0\` |
+| Legacy Code Active | ❌ NO | Clean / Modular | Generate Spec File + Map Current Logic | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0 - stable\` |
+| Legacy Code Active | ❌ NO | Chaotic / Coupled | Generate Spec File + Map Current Logic AND Proposed Refactoring | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0 - draft\` |
 
 ### Missing Spec Auto-Repair Blueprint Requirements
 * **Enforce Section Injections:** Every generated specification file must structurally enforce: 
