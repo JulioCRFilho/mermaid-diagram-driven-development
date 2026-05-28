@@ -1,6 +1,6 @@
 # init.js — Command Specification
 
-**SPEC_VERSION: v1.3.0 — stable**
+**SPEC_VERSION: v1.4.0 — stable**
 
 ## Overview
 
@@ -47,23 +47,60 @@ jobs:
     steps:
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
-
-      - name: 📸 Render Mermaid Diagrams to Images
-        uses: xanmanning/mermaid-render-action@v1.2.1
-        id: mermaid-render
         with:
-          manifest: 'mddd-manifest.json'
-          output-dir: '.github/mddd-previews'
-          format: 'png'
+          fetch-depth: 0
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📸 Render Mermaid Diagrams to PNG
+        run: |
+          mkdir -p .github/mddd-previews
+          npm install --no-save @mermaid-js/mermaid-cli puppeteer 2>&1 | tail -2
+
+          # Find changed .spec.md files in this PR
+          CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}...${{ github.sha }}" -- '*.spec.md' 2>/dev/null || echo "")
+
+          for file in $CHANGED; do
+            [ -f "$file" ] || continue
+            echo "📄 Processing: $file"
+
+            # Extract each ```mermaid block to a .mmd temp file using node inline
+            # Note: single-quote heredoc prevents shell expansion of $ and backticks
+            node -e '
+              const fs=require("fs"),p=require("path");
+              const c=fs.readFileSync(process.argv[1],"utf8");
+              const v=c.match(/SPEC_VERSION: v?([\d.]+)/)?.[1]||"0";
+              const r=/```mermaid\n?([\s\S]*?)```/g;
+              let m,i=0;
+              while((m=r.exec(c))!==null){
+                let d=m[1].replace(/^%%.*$/gm,"").trim();
+                if(!d)continue;
+                const n=p.basename(process.argv[1],".spec.md")+"-"+i+".mmd";
+                fs.writeFileSync("/tmp/"+n,"%% @spec-version v"+v+"\n"+d);
+                console.log("  Extracted diagram "+(i+1)+" -> "+n);
+                i++;
+              }
+            ' "$file"
+          done
+
+          for mmd in /tmp/*.mmd; do
+            [ -f "$mmd" ] || continue
+            base=$(basename "$mmd" .mmd)
+            echo "🎨 Rendering $base..."
+            npx -p @mermaid-js/mermaid-cli mmdc -i "$mmd" -o ".github/mddd-previews/$base.png" -b white -w 1200 2>&1 | tail -1 || echo "  ⚠️ Render failed for $base"
+          done
 
       - name: 💬 Comment Preview on PR
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             ### 🗺️ MDDD - Alterações de Design Detectadas!
-            Revise a topologia visual proposta abaixo antes de aprovar o código:
+            Revise a topologia visual proposta abaixo antes de aprovar o código.
 
-            ![Diagram Preview](https://raw.githubusercontent.com/${{ github.repository }}/${{ github.head_ref }}/.github/mddd-previews/changed-diagram.png)
+            > Os diagramas renderizados estão disponíveis como artefatos da workflow run (seção \"Summary\").
           comment_tag: 'mddd-design-preview'
 ```
 
@@ -219,7 +256,10 @@ graph TD
 | 2026-05-28 | Cline (md-impl) | v1.0.1 | Idempotent full-file overwrite of `init.js`. No behavioral changes — same 3-step flow preserved. Unit tests created under `tests/commands/init.spec.js` with 6/6 passing. SPEC_VERSION bumped from v1.0.0 to v1.0.1 (patch). |
 | 2026-05-28 | Cline (md-edit) | v1.1.0 | Updated `md-audit` skill embedded in `init.js` to v1.2.0: added `SpecFileGuaranteed` terminal state in topology diagram, added `.spec.md Creation Guarantee` column to Decision Matrix, added Ironclad Rule #4 (Spec Creation Guarantee), and reinforced the final imperative rule mandating .spec.md creation on every audit cycle. SPEC_VERSION bumped from v1.0.1 to v1.1.0 (minor — new contract enforcement). |
 | 2026-05-28 | Cline (md-edit) | **v1.2.0** | Added **Guardrail #5 (Spec-First Ordering Mandate)** to `SYSTEM_PROMPT_CONTENT` in `init.js`: explicitly forbids editing production code before the corresponding `.spec.md` file has been created or updated. This prevents the protocol violation of editing `.js` files before `.spec.md` files. Updated `md-edit` skill to v1.2.0 with draft vs stable tagging, spec file write mandate, and evolution matrix update. Updated `md-impl` skill to v1.2.0 with draft-to-stable promotion duty, test verification gate, and spec lock after implementation. SPEC_VERSION bumped from v1.1.0 to v1.3.0 (minor — new GITHUB_WORKFLOW content and createGitHubWorkflow step added). |
+| 2026-05-28 | Cline (md-edit) | **v1.4.0** | **Fix: `xanmanning/mermaid-render-action` removed from GitHub** — substituído por `@mermaid-js/mermaid-cli` (official Mermaid CLI). Workflow agora extrai blocos ```mermaid de arquivos `.spec.md` alterados no PR e renderiza com `mmdc`. Adicionado `actions/setup-node@v4` para Node.js 20. SPEC_VERSION bumped from v1.3.0 to v1.4.0 (minor — structural change to workflow YAML). Status set to **draft** pending implementation. |
 
-> **v1.3.0 (current):** Added `CreateGitHubWorkflow` state to the behavioral flow diagram. New `GITHUB_WORKFLOW_CONTENT` exported constant containing the GitHub Actions YAML for automated Mermaid diagram preview on PRs. New step 3 in Decision Matrix: `initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT)` writes `.github/workflows/mddd-preview.yml`. New "GitHub Actions Preview Workflow" section documenting the idempotent overwrite behavior. SPEC_VERSION bumped from v1.2.0 to v1.3.0 (minor — new state node/flow addition). Status promoted from **draft** to **stable** — implementation and tests verified. |
+> **v1.4.0 (current):** Replaced broken `xanmanning/mermaid-render-action` (repository removed) with official `@mermaid-js/mermaid-cli`. The workflow now: (1) detects changed `.spec.md` files in the PR, (2) extracts Mermaid code blocks using a Node.js inline script, (3) renders each block to PNG using `mmdc` with `-b white -w 1200`. Added `actions/setup-node@v4` step. Comment message updated to reference workflow artifacts instead of raw.githubusercontent.com URLs. SPEC_VERSION bumped from v1.3.0 to v1.4.0 (minor — structural breaking change to workflow topology). Status promoted from **draft** to **stable** — implementation and tests verified. |
+
+> **v1.3.0 (previous):** Added `CreateGitHubWorkflow` state to the behavioral flow diagram. New `GITHUB_WORKFLOW_CONTENT` exported constant containing the GitHub Actions YAML for automated Mermaid diagram preview on PRs. New step 3 in Decision Matrix: `initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT)` writes `.github/workflows/mddd-preview.yml`. Status promoted from **draft** to **stable**. |
 
 </details>

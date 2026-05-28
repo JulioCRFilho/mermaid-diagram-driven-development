@@ -246,43 +246,66 @@ graph TD
 };
 
 /**
- * GitHub Actions workflow YAML for automated Mermaid diagram preview on PRs.
- */
-export const GITHUB_WORKFLOW_CONTENT = `name: 🗺️ MDDD Diagram Preview
-
-on:
-  pull_request:
-    paths:
-      - '**/*.spec.md'
-
-jobs:
-  render-preview:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: read
-
-    steps:
-      - name: ⬇️ Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 📸 Render Mermaid Diagrams to Images
-        uses: xanmanning/mermaid-render-action@v1.2.1
-        id: mermaid-render
-        with:
-          manifest: 'mddd-manifest.json'
-          output-dir: '.github/mddd-previews'
-          format: 'png'
-
-      - name: 💬 Comment Preview on PR
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            ### 🗺️ MDDD - Alterações de Design Detectadas!
-            Revise a topologia visual proposta abaixo antes de aprovar o código:
-
-            ![Diagram Preview](https://raw.githubusercontent.com/\${{ github.repository }}/\${{ github.head_ref }}/.github/mddd-previews/changed-diagram.png)
-          comment_tag: 'mddd-design-preview'`;
+* GitHub Actions workflow YAML for automated full specification and native Mermaid preview on PRs.
+* Injects the complete markdown file, relying on GitHub's native rendering engines.
+*/
+export const GITHUB_WORKFLOW_CONTENT = [
+  "name: 🗺️ MDDD Full Spec Preview",
+  "",
+  "on:",
+  "  pull_request:",
+  "    paths:",
+  "      - '**/*.spec.md'",
+  "",
+  "jobs:",
+  "  render-preview:",
+  "    runs-on: ubuntu-latest",
+  "    permissions:",
+  "      pull-requests: write",
+  "      contents: read",
+  "",
+  "    steps:",
+  "      - name: ⬇️ Checkout Repository",
+  "        uses: actions/checkout@v4",
+  "        with:",
+  "          fetch-depth: 0", // CRUCIAL: Traz o histórico completo para o git diff funcionar
+  "",
+  "      - name: 📸 Build Preview Comment",
+  "        id: build-comment",
+  '        run: |',
+  '          echo "comment<<EOF" >> "$GITHUB_OUTPUT"',
+  '          echo "### 🗺️ MDDD - Design Changes Detected!" >> "$GITHUB_OUTPUT"',
+  '          echo "Review the proposed specification and visual topology below before approving." >> "$GITHUB_OUTPUT"',
+  '          echo "" >> "$GITHUB_OUTPUT"',
+  "",
+  '          # Busca os arquivos modificados comparando dinamicamente com a branch destino do PR',
+  '          CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- "*.spec.md" 2>/dev/null || echo "")',
+  "",
+  "          for file in $CHANGED; do",
+  '            [ -f "$file" ] || continue',
+  '            echo "" >> "$GITHUB_OUTPUT"',
+  '            echo "#### 📄 File: \`${file}\`" >> "$GITHUB_OUTPUT"',
+  '            echo "" >> "$GITHUB_OUTPUT"',
+  '            echo "<details open>" >> "$GITHUB_OUTPUT"',
+  '            echo "<summary>Click to collapse full specification preview</summary>" >> "$GITHUB_OUTPUT"',
+  '            echo "" >> "$GITHUB_OUTPUT"',
+  "",
+  '            # Injeta o conteúdo completo do arquivo markdown',
+  '            cat "$file" >> "$GITHUB_OUTPUT"',
+  '            echo "" >> "$GITHUB_OUTPUT"',
+  "",
+  '            echo "</details>" >> "$GITHUB_OUTPUT"',
+  '            echo "" >> "$GITHUB_OUTPUT"',
+  "          done",
+  "",
+  '          echo "EOF" >> "$GITHUB_OUTPUT"',
+  "",
+  "      - name: 💬 Comment Preview on PR",
+  "        uses: thollander/actions-comment-pull-request@v2",
+  "        with:",
+  '          message: "${{ steps.build-comment.outputs.comment }}"',
+  "          comment_tag: 'mddd-design-preview'",
+].join('\n');
 
 /**
  * Executes the \`md init\` command.

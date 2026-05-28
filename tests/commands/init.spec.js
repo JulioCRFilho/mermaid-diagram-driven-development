@@ -179,7 +179,8 @@ describe('exported constants', () => {
     assert.equal(typeof GITHUB_WORKFLOW_CONTENT, 'string');
     assert.ok(GITHUB_WORKFLOW_CONTENT.length > 0);
     assert.ok(GITHUB_WORKFLOW_CONTENT.includes('name:'));
-    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('mermaid-render-action'));
-    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('mddd-preview'));
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('mermaid.ink'));
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('Diagram Preview'));
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('actions/checkout@v4'));
   });
 });
