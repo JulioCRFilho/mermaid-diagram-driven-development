@@ -1,4 +1,4 @@
-# CLI Module | v4.0.1 (Stable)
+# CLI Module | v4.0.2 (Stable)
 
 ## 1. Flow Contract (Mermaid)
 
