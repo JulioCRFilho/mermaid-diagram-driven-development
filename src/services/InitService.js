@@ -26,7 +26,8 @@ export class InitService {
   /**
    * Creates all skill folders and SKILL.md files.
    * @param {Record<string, string>} skills - Map of skill name to skill content
-   * @returns {Promise<{console: (message: string) => void}>} Array of file paths created
+   * @param {(message: string) => void} logger
+   * @returns {Promise<string[]>} Array of file paths created
    */
   async createSkills(skills, logger) {
     const agentsDir = '.agents';
@@ -48,5 +49,22 @@ export class InitService {
     }
 
     return created;
+  }
+
+  /**
+   * Creates (or overwrites) the GitHub Actions workflow for Mermaid diagram preview on PRs.
+   * @param {string} workflowYaml - The YAML content for the GitHub workflow
+   * @param {(message: string) => void} logger
+   * @returns {Promise<string>} Path to the created workflow file
+   */
+  async createGitHubWorkflow(workflowYaml, logger) {
+    const workflowsDir = path.join('.github', 'workflows');
+    const workflowFile = path.join(workflowsDir, 'mddd-preview.yml');
+
+    this.#fs.ensureDir(workflowsDir);
+    await this.#fs.writeFile(workflowFile, workflowYaml);
+    logger(`✅ GitHub workflow created: ${workflowFile}`);
+
+    return workflowFile;
   }
 }

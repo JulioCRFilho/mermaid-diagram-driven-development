@@ -1,6 +1,6 @@
 # init.js — Command Specification
 
-**SPEC_VERSION: v1.2.0 — stable**
+**SPEC_VERSION: v1.3.0 — stable**
 
 ## Overview
 
@@ -11,13 +11,60 @@ The `init.js` module implements the `md init` CLI command. It holds the canonica
 ## Behavioral Flow (Reverse Engineered)
 
 ```mermaid
-%% @spec-version v1.2.0
+%% @spec-version v1.3.0
 stateDiagram-v2
     [*] --> ExecuteCommand: User runs "md init"
     ExecuteCommand --> CreateSystemPrompt: initService.createSystemPrompt(content)
     CreateSystemPrompt --> CreateSkills: initService.createSkills(skillMap, logger)
-    CreateSkills --> ReportSuccess: console.log(…) green messages
+    CreateSkills --> CreateGitHubWorkflow: initService.createGitHubWorkflow(workflowYaml)
+    CreateGitHubWorkflow --> ReportSuccess: console.log(…) green messages
     ReportSuccess --> [*]
+```
+
+---
+
+## GitHub Actions Preview Workflow
+
+A partir da v1.3.0, o `md init` também cria/atualiza um workflow do GitHub Actions em `.github/workflows/mddd-preview.yml`. Esse workflow gera previews visuais dos diagramas Mermaid alterados em pull requests que tocam arquivos `.spec.md`.
+
+> **Idempotência garantida:** Se o arquivo `.github/workflows/mddd-preview.yml` já existir, ele será sobrescrito com o conteúdo canônico atual. Isso garante que todos os projetos inicializados com `md init` tenham a versão mais recente do workflow de preview.
+
+```yaml
+name: 🗺️ MDDD Diagram Preview
+
+on:
+  pull_request:
+    paths:
+      - '**/*.spec.md'
+
+jobs:
+  render-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📸 Render Mermaid Diagrams to Images
+        uses: xanmanning/mermaid-render-action@v1.2.1
+        id: mermaid-render
+        with:
+          manifest: 'mddd-manifest.json'
+          output-dir: '.github/mddd-previews'
+          format: 'png'
+
+      - name: 💬 Comment Preview on PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ### 🗺️ MDDD - Alterações de Design Detectadas!
+            Revise a topologia visual proposta abaixo antes de aprovar o código:
+
+            ![Diagram Preview](https://raw.githubusercontent.com/${{ github.repository }}/${{ github.head_ref }}/.github/mddd-previews/changed-diagram.png)
+          comment_tag: 'mddd-design-preview'
 ```
 
 ---
@@ -144,7 +191,8 @@ graph TD
 | :--- | :--- | :--- | :---: | :--- |
 | 1 | `initService.createSystemPrompt(SYSTEM_PROMPT_CONTENT)` | Writes `system_prompt.md` | ❌ No | Delegated to InitService |
 | 2 | `initService.createSkills(SKILLS, logFn)` | Writes `SKILLS/*.md` files | ❌ No | Delegated to InitService |
-| 3 | `console.log(pc.green(…))` | stdout — success report | ❌ No | N/A |
+| 3 | `initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT)` | Writes `.github/workflows/mddd-preview.yml` | ❌ No | Delegated to InitService |
+| 4 | `console.log(pc.green(…))` | stdout — success report | ❌ No | N/A |
 
 > **Note:** The `SKILLS` map contains four embedded behavioral sub-specifications (`md-new`, `md-edit`, `md-audit`, `md-impl`), each with its own internal topology and decision logic. Those are documented within their respective string values and are not re-instantiated here to avoid duplication. For details on the `md-audit` v1.2.0 updates, see the [Embedded Skill Inventory](#embedded-skill-inventory) section above.
 
@@ -156,6 +204,7 @@ graph TD
 | :--- | :--- | :--- |
 | `SYSTEM_PROMPT_CONTENT` | `string` | Full MDDD protocol prompt text (now includes Guardrail #5: Spec-First Ordering Mandate) |
 | `SKILLS` | `Record<string, string>` | Skill-name → SKILL.md content mapping |
+| `GITHUB_WORKFLOW_CONTENT` | `string` | GitHub Actions workflow YAML for Mermaid diagram preview on PRs |
 | `execute(initService)` | `async function` | Command entry point |
 
 ---
@@ -169,6 +218,8 @@ graph TD
 | 2026-05-28 | Cline (md-audit) | v1.0.0 | Initial reverse-engineered spec from production code. Code classified as **Clean / Modular**. No modifications to `init.js`. |
 | 2026-05-28 | Cline (md-impl) | v1.0.1 | Idempotent full-file overwrite of `init.js`. No behavioral changes — same 3-step flow preserved. Unit tests created under `tests/commands/init.spec.js` with 6/6 passing. SPEC_VERSION bumped from v1.0.0 to v1.0.1 (patch). |
 | 2026-05-28 | Cline (md-edit) | v1.1.0 | Updated `md-audit` skill embedded in `init.js` to v1.2.0: added `SpecFileGuaranteed` terminal state in topology diagram, added `.spec.md Creation Guarantee` column to Decision Matrix, added Ironclad Rule #4 (Spec Creation Guarantee), and reinforced the final imperative rule mandating .spec.md creation on every audit cycle. SPEC_VERSION bumped from v1.0.1 to v1.1.0 (minor — new contract enforcement). |
-| 2026-05-28 | Cline (md-edit) | **v1.2.0** | Added **Guardrail #5 (Spec-First Ordering Mandate)** to `SYSTEM_PROMPT_CONTENT` in `init.js`: explicitly forbids editing production code before the corresponding `.spec.md` file has been created or updated. This prevents the protocol violation of editing `.js` files before `.spec.md` files. Updated `md-edit` skill to v1.2.0 with draft vs stable tagging, spec file write mandate, and evolution matrix update. Updated `md-impl` skill to v1.2.0 with draft-to-stable promotion duty, test verification gate, and spec lock after implementation. SPEC_VERSION bumped from v1.1.0 to v1.2.0 (minor — three skills updated with new contract enforcements). |
+| 2026-05-28 | Cline (md-edit) | **v1.2.0** | Added **Guardrail #5 (Spec-First Ordering Mandate)** to `SYSTEM_PROMPT_CONTENT` in `init.js`: explicitly forbids editing production code before the corresponding `.spec.md` file has been created or updated. This prevents the protocol violation of editing `.js` files before `.spec.md` files. Updated `md-edit` skill to v1.2.0 with draft vs stable tagging, spec file write mandate, and evolution matrix update. Updated `md-impl` skill to v1.2.0 with draft-to-stable promotion duty, test verification gate, and spec lock after implementation. SPEC_VERSION bumped from v1.1.0 to v1.3.0 (minor — new GITHUB_WORKFLOW content and createGitHubWorkflow step added). |
+
+> **v1.3.0 (current):** Added `CreateGitHubWorkflow` state to the behavioral flow diagram. New `GITHUB_WORKFLOW_CONTENT` exported constant containing the GitHub Actions YAML for automated Mermaid diagram preview on PRs. New step 3 in Decision Matrix: `initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT)` writes `.github/workflows/mddd-preview.yml`. New "GitHub Actions Preview Workflow" section documenting the idempotent overwrite behavior. SPEC_VERSION bumped from v1.2.0 to v1.3.0 (minor — new state node/flow addition). Status promoted from **draft** to **stable** — implementation and tests verified. |
 
 </details>

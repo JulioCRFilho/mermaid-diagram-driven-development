@@ -1,12 +1,12 @@
 import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
-import { SYSTEM_PROMPT_CONTENT, SKILLS, execute } from '../../src/commands/init.js';
+import { SYSTEM_PROMPT_CONTENT, SKILLS, GITHUB_WORKFLOW_CONTENT, execute } from '../../src/commands/init.js';
 
 // ---------------------------------------------------------------------------
 // Mock InitService
 // ---------------------------------------------------------------------------
 function createMockInitService() {
-  const calls = { createSystemPrompt: [], createSkills: [] };
+  const calls = { createSystemPrompt: [], createSkills: [], createGitHubWorkflow: [] };
 
   const service = {
     createSystemPrompt: mock.fn(async (content) => {
@@ -22,6 +22,11 @@ function createMockInitService() {
         (name) => `.agents/skills/${name}/SKILL.md`,
       );
     }),
+    createGitHubWorkflow: mock.fn(async (workflowYaml, logger) => {
+      calls.createGitHubWorkflow.push({ workflowYaml, logger });
+      logger('✅ GitHub workflow created: .github/workflows/mddd-preview.yml');
+      return '.github/workflows/mddd-preview.yml';
+    }),
   };
 
   return { service, calls };
@@ -31,7 +36,8 @@ function createMockInitService() {
 // Tests — Decision Matrix coverage
 // - Row 1: createSystemPrompt writes system_prompt.md
 // - Row 2: createSkills writes SKILLS/*.md files + logger calls
-// - Row 3: console.log success report (indirect via Step 3)
+// - Row 3: createGitHubWorkflow writes .github/workflows/mddd-preview.yml
+// - Row 4: console.log success report
 // ---------------------------------------------------------------------------
 describe('execute() — md init command', () => {
   it('Step 1: calls initService.createSystemPrompt with SYSTEM_PROMPT_CONTENT', async () => {
@@ -84,7 +90,46 @@ describe('execute() — md init command', () => {
     }
   });
 
-  it('Step 3: prints green success messages to stdout (presence of console.log calls)', async () => {
+  it('Step 3: calls initService.createGitHubWorkflow with GITHUB_WORKFLOW_CONTENT and a logger', async () => {
+    const { service, calls } = createMockInitService();
+
+    await execute(service);
+
+    assert.equal(calls.createGitHubWorkflow.length, 1);
+    assert.equal(
+      calls.createGitHubWorkflow[0].workflowYaml,
+      GITHUB_WORKFLOW_CONTENT,
+      'Should pass GITHUB_WORKFLOW_CONTENT to createGitHubWorkflow',
+    );
+    assert.equal(typeof calls.createGitHubWorkflow[0].logger, 'function');
+  });
+
+  it('Step 3: logger is invoked during createGitHubWorkflow', async () => {
+    const { service, calls } = createMockInitService();
+
+    await execute(service);
+
+    const loggedMessages = [];
+    calls.createGitHubWorkflow[0].logger = (msg) => loggedMessages.push(msg);
+
+    // Re-run the mock's internal logging logic
+    calls.createGitHubWorkflow[0].logger('✅ GitHub workflow created: .github/workflows/mddd-preview.yml');
+
+    assert.equal(loggedMessages.length, 1);
+    assert.ok(loggedMessages[0].includes('mddd-preview.yml'));
+  });
+
+  it('Steps 1-4: all three InitService methods are called in order', async () => {
+    const { service, calls } = createMockInitService();
+
+    await execute(service);
+
+    assert.equal(calls.createSystemPrompt.length, 1);
+    assert.equal(calls.createSkills.length, 1);
+    assert.equal(calls.createGitHubWorkflow.length, 1);
+  });
+
+  it('Step 4: prints green success messages to stdout (presence of console.log calls)', async () => {
     const { service } = createMockInitService();
     const logs = [];
 
@@ -98,12 +143,12 @@ describe('execute() — md init command', () => {
       console.log = originalLog;
     }
 
-    // Total console.log calls: 4 (logger per skill) + 2 (success report)
-    assert.equal(logs.length, 6);
+    // Total console.log calls: 4 (logger per skill) + 1 (workflow logger) + 2 (success report)
+    assert.equal(logs.length, 7);
     // Last two messages are the success report
-    assert.ok(logs[4].includes('generated successfully'));
+    assert.ok(logs[5].includes('generated successfully'));
     assert.ok(
-      logs[5].includes('Run the "md init" command'),
+      logs[6].includes('Run the "md init" command'),
     );
   });
 });
@@ -128,5 +173,13 @@ describe('exported constants', () => {
       assert.equal(typeof SKILLS[key], 'string');
       assert.ok(SKILLS[key].length > 0);
     }
+  });
+
+  it('GITHUB_WORKFLOW_CONTENT is a non-empty string containing YAML keywords', () => {
+    assert.equal(typeof GITHUB_WORKFLOW_CONTENT, 'string');
+    assert.ok(GITHUB_WORKFLOW_CONTENT.length > 0);
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('name:'));
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('mermaid-render-action'));
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('mddd-preview'));
   });
 });

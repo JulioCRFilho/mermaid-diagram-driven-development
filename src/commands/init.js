@@ -45,12 +45,12 @@ graph TD
 
 | User Context | Target Spec Header | Human Request Path | Diagram Change Impact | AI Core Rule / Mandate / Ironclad Clause |
 | :---: | :---: | :---: | :---: | :--- |
-| | | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
-| | | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand \`md edit\` to align design first. |
-| | | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
-| | | Command Executed | \`SPEC_VERSION\` | - | Typo / Label Only | Increment Patch (\`X.Y.Z\` -> \`X.Y.Z+1\`) |
-| | | Command Executed | \`SPEC_VERSION\` | - | New State / Arrow / Matrix Column | Increment Minor (\`X.Y.Z\` -> \`X.Y+1.0\`) |
-| | | Command Executed | \`SPEC_VERSION\` | - | Structural Breaking / Flow Overhaul | Increment Major (\`X.Y.Z\` -> \`X+1.0.0\`) |
+| | | | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
+| | | | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand \`md edit\` to align design first. |
+| | | | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
+| | | | Command Executed | \`SPEC_VERSION\` | - | Typo / Label Only | Increment Patch (\`X.Y.Z\` -> \`X.Y.Z+1\`) |
+| | | | Command Executed | \`SPEC_VERSION\` | - | New State / Arrow / Matrix Column | Increment Minor (\`X.Y.Z\` -> \`X.Y+1.0\`) |
+| | | | Command Executed | \`SPEC_VERSION\` | - | Structural Breaking / Flow Overhaul | Increment Major (\`X.Y.Z\` -> \`X+1.0.0\`) |
 
 ## 4. Anti-Hallucination Guardrails
 1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding \`.spec.md\` file does not exist or does not contain a populated Decision Matrix.
@@ -246,6 +246,45 @@ graph TD
 };
 
 /**
+ * GitHub Actions workflow YAML for automated Mermaid diagram preview on PRs.
+ */
+export const GITHUB_WORKFLOW_CONTENT = `name: 🗺️ MDDD Diagram Preview
+
+on:
+  pull_request:
+    paths:
+      - '**/*.spec.md'
+
+jobs:
+  render-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📸 Render Mermaid Diagrams to Images
+        uses: xanmanning/mermaid-render-action@v1.2.1
+        id: mermaid-render
+        with:
+          manifest: 'mddd-manifest.json'
+          output-dir: '.github/mddd-previews'
+          format: 'png'
+
+      - name: 💬 Comment Preview on PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ### 🗺️ MDDD - Alterações de Design Detectadas!
+            Revise a topologia visual proposta abaixo antes de aprovar o código:
+
+            ![Diagram Preview](https://raw.githubusercontent.com/\${{ github.repository }}/\${{ github.head_ref }}/.github/mddd-previews/changed-diagram.png)
+          comment_tag: 'mddd-design-preview'`;
+
+/**
  * Executes the \`md init\` command.
  * @param {import('../services/InitService.js').InitService} initService
  * @returns {Promise<void>}
@@ -253,6 +292,7 @@ graph TD
 export async function execute(initService) {
   await initService.createSystemPrompt(SYSTEM_PROMPT_CONTENT);
   await initService.createSkills(SKILLS, (msg) => console.log(msg));
+  await initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT, (msg) => console.log(msg));
 
   console.log(pc.green('\n🚀 Universal [system_prompt.md] and SKILLS generated successfully in the project root!'));
   console.log(pc.green('Run the "md init" command whenever you update the MDDD-CLI NPM package.'));
