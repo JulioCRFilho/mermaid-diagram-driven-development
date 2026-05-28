@@ -1,6 +1,6 @@
 # init.js — Command Specification
 
-**SPEC_VERSION: v1.4.0 — stable**
+**SPEC_VERSION: v1.4.1 — stable**
 
 ## Overview
 

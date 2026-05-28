@@ -37,12 +37,12 @@ graph TD
 
 | User Context | Target Spec Header | Human Request Path | Diagram Change Impact | AI Core Rule / Mandate / Ironclad Clause |
 | :---: | :---: | :---: | :---: | :--- |
-| | | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
-| | | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand `md edit` to align design first. |
-| | | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
-| | | Command Executed | `SPEC_VERSION` | - | Typo / Label Only | Increment Patch (`X.Y.Z` -> `X.Y.Z+1`) |
-| | | Command Executed | `SPEC_VERSION` | - | New State / Arrow / Matrix Column | Increment Minor (`X.Y.Z` -> `X.Y+1.0`) |
-| | | Command Executed | `SPEC_VERSION` | - | Structural Breaking / Flow Overhaul | Increment Major (`X.Y.Z` -> `X+1.0.0`) |
+| | | | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
+| | | | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand `md edit` to align design first. |
+| | | | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
+| | | | Command Executed | `SPEC_VERSION` | - | Typo / Label Only | Increment Patch (`X.Y.Z` -> `X.Y.Z+1`) |
+| | | | Command Executed | `SPEC_VERSION` | - | New State / Arrow / Matrix Column | Increment Minor (`X.Y.Z` -> `X.Y+1.0`) |
+| | | | Command Executed | `SPEC_VERSION` | - | Structural Breaking / Flow Overhaul | Increment Major (`X.Y.Z` -> `X+1.0.0`) |
 
 ## 4. Anti-Hallucination Guardrails
 1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding `.spec.md` file does not exist or does not contain a populated Decision Matrix.
