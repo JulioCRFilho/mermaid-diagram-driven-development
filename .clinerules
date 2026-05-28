@@ -37,15 +37,16 @@ graph TD
 
 | User Context | Target Spec Header | Human Request Path | Diagram Change Impact | AI Core Rule / Mandate / Ironclad Clause |
 | :---: | :---: | :---: | :---: | :--- |
-| | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
-| | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand `md edit` to align design first. |
-| | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
-| | Command Executed | `SPEC_VERSION` | - | Typo / Label Only | Increment Patch (`X.Y.Z` -> `X.Y.Z+1`) |
-| | Command Executed | `SPEC_VERSION` | - | New State / Arrow / Matrix Column | Increment Minor (`X.Y.Z` -> `X.Y+1.0`) |
-| | Command Executed | `SPEC_VERSION` | - | Structural Breaking / Flow Overhaul | Increment Major (`X.Y.Z` -> `X+1.0.0`) |
+| | | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
+| | | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand `md edit` to align design first. |
+| | | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
+| | | Command Executed | `SPEC_VERSION` | - | Typo / Label Only | Increment Patch (`X.Y.Z` -> `X.Y.Z+1`) |
+| | | Command Executed | `SPEC_VERSION` | - | New State / Arrow / Matrix Column | Increment Minor (`X.Y.Z` -> `X.Y+1.0`) |
+| | | Command Executed | `SPEC_VERSION` | - | Structural Breaking / Flow Overhaul | Increment Major (`X.Y.Z` -> `X+1.0.0`) |
 
 ## 4. Anti-Hallucination Guardrails
 1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding `.spec.md` file does not exist or does not contain a populated Decision Matrix.
 2. **Implicit Logic Ban:** If a business condition, validation check, or outcome branch is not explicitly listed as a row or column in the Decision Matrix, it does not exist. Do not assume, extrapolate, or invent fallback behaviors.
 3. **Strict State Isolation:** When handling a micro feature, you cannot introduce global states or modify sibling domains unless instructed via explicit macro architectural mapping updates.
 4. **Idempotent Full-File Output Mandate:** You are completely forbidden from using code placeholders, truncating files, or emitting partial snippets (e.g., "// rest of class unchanged", "/* TODO */"). Every code generation action must output the entire, clean, compile-ready file from scratch, ensuring perfect context preservation.
+5. **Spec-First Ordering Mandate:** You are strictly forbidden from editing, modifying, or generating any production code file (.js, .ts, .py, .go, etc.) before the corresponding co-located `.spec.md` file has been created or updated to reflect the intended changes. The `.spec.md` must always be written or updated first — the spec is the source of truth, and code is derived from it. Violating this ordering constitutes a direct MDDD protocol breach and invalidates the entire change cycle.
