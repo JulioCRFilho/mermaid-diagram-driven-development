@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import pc from 'picocolors';
 
 /**
@@ -43,18 +45,19 @@ graph TD
 
 | User Context | Target Spec Header | Human Request Path | Diagram Change Impact | AI Core Rule / Mandate / Ironclad Clause |
 | :---: | :---: | :---: | :---: | :--- |
-| | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
-| | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand \`md edit\` to align design first. |
-| | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
-| | Command Executed | \`SPEC_VERSION\` | - | Typo / Label Only | Increment Patch (\`X.Y.Z\` -> \`X.Y.Z+1\`) |
-| | Command Executed | \`SPEC_VERSION\` | - | New State / Arrow / Matrix Column | Increment Minor (\`X.Y.Z\` -> \`X.Y+1.0\`) |
-| | Command Executed | \`SPEC_VERSION\` | - | Structural Breaking / Flow Overhaul | Increment Major (\`X.Y.Z\` -> \`X+1.0.0\`) |
+| | | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
+| | | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand \`md edit\` to align design first. |
+| | | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
+| | | Command Executed | \`SPEC_VERSION\` | - | Typo / Label Only | Increment Patch (\`X.Y.Z\` -> \`X.Y.Z+1\`) |
+| | | Command Executed | \`SPEC_VERSION\` | - | New State / Arrow / Matrix Column | Increment Minor (\`X.Y.Z\` -> \`X.Y+1.0\`) |
+| | | Command Executed | \`SPEC_VERSION\` | - | Structural Breaking / Flow Overhaul | Increment Major (\`X.Y.Z\` -> \`X+1.0.0\`) |
 
 ## 4. Anti-Hallucination Guardrails
 1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding \`.spec.md\` file does not exist or does not contain a populated Decision Matrix.
 2. **Implicit Logic Ban:** If a business condition, validation check, or outcome branch is not explicitly listed as a row or column in the Decision Matrix, it does not exist. Do not assume, extrapolate, or invent fallback behaviors.
 3. **Strict State Isolation:** When handling a micro feature, you cannot introduce global states or modify sibling domains unless instructed via explicit macro architectural mapping updates.
-4. **Idempotent Full-File Output Mandate:** You are completely forbidden from using code placeholders, truncating files, or emitting partial snippets (e.g., "// rest of class unchanged", "/* TODO */"). Every code generation action must output the entire, clean, compile-ready file from scratch, ensuring perfect context preservation.`;
+4. **Idempotent Full-File Output Mandate:** You are completely forbidden from using code placeholders, truncating files, or emitting partial snippets (e.g., "// rest of class unchanged", "/* TODO */"). Every code generation action must output the entire, clean, compile-ready file from scratch, ensuring perfect context preservation.
+5. **Spec-First Ordering Mandate:** You are strictly forbidden from editing, modifying, or generating any production code file (.js, .ts, .py, .go, etc.) before the corresponding co-located \`.spec.md\` file has been created or updated to reflect the intended changes. The \`.spec.md\` must always be written or updated first — the spec is the source of truth, and code is derived from it. Violating this ordering constitutes a direct MDDD protocol breach and invalidates the entire change cycle.`;
 
 /**
  * Skills content map: skill name -> SKILL.md content.
@@ -99,7 +102,7 @@ stateDiagram-v2
   'md-edit': `[ROLE: ARCHITECT] [STRICT CONTRACT]
 
 \`\`\`mermaid
-%% @spec-version v1.1.0
+%% @spec-version v1.2.0
 graph LR
     A[Read Target .spec.md] --> B[Parse Current SPEC_VERSION]
     B --> C[Apply Mermaid/Matrix Adjustments]
@@ -113,29 +116,38 @@ graph LR
     F --> H
     G --> H
     
-    H -->|Syntax Valid| I[Save Contract & Halt]
+    H -->|Syntax Valid| I[Write .spec.md to Disk with Updated Version]
     H -->|Syntax Invalid| J[🛑 HALT: Abort & Ask Human]
+    I --> K{Spec Status Assessment}
+    K -->|Is draft| L[Tag as draft proposal - AWAIT_USER_VALIDATION]
+    K -->|Is stable| M[Tag as stable - STALE_LOCKED]
+    L --> N[Append Audit History Entry]
+    M --> N
+    N --> O[Persist Updated File]
+    O --> [*]
 \`\`\`
 
 ### Evolution Versioning Matrix
 
-| Structural Change Type | Adds Factor Column? | Adds Transition Node/Arrow? | Label / Typo Corrections Only? | Semantic Version Modification | Target AI State |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| Complete Business Overhaul | - | - | - | **MAJOR Mutation (X.Y.Z -> X+1.0.0)** | ⏳ **AWAIT_USER_VALIDATION** |
-| New Context Conditional Branch | ✅ YES | - | - | **MINOR Mutation (X.Y.Z -> X.Y+1.0)** | ⏳ **AWAIT_USER_VALIDATION** |
-| New UI Flow Step / Lifecycle State | ❌ NO | ✅ YES | - | **MINOR Mutation (X.Y.Z -> X.Y+1.0)** | ⏳ **AWAIT_USER_VALIDATION** |
-| Visual Spacing / Text Refinement | ❌ NO | ❌ NO | ✅ YES | **PATCH Mutation (X.Y.Z -> X.Y.Z+1)** | ⏳ **AWAIT_USER_VALIDATION** |
+| Structural Change Type | Adds Factor Column? | Adds Transition Node/Arrow? | Label / Typo Corrections Only? | Semantic Version Modification | Spec Status After Edit | Target AI State |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Complete Business Overhaul | - | - | - | **MAJOR Mutation (X.Y.Z -> X+1.0.0)** | **draft** (proposal) | ⏳ **AWAIT_USER_VALIDATION** |
+| New Context Conditional Branch | ✅ YES | - | - | **MINOR Mutation (X.Y.Z -> X.Y+1.0)** | **draft** (proposal) | ⏳ **AWAIT_USER_VALIDATION** |
+| New UI Flow Step / Lifecycle State | ❌ NO | ✅ YES | - | **MINOR Mutation (X.Y.Z -> X.Y+1.0)** | **draft** (proposal) | ⏳ **AWAIT_USER_VALIDATION** |
+| Visual Spacing / Text Refinement | ❌ NO | ❌ NO | ✅ YES | **PATCH Mutation (X.Y.Z -> X.Y.Z+1)** | **stable** (locked) | ✅ **STABLE_LOCKED** |
 
 ### Mutation Integrity Ironclad Rules
 1. **Incremental SemVer Locking:** You must read the existing \`SPEC_VERSION\` from the file header before modifying it. Never reset, guess, or overwrite the version to a lower state. Bumping Minor explicitly drops the patch version to zero (\`X.Y.Z\` -> \`X.Y+1.0\`). Bumping Major explicitly drops both minor and patch to zero (\`X.Y.Z\` -> \`X+1.0.0\`).
 2. **Strict Syntax Guard:** Before writing the modifications to disk, execute an internal mental compilation of the Mermaid syntax. If any arrow (\`-->\`), state connector, or label syntax breaks the official Mermaid spec, immediately halt execution and report the error to the user without modifying the file.
 3. **Audit History Log Requirement:** Every time you perform an edit, you must append a new row to the markdown table inside the \`<details><summary>Click to expand</summary>...</details>\` block at the bottom of the file, containing the current date, your agent identity, the new version number, and a concise summary of the changes made.
-4. **Node ID Immutability:** When adding new transitions or nodes to an existing graph, you are strictly forbidden from altering, renaming, or refactoring the identifiers (IDs) of existing states/nodes unless explicitly requested by the user.`,
+4. **Node ID Immutability:** When adding new transitions or nodes to an existing graph, you are strictly forbidden from altering, renaming, or refactoring the identifiers (IDs) of existing states/nodes unless explicitly requested by the user.
+5. **Draft vs Stable Status Tagging:** Every edited \`.spec.md\` file MUST have its status explicitly declared after the \`SPEC_VERSION\` header. Structural changes (major/minor) that alter behavior MUST be tagged as \`draft\` (proposal) until the corresponding code is implemented and verified. Non-structural changes (patch/typographical) may remain or become \`stable\` (locked) immediately. The status format is: \`**SPEC_VERSION: vX.Y.Z — [draft|stable]**\`.
+6. **Spec File Write Mandate:** After computing the new version and validating syntax, you **MUST** write the updated \`.spec.md\` file to disk. The edit cycle is not complete until the file is persisted with the updated version header, modified diagram/matrix, and audit history entry.`,
 
   'md-audit': `[ROLE: SECURITY & QUALITY AUDITOR] [STRICT CONTRACT]
 
 \`\`\`mermaid
-%% @spec-version v1.1.0
+%% @spec-version v1.2.0
 stateDiagram-v2
     [*] --> AnalyzeLegacyCode: Evaluate code quality, conciseness, and coupling
     AnalyzeLegacyCode --> FileSystemCheck
@@ -146,7 +158,7 @@ stateDiagram-v2
         CheckCoLocation --> AppendToExisting: Target Co-located .spec.md Exists
     }
     
-    CreateMissingSpec --> RenderTopology: Create new colocated .spec.md
+    CreateMissingSpec --> RenderTopology: Create new co-located .spec.md
     AppendToExisting --> InjectAuditBlock: Target Existing File Preservation Map
     
     state RenderTopology {
@@ -157,17 +169,18 @@ stateDiagram-v2
     RenderTopology --> WriteToAuditTag: Inject payloads inside <details> block
     InjectAuditBlock --> WriteToAuditTag: Append to existing <details> block without overwriting business specs
     WriteToAuditTag --> EnforceImmutability: Lock Production Code File
-    EnforceImmutability --> [*]
+    EnforceImmutability --> SpecFileGuaranteed: Validate .spec.md Exists and Is Populated
+    SpecFileGuaranteed --> [*]
 \`\`\`
 
 ### Reverse Engineering & Auto-Repair Decision Matrix
 
-| Source File State | Co-located .spec.md Exists? | Code Design Assessment | Target Output Destination | Code File Manipulation Allowed? | Initial Compiled Version |
-| :--- | :---: | :---: | :--- | :---: | :---: |
-| Legacy Code Active | ✅ YES | Clean / Modular | Append to existing \`<details><summary>Audit History</summary>\` | ❌ **FORBIDDEN (Immutability)** | Retain Current |
-| Legacy Code Active | ✅ YES | Chaotic / Coupled | Append to existing \`<details><summary>Audit History</summary>\` | ❌ **FORBIDDEN (Immutability)** | Retain Current |
-| Legacy Code Active | ❌ NO | Clean / Modular | Generate Spec File + Map Current Logic | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0 - stable\` |
-| Legacy Code Active | ❌ NO | Chaotic / Coupled | Generate Spec File + Map Current Logic AND Proposed Refactoring | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0 - draft\` |
+| Source File State | Co-located .spec.md Exists? | Code Design Assessment | Target Output Destination | Code File Manipulation Allowed? | Initial Compiled Version | .spec.md Creation Guarantee |
+| :--- | :---: | :---: | :--- | :---: | :---: | :---: |
+| Legacy Code Active | ✅ YES | Clean / Modular | Append to existing \`<details><summary>Audit History</summary>\` | ❌ **FORBIDDEN (Immutability)** | Retain Current | ✅ **GUARANTEED** (Updated) |
+| Legacy Code Active | ✅ YES | Chaotic / Coupled | Append to existing \`<details><summary>Audit History</summary>\` | ❌ **FORBIDDEN (Immutability)** | Retain Current | ✅ **GUARANTEED** (Updated) |
+| Legacy Code Active | ❌ NO | Clean / Modular | Generate Spec File + Map Current Logic | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0 - stable\` | ✅ **GUARANTEED** (Created) |
+| Legacy Code Active | ❌ NO | Chaotic / Coupled | Generate Spec File + Map Current Logic AND Proposed Refactoring | ❌ **FORBIDDEN (Immutability)** | \`v1.0.0 - draft\` | ✅ **GUARANTEED** (Created) |
 
 ### Missing Spec Auto-Repair Blueprint Requirements
 * **Enforce Section Injections:** Every generated specification file must structurally enforce: 
@@ -180,14 +193,15 @@ stateDiagram-v2
 1. **Absolute Immutability Command:** Under no circumstances are you allowed to patch, alter, or modify the target production code file during the \`md-audit\` cycle. Your execution scope is strictly limited to observation and documentation within the Markdown specification file.
 2. **Preservation Guarantee:** When appending an audit report to an existing \`.spec.md\` file, you must read the file completely and guarantee that the business requirements, main diagrams, and current decision matrices are left untouched. You are only allowed to inject rows inside the \`<details>\` audit history block.
 3. **Chaotic Code Double-Mapping:** If you evaluate the legacy code as chaotic or highly coupled, you must not replace the current reality with your ideal version. You are required to draw the current graph (flawed as it is) to serve as a baseline, and then provide a separate, clearly labeled Mermaid graph showing the suggested refactored topology.
+4. **Spec Creation Guarantee:** Regardless of whether the co-located \`.spec.md\` file existed before the audit cycle or not, you **MUST** ensure that at the end of the \`md-audit\` process a valid \`.spec.md\` file exists in the target directory. If it did not exist: create it from scratch with all required sections. If it did exist: update it by appending the audit block. Never leave the audit target without a \`.spec.md\` file.
 
-**Rule:** ALWAYS GENERATE THE .SPEC.MD FILE OR UPDATE THE EXISTING ONE.
+**Rule:** UNDER NO CIRCUMSTANCES MAY YOU COMPLETE AN \`md-audit\` CYCLE WITHOUT A CO-LOCATED \`.spec.md\` FILE.
 `,
 
   'md-impl': `[ROLE: SOFTWARE ENGINEER] [STRICT CONTRACT]
 
 \`\`\`mermaid
-%% @spec-version v1.1.0
+%% @spec-version v1.2.0
 graph TD
     A[Ingest Signed .spec.md] --> B[Parse Matrix Rows & Version Header]
     B --> C{Verify Code/Chat Request}
@@ -201,11 +215,17 @@ graph TD
     F --> H[Generate Truth-Table Unit Tests]
     G --> H
     
-    H --> I[Verify 100% Branch Coverage Alignment]
-    I --> [*]
+    H --> I{Tests Pass 100%?}
+    I -->|Yes| J[Promote .spec.md from draft to stable]
+    I -->|No| K[Fix Code/Tests & Retry]
     
-    E --> J[Refuse Coding & Demand Spec Refinement via md-edit]
-    J --> [*]
+    J --> L[Update SPEC_VERSION to vSameVersion - stable]
+    L --> M[Append Audit History: impl complete]
+    M --> N[Persist Updated .spec.md to Disk]
+    N --> [*]
+    
+    E --> O[Refuse Coding & Demand Spec Refinement via md-edit]
+    O --> [*]
 \`\`\`
 
 ### Injection Defense & Execution Guard Matrix
@@ -220,11 +240,13 @@ graph TD
 ### Production Implementation & Codegen Ironclad Rules
 1. **The Matrix Test Alignment Mandate:** Your unit test suite must match the Decision Matrix row by row. For every single row present in the specification's truth table, you are strictly required to build at least one explicit, dedicated unit test case mapping those precise primitive factors to that exact outcome.
 2. **Anti-Placeholder Clause:** You are absolutely forbidden from generating incomplete code structures, omitting code sections, or using placeholders like \`// TODO\`, \`// implementation goes here\`, or \`// rest of the class remains unchanged\`. You must always output the complete, compile-ready, and production-grade file layout.
-3. **Strict SOLID Compliance:** Every piece of logic generated under this cycle must follow strict Clean Architecture principles and SOLID patterns. If the specification implies a new conditional branch, you must implement it using polymorphism or structured strategies rather than compounding nested \`if-else\` or pattern-matching anti-patterns unless explicitly dictated by the diagram topology.`,
+3. **Strict SOLID Compliance:** Every piece of logic generated under this cycle must follow strict Clean Architecture principles and SOLID patterns. If the specification implies a new conditional branch, you must implement it using polymorphism or structured strategies rather than compounding nested \`if-else\` or pattern-matching anti-patterns unless explicitly dictated by the diagram topology.
+4. **Draft-to-Stable Promotion Duty:** After all implementation and tests pass successfully, you **MUST** update the co-located \`.spec.md\` file to promote its status from \`draft\` to \`stable\`. The version number stays the same — only the status suffix changes. This marks the spec as implemented and locked.
+5. **Spec File Lock After Implementation:** The \`.spec.md\` file version header must reflect the final implemented state: \`**SPEC_VERSION: vX.Y.Z — stable**\`. This signals to all downstream agents that the design is no longer a proposal and the code matches the spec.`,
 };
 
 /**
- * Executes the `md init` command.
+ * Executes the \`md init\` command.
  * @param {import('../services/InitService.js').InitService} initService
  * @returns {Promise<void>}
  */
