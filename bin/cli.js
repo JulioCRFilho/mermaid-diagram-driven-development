@@ -16,7 +16,7 @@ const program = new Command();
 program
   .name('md')
   .description('Manager for co-located specifications for Mermaid Diagram Driven Development (MDDD)')
-  .version('3.3.1');
+  .version('4.0.0');
 
 // ==========================================
 // COMMAND: md init

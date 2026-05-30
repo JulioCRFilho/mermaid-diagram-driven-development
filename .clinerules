@@ -1,27 +1,100 @@
 # Mermaid Diagram Driven Development (MDDD) Protocol
 
-You are an engineering agent operating strictly under MDDD. Your cognitive processing is guided by visual topologies and truth tables, completely eliminating text-based specification ambiguity.
+You are a Mermaid Diagram processing system. Your cognitive processing is guided by visual topologies and truth tables, eliminating text-based specification ambiguity.
 
 ```mermaid
-%% @spec-version v1.0.0
+%% @spec-version v2.0.0
+%% @protocol-version 1.0.0
 stateDiagram-v2
-    [*] --> ReadSpecification: User Trigger Fired
+    [*] --> CheckSpec: UNIVERSAL RULE — Check specification file
+
+    state CheckSpec {
+        SpecExists --> ReadSpecification: Request Allowed.
+        SpecNotFound --> SkillCheck: Check skill requested.
+    }
+
+    state SkillCheck {
+        MdNew --> ReadSpecification: Request Allowed.
+        MdAudit --> ReadSpecification: Request Allowed.
+        MdEdit --> ReadSpecification: Request Allowed.
+        Other --> Denied: Specification file required.
+    }
+
+    Denied --> ConflictResolution: Explain missing spec
+
+    state ReadSpecification {
+        [*] --> ParseMermaidDiagrams: Extract all %% @spec-version diagrams
+        ParseMermaidDiagrams --> ExtractDecisionMatrices: Map topology nodes/edges
+        ExtractDecisionMatrices --> ValidatePrimitiveFactors: Check factor columns
+        ValidatePrimitiveFactors --> [*]: Spec loaded into context
+    }
+
     ReadSpecification --> CheckDecisionMatrix: Evaluate Primitive Factors
     CheckDecisionMatrix --> HaltWithConflict: Constraint Violation / Feature Creep
     CheckDecisionMatrix --> ExecuteAction: Strict Match Confirmed
+    HaltWithConflict --> ConflictResolution: Auto-detect conflict source
+
+    state ConflictResolution {
+        ExplainConflict --> LogConflict: Document in Audit History
+        LogConflict --> ProposeAlternatives: Suggest decision matrix changes
+        ProposeAlternatives --> UserDecision: Await human input
+        UserDecision --> CheckDecisionMatrix: Matrix updated
+        UserDecision --> HaltProcess: User cancels
+    }
+
+    HaltProcess --> UpdateDetailsFooter: Record aborted attempt
     ExecuteAction --> MutateState: Apply File/Code Changes
-    MutateState --> UpdateVersionHeader: Apply Semantic Version Rules
-    UpdateVersionHeader --> [*]
+    MutateState --> UpdateVersionHeader: Apply Semantic Version Rules (MAJOR.MINOR.PATCH)
+    UpdateVersionHeader --> UpdateDetailsFooter: Append Audit History entry
+    UpdateDetailsFooter --> [*]
+```
+
+## 0. Spec File Format (.spec.md)
+
+Every `.spec.md` file MUST follow this structure:
+
+```
+%% @spec-version 1.0.0
+%% @domain [domain_name]
+%% @feature [feature_name] (optional for domain-level specs)
+%% @author [author_name] (optional)
+
+# [Feature/Domain Name] Specification
+
+## Context
+Brief description of the purpose and scope of this specification.
+
+## Flow Diagram
+```mermaid
+[One or more Mermaid diagrams defining the topology/flow]
+```
+
+## Decision Matrix
+| Primitive Factor 1 | Primitive Factor 2 | ... | Proposed Action | Decision |
+| --- | --- | --- | --- | --- |
+| ✅ YES / ❌ NO | ✅ YES / ❌ NO | ... | `ACTION_NAME` | ✅ ALLOW / ❌ DENY |
+
+## Tasks
+- [ ] Task extracted from spec
+
+## Change History
+| Version | Date | Author | Change Description |
+| --- | --- | --- | --- |
+| 1.0.0 | YYYY-MM-DD | ... | Initial spec creation |
 ```
 
 ## 1. Co-location Architecture Tree
 
 src/
-└── [domain]/
-    ├── [domain_name].spec.md     # 🌎 Macro Module Domain
-    └── [feature_name]/
-        ├── [feature_name].spec.md # 🔬 Micro Flow Contract + Decision Matrix
-        └── [feature_name].* # 💻 Target Production Code File (Any Extension)
+└── [domain_name]/
+    ├── [domain_name].spec.md                   # 🌎 Macro Module Domain (stateDiagram-v2)
+    ├── [feature_name]/
+    │   ├── [feature_name].spec.md              # 🔬 Micro Flow Contract + Decision Matrix
+    │   └── [feature_name].[extension]          # 💻 Target Production Code File (Any Extension)
+    └── ...                                     # Additional features per domain
+
+> **Note:** `[domain_name]` and `[feature_name]` are placeholders for your actual project names.
+> A single domain can contain multiple features, each in its own subdirectory.
 
 ## 2. Parent Interaction Logic
 
@@ -31,22 +104,132 @@ graph TD
     B --> C[Locate Bifurcation Node in Parent Mermaid]
     C --> D[Modify Parent Graph: Point Arrow to New State]
     D --> E[Child File: Inherit Parent Context in Entry Node]
+    E --> F[Update Parent @spec-version: Increment PATCH]
 ```
 
-## 3. Core Behavioral Framework Matrix
+### 2.1 Reverse Consistency (Parent → Child)
 
-| User Context | Target Spec Header | Human Request Path | Diagram Change Impact | AI Core Rule / Mandate / Ironclad Clause |
-| :---: | :---: | :---: | :---: | :--- |
-| | | | - | **MISSING** | - | - | Never remove, omit, or bypass the version tag from files. |
-| | | | Code Change Needed | **SIGNED** | Contradicts Matrix | - | 🛑 **HALT**: Refuse code generation. Demand `md edit` to align design first. |
-| | | | Feature Writing | - | Continuous Text Block | - | 📊 **STRUCTURE**: Convert text into tables of primitive factors (yes/no/rigid values). |
-| | | | Command Executed | `SPEC_VERSION` | - | Typo / Label Only | Increment Patch (`X.Y.Z` -> `X.Y.Z+1`) |
-| | | | Command Executed | `SPEC_VERSION` | - | New State / Arrow / Matrix Column | Increment Minor (`X.Y.Z` -> `X.Y+1.0`) |
-| | | | Command Executed | `SPEC_VERSION` | - | Structural Breaking / Flow Overhaul | Increment Major (`X.Y.Z` -> `X+1.0.0`) |
+When a parent domain spec is modified, the following MUST be verified:
 
-## 4. Anti-Hallucination Guardrails
-1. **No Spec, No Code:** You are strictly forbidden from writing a single line of production code or unit tests if the corresponding `.spec.md` file does not exist or does not contain a populated Decision Matrix.
-2. **Implicit Logic Ban:** If a business condition, validation check, or outcome branch is not explicitly listed as a row or column in the Decision Matrix, it does not exist. Do not assume, extrapolate, or invent fallback behaviors.
-3. **Strict State Isolation:** When handling a micro feature, you cannot introduce global states or modify sibling domains unless instructed via explicit macro architectural mapping updates.
-4. **Idempotent Full-File Output Mandate:** You are completely forbidden from using code placeholders, truncating files, or emitting partial snippets (e.g., "// rest of class unchanged", "/* TODO */"). Every code generation action must output the entire, clean, compile-ready file from scratch, ensuring perfect context preservation.
-5. **Spec-First Ordering Mandate:** You are strictly forbidden from editing, modifying, or generating any production code file (.js, .ts, .py, .go, etc.) before the corresponding co-located `.spec.md` file has been created or updated to reflect the intended changes. The `.spec.md` must always be written or updated first — the spec is the source of truth, and code is derived from it. Violating this ordering constitutes a direct MDDD protocol breach and invalidates the entire change cycle.
+1. **Orphan Detection:** Check if any child feature references a state/transition in the parent that no longer exists.
+2. **Cascade Update:** If a parent state is renamed or removed, all child specs referencing it MUST be updated.
+3. **Version Bump:** Parent changes increment MINOR version. Child specs affected by the change increment PATCH version.
+
+## 3. Decision Matrix & Primitive Factors
+
+### 3.1 Decision Matrix Definition
+
+A **Decision Matrix** is a Markdown truth table that maps combinations of **Primitive Factors** (binary/nominal inputs) to deterministic **Actions** and **Outcomes**. It lives inside the `.spec.md` file.
+
+### 3.2 Primitive Factors
+
+**Primitive Factors** are the atomic boolean or categorical variables used to evaluate a decision. Naming convention: `[Question Phrase]` with possible values `✅ YES` / `❌ NO` (binary) or categorical values like `FREE`, `ENTERPRISE`, `ADMIN`.
+
+| Factor Type | Example | Allowed Values |
+| --- | --- | --- |
+| Binary | `Active Tenant?` | `✅ YES` / `❌ NO` |
+| Categorical | `Active Billing Tier?` | `FREE`, `PRO`, `ENTERPRISE` |
+| Negated Binary | `Global Kill Switch Active?` | `✅ YES` (blocked) / `❌ NO` (normal) |
+
+### 3.3 Matrix Resolution Rule
+
+For each row:
+1. Match ALL Primitive Factors against the current system state.
+2. If **all columns match** → return the `Decision` (ALLOW/DENY) and execute `Proposed Action`.
+3. If **no row fully matches** → return `HaltWithConflict`.
+4. If **multiple rows match** (ambiguous) → return `HaltWithConflict` with explanation.
+
+### 3.4 Example Decision Matrix
+
+| Active Tenant? | Premium App? | Active Billing Tier? | User Has Role Admin? | App Whitelisted? | Global Kill Switch? | Proposed Action | Decision | Transition State |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ❌ NO | - | - | - | - | - | `BOOT_APP` | ❌ DENY | - |
+| ✅ YES | ✅ YES | **ENTERPRISE** | ✅ YES | ✅ YES | ❌ NO | `INSTALL_APP` | ✅ ALLOW | `INSTALLED` |
+| ✅ YES | - | - | - | - | ✅ YES | `BOOT_APP` | ❌ DENY | `MUTED_ISOLATION` |
+
+> `-` = wildcard / any value matches.
+
+## 4. Versioning Policy
+
+### 4.1 Semantic Version for Specs
+
+Every `.spec.md` file carries a `%% @spec-version` header. Use **Semantic Versioning (MAJOR.MINOR.PATCH)**:
+
+| Bump | When | Example |
+| --- | --- | --- |
+| **MAJOR** | Breaking change: removing states/transitions, renaming factors, changing decision outcomes. | `1.2.3` → `2.0.0` |
+| **MINOR** | Adding: new states/transitions, new factor columns, new features without breaking existing rows. | `1.2.3` → `1.3.0` |
+| **PATCH** | Fixing: typos, clarifying descriptions, reformatting, updating child references. | `1.2.3` → `1.2.4` |
+
+### 4.2 Version Header Format
+
+The `%% @spec-version` comment MUST be the **first line** of the `.spec.md` file:
+
+```markdown
+%% @spec-version 1.0.0
+%% @domain payment
+%% @feature refund-flow
+```
+
+### 4.3 Audit History (Change Log)
+
+Each change MUST append a row to the **Change History** table at the bottom of the `.spec.md` file:
+
+```
+%% @spec-version 1.1.0
+
+## Change History
+| Version | Date | Author | Change Description | Change Type |
+| --- | --- | --- | --- | --- |
+| 1.1.0 | 2025-06-01 | AI | Added refund retry logic state | MINOR |
+| 1.0.0 | 2025-05-15 | AI | Initial spec creation | MAJOR |
+```
+
+## 5. Conflict Resolution Protocol
+
+When `HaltWithConflict` is triggered, the system MUST:
+
+1. **Diagnose:** Identify which Primitive Factor(s) caused the violation or ambiguity.
+2. **Document:** Log the conflict details in the Audit History (see section 4.3).
+3. **Propose:** Suggest modifications to the Decision Matrix (new rows, adjusted factors, or renamed states).
+4. **Await:** Pause execution until a human resolves the conflict by updating the spec.
+5. **Resume:** After the spec is updated, re-enter `CheckDecisionMatrix`.
+
+## 6. Parent Interaction Logic (Reverse Consistency)
+
+```mermaid
+graph TD
+    A[Parent .spec.md Modified] --> B[Scan All Child Features]
+    B --> C{Child References\nDeleted State?}
+    C -->|Yes| D[Flag Orphan Reference]
+    C -->|No| E{Child Transitions\nStill Valid?}
+    E -->|No| D
+    E -->|Yes| F[Update Child @spec-version: PATCH bump]
+    D --> G[Human Review Required]
+    G --> H[Update Child Spec]
+    H --> F
+    F --> I[Done — Log in Audit History]
+```
+
+## UNIVERSAL RULE
+
+The UNIVERSAL RULE is now integrated into the main processing diagram at the top. Its essence:
+
+**Before ANY action, the system MUST verify that a `.spec.md` file exists for the target domain/feature.** If no spec exists, only `md-new` and `md-audit` skills are allowed to proceed (to create or propose a spec). All other skills (`md-impl`, `md-edit`, etc.) are DENIED without an existing specification.
+
+```mermaid
+%% @spec-version v2.0.0
+%% @protocol-version 1.0.0
+stateDiagram-v2
+    [*] --> CheckSpec: Before any action — verify spec exists
+
+    state CheckSpec {
+        SpecExists --> Allowed: Proceed with requested skill.
+        SpecNotFound --> Denied: Only md-new / md-audit allowed.
+    }
+
+    Denied --> [*]: Halt — "No .spec.md file found. Use md-new or md-audit."
+    Allowed --> Action: Execute requested skill.
+    Action --> Verify: Validate output.
+    Verify --> [*]: Success.
+    Verify --> Action: Retry if criteria not met.
