@@ -1,6 +1,32 @@
 import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
-import { SYSTEM_PROMPT_CONTENT, SKILLS, GITHUB_WORKFLOW_CONTENT, execute } from '../../src/commands/init.js';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+import { execute } from '../../src/commands/init.js';
+import { GITHUB_WORKFLOW_CONTENT } from '../../src/workflows/mddd-preview.yml.js';
+import mdNewContent from '../../src/skills/md-new/content.js';
+import mdEditContent from '../../src/skills/md-edit/content.js';
+import mdAuditContent from '../../src/skills/md-audit/content.js';
+import mdImplContent from '../../src/skills/md-impl/content.js';
+
+// ---------------------------------------------------------------------------
+// System Prompt — read from disk same as init.js
+// ---------------------------------------------------------------------------
+const currentFile = fileURLToPath(import.meta.url);
+const rootDir = path.resolve(currentFile, '..', '..', '..');
+const systemPromptContent = readFileSync(path.join(rootDir, 'system_prompt.md'), 'utf-8');
+
+// ---------------------------------------------------------------------------
+// SKILLS map — reconstructed same as init.js
+// ---------------------------------------------------------------------------
+const SKILLS = {
+  'md-new': mdNewContent,
+  'md-edit': mdEditContent,
+  'md-audit': mdAuditContent,
+  'md-impl': mdImplContent,
+};
 
 // ---------------------------------------------------------------------------
 // Mock InitService
@@ -14,7 +40,6 @@ function createMockInitService() {
     }),
     createSkills: mock.fn(async (skills, logger) => {
       calls.createSkills.push({ skills, logger });
-      // Simulate real behaviour: log each skill
       for (const skillName of Object.keys(skills)) {
         logger(`✅ Skill successfully encapsulated: .agents/skills/${skillName}/SKILL.md`);
       }
@@ -34,13 +59,39 @@ function createMockInitService() {
 
 // ---------------------------------------------------------------------------
 // Tests — Decision Matrix coverage
-// - Row 1: createSystemPrompt writes system_prompt.md
-// - Row 2: createSkills writes SKILLS/*.md files + logger calls
-// - Row 3: createGitHubWorkflow writes .github/workflows/mddd-preview.yml
-// - Row 4: console.log success report
+// - Step 0a: Build SKILLS map from imports
+// - Step 0b: Read system_prompt.md from disk
+// - Step 0c: Import workflow YAML
+// - Step 1: createSystemPrompt writes system_prompt.md
+// - Step 2: createSkills writes SKILLS/*.md files + logger calls
+// - Step 3: createGitHubWorkflow writes .github/workflows/mddd-preview.yml
+// - Step 4: console.log success report
 // ---------------------------------------------------------------------------
-describe('execute() — md init command', () => {
-  it('Step 1: calls initService.createSystemPrompt with SYSTEM_PROMPT_CONTENT', async () => {
+describe('execute() — md init command (v1.5.0)', () => {
+  it('Step 0a: SKILLS map has expected keys with non-empty strings', () => {
+    const expectedKeys = ['md-new', 'md-edit', 'md-audit', 'md-impl'];
+    for (const key of expectedKeys) {
+      assert.ok(key in SKILLS, `SKILLS should contain "${key}"`);
+      assert.equal(typeof SKILLS[key], 'string');
+      assert.ok(SKILLS[key].length > 0);
+    }
+  });
+
+  it('Step 0b: system_prompt.md is readable and contains guardrails', () => {
+    assert.ok(systemPromptContent.length > 0);
+    assert.ok(systemPromptContent.includes('Anti-Hallucination Guardrails'));
+    assert.ok(systemPromptContent.includes('Spec-First Ordering Mandate'));
+  });
+
+  it('Step 0c: GITHUB_WORKFLOW_CONTENT is a non-empty string containing YAML keywords', () => {
+    assert.equal(typeof GITHUB_WORKFLOW_CONTENT, 'string');
+    assert.ok(GITHUB_WORKFLOW_CONTENT.length > 0);
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('name:'));
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('build-comment'));
+    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('actions/checkout@v4'));
+  });
+
+  it('Step 1: calls initService.createSystemPrompt with system_prompt.md content', async () => {
     const { service, calls } = createMockInitService();
 
     await execute(service);
@@ -48,18 +99,18 @@ describe('execute() — md init command', () => {
     assert.equal(calls.createSystemPrompt.length, 1);
     assert.equal(
       calls.createSystemPrompt[0],
-      SYSTEM_PROMPT_CONTENT,
-      'Should pass SYSTEM_PROMPT_CONTENT to createSystemPrompt',
+      systemPromptContent,
+      'Should pass system_prompt.md content to createSystemPrompt',
     );
   });
 
-  it('Step 2: calls initService.createSkills with SKILLS and a logger function', async () => {
+  it('Step 2: calls initService.createSkills with SKILLS map and a logger function', async () => {
     const { service, calls } = createMockInitService();
 
     await execute(service);
 
     assert.equal(calls.createSkills.length, 1);
-    assert.equal(calls.createSkills[0].skills, SKILLS);
+    assert.deepEqual(calls.createSkills[0].skills, SKILLS);
     assert.equal(typeof calls.createSkills[0].logger, 'function');
   });
 
@@ -68,13 +119,10 @@ describe('execute() — md init command', () => {
 
     await execute(service);
 
-    // Simulate how the real createSkills calls logger per skill entry
     const skillNames = Object.keys(SKILLS);
-    // We manually replay the logging that our mock does
     const loggedMessages = [];
     calls.createSkills[0].logger = (msg) => loggedMessages.push(msg);
 
-    // Re-run the mock's internal logic for verification
     for (const skillName of skillNames) {
       calls.createSkills[0].logger(
         `✅ Skill successfully encapsulated: .agents/skills/${skillName}/SKILL.md`,
@@ -112,14 +160,13 @@ describe('execute() — md init command', () => {
     const loggedMessages = [];
     calls.createGitHubWorkflow[0].logger = (msg) => loggedMessages.push(msg);
 
-    // Re-run the mock's internal logging logic
     calls.createGitHubWorkflow[0].logger('✅ GitHub workflow created: .github/workflows/mddd-preview.yml');
 
     assert.equal(loggedMessages.length, 1);
     assert.ok(loggedMessages[0].includes('mddd-preview.yml'));
   });
 
-  it('Steps 1-4: all three InitService methods are called in order', async () => {
+  it('Steps 1-4: all three InitService methods are called', async () => {
     const { service, calls } = createMockInitService();
 
     await execute(service);
@@ -129,11 +176,10 @@ describe('execute() — md init command', () => {
     assert.equal(calls.createGitHubWorkflow.length, 1);
   });
 
-  it('Step 4: prints green success messages to stdout (presence of console.log calls)', async () => {
+  it('Step 4: prints green success messages to stdout', async () => {
     const { service } = createMockInitService();
     const logs = [];
 
-    // Monkey-patch console.log to capture output
     const originalLog = console.log;
     console.log = (msg) => logs.push(msg);
 
@@ -143,44 +189,9 @@ describe('execute() — md init command', () => {
       console.log = originalLog;
     }
 
-    // Total console.log calls: 4 (logger per skill) + 1 (workflow logger) + 2 (success report)
+    // console.log calls: 4 (logger per skill) + 1 (workflow logger) + 2 (success report)
     assert.equal(logs.length, 7);
-    // Last two messages are the success report
     assert.ok(logs[5].includes('generated successfully'));
-    assert.ok(
-      logs[6].includes('Run the "md init" command'),
-    );
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Exported Constants Integrity
-// ---------------------------------------------------------------------------
-describe('exported constants', () => {
-  it('SYSTEM_PROMPT_CONTENT is a non-empty string', () => {
-    assert.equal(typeof SYSTEM_PROMPT_CONTENT, 'string');
-    assert.ok(SYSTEM_PROMPT_CONTENT.length > 0);
-  });
-
-  it('SKILLS is a non-empty record with expected keys', () => {
-    assert.equal(typeof SKILLS, 'object');
-    assert.notEqual(SKILLS, null);
-    assert.ok(!Array.isArray(SKILLS));
-
-    const expectedKeys = ['md-new', 'md-edit', 'md-audit', 'md-impl'];
-    for (const key of expectedKeys) {
-      assert.ok(key in SKILLS, `SKILLS should contain "${key}"`);
-      assert.equal(typeof SKILLS[key], 'string');
-      assert.ok(SKILLS[key].length > 0);
-    }
-  });
-
-  it('GITHUB_WORKFLOW_CONTENT is a non-empty string containing YAML keywords', () => {
-    assert.equal(typeof GITHUB_WORKFLOW_CONTENT, 'string');
-    assert.ok(GITHUB_WORKFLOW_CONTENT.length > 0);
-    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('name:'));
-    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('mermaid.ink'));
-    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('Diagram Preview'));
-    assert.ok(GITHUB_WORKFLOW_CONTENT.includes('actions/checkout@v4'));
+    assert.ok(logs[6].includes('Run the "md init" command'));
   });
 });

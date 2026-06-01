@@ -1,11 +1,11 @@
-# CLI Module | v4.0.2 (Stable)
+# CLI Module | v4.2.1 (Stable)
 
 ## 1. Flow Contract (Mermaid)
 
 ### 1.1 Topologia Atual (As-Is)
 
 ```mermaid
-%% @spec-version v4.0.0
+%% @spec-version v4.2.1
 graph TD
     subgraph "CLI Entry (bin/cli.js)"
         A[bin/cli.js: Commander Router] --> B[delegate to ./commands/init.js]
@@ -21,9 +21,13 @@ graph TD
         D --> E
         E --> F[fs/promises]
     end
+
+    subgraph "External Dependencies"
+        F --> G["@mermaid-js/mermaid-cli"]
+    end
 ```
 
-O diagrama acima reflete a arquitetura final e estável pós-refatoração: separação clara entre CLI Entry, Commands Layer e Shared Services, com injeção de dependência do `FileSystemService`.
+O diagrama acima reflete a arquitetura final e estável pós-refatoração: separação clara entre CLI Entry, Commands Layer e Shared Services, com injeção de dependência do `FileSystemService`. O `@mermaid-js/mermaid-cli` é uma dependência externa instalada junto com o pacote para renderização de diagramas Mermaid.
 
 ## 2. Decision Matrix
 
@@ -33,6 +37,7 @@ O diagrama acima reflete a arquitetura final e estável pós-refatoração: sepa
 | `src/commands/init.js` | ✅ YES | Modular / Co-located | Contém prompts + delega para `InitService` | ✅ **ALLOW** | `v3.0.0` |
 | `src/services/InitService.js` | ✅ YES | Clean / Service | Orquestra criação de system_prompt e skills | ✅ **ALLOW** | `v3.0.0` |
 | `src/services/FileSystemService.js` | ✅ YES | Clean / Service | Abstrai `fs/promises` com DI | ✅ **ALLOW** | `v3.0.0` |
+| `@mermaid-js/mermaid-cli` | N/A | External Dependency | Renderização de diagramas Mermaid via CLI | ✅ **ALLOW** | `v4.2.0` |
 
 ### Fatores Primitivos de Qualidade
 
@@ -57,6 +62,8 @@ O diagrama acima reflete a arquitetura final e estável pós-refatoração: sepa
 | 2026-05-27 | Cline (Agent-Actor) | v3.0.0 | **MAJOR Mutation (v2.0.0 → v3.0.0):** Removidos comandos `new`, `edit`, `audit` e `impl` do escopo do CLI. Diagramas As-Is e To-Be simplificados para refletir apenas o comando `init` restante. Matriz de decisão e fatores de acoplamento atualizados. |
 | 2026-05-28 | Cline (Agent-Actor) | v4.0.0 | **MAJOR Mutation (v3.0.0 → v4.0.0):** Refatoração concluída e estabilizada. Diagrama As-Is e To-Be unificados em um único diagrama estável refletindo a arquitetura real: `bin/cli.js` (37 linhas) → `src/commands/init.js` → `src/services/InitService.js` + `src/services/FileSystemService.js`. Título alterado de "Refactoring Plan" para "CLI Module (Stable)". Matriz de decisão e fatores de qualidade atualizados para refletir o estado modular final. |
 | 2026-05-28 | Cline (md-audit) | v4.1.0 | **MINOR Mutation (v4.0.0 → v4.1.0):** Criados specs faltantes `src/services/FileSystemService.spec.md` e `src/services/InitService.spec.md` via `md-audit`. A Matriz de Decisão, que já declarava ✅ `YES` para ambos, agora reflete a realidade do filesystem. Nenhuma alteração em código de produção. |
+| 2026-05-30 | Cline (Agent-Actor) | v4.2.0 | **MINOR Mutation (v4.1.0 → v4.2.0):** Adicionado `@mermaid-js/mermaid-cli@^11.15.0` como dependência no `package.json`. Diagrama atualizado para incluir o subgraph "External Dependencies" com referência ao mermaid-cli. Matriz de decisão estendida com linha para a dependência externa. |
+| 2026-05-30 | Cline (Agent-Actor) | v4.2.1 | **PATCH Mutation (v4.2.0 → v4.2.1):** Adicionado `system_prompt.md` ao campo `"files"` no `package.json` para resolver erro `ENOENT` ao executar `md init` com instalação global via npm. |
 
 ### Análise de Qualidade
 
