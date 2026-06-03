@@ -1,9 +1,6 @@
 import { parse } from '@mermaid-js/parser';
 import fs from 'node:fs';
 
-/**
- * Filtra o texto para extrair apenas o que está dentro dos blocos ```mermaid
- */
 function extractMermaidBlocks(text) {
   const regex = /```mermaid\s*([\s\S]*?)\s*```/g;
   const blocks = [];
@@ -19,17 +16,38 @@ function extractMermaidBlocks(text) {
 }
 
 /**
- * Valida o conteúdo recebido (pode ser o caminho de um arquivo ou a string direta)
+ * Limpa comentários do topo do diagrama que quebram o parser do Mermaid
+ * @param {string} code 
+ * @returns {string}
  */
+function cleanDiagramCode(code) {
+  // Remove linhas que começam com %% no topo do arquivo antes da declaração do tipo
+  const lines = code.split('\n');
+  const cleanedLines = [];
+  let foundTypeDeclaration = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    // Ignora linhas vazias ou comentários iniciais até achar a declaração do diagrama
+    if (!foundTypeDeclaration && (trimmed === '' || trimmed.startsWith('%%'))) {
+      continue; 
+    }
+    
+    foundTypeDeclaration = true;
+    cleanedLines.push(line);
+  }
+
+  return cleanedLines.join('\n').trim();
+}
+
 export async function validateMermaidSyntax(input) {
   let content = input;
 
-  // Se o input for um caminho de arquivo válido no disco, lê o conteúdo dele
   if (fs.existsSync(input)) {
     content = fs.readFileSync(input, 'utf-8');
   }
 
-  // Se houver blocos de Markdown indicando Mermaid, isola os diagramas
   let diagramsToValidate = [content];
   if (content.includes('```mermaid')) {
     diagramsToValidate = extractMermaidBlocks(content);
@@ -42,10 +60,11 @@ export async function validateMermaidSyntax(input) {
     }
   }
 
-  // Valida cada bloco na memória usando o parser oficial
   try {
     for (const diagramCode of diagramsToValidate) {
-      await parse(diagramCode);
+      // Aplica a limpeza antes de mandar para o parser em memória
+      const readyCode = cleanDiagramCode(diagramCode);
+      await parse(readyCode);
     }
     return { valid: true };
   } catch (error) {
