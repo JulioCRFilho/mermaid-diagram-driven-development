@@ -16,31 +16,36 @@ function extractMermaidBlocks(text) {
 }
 
 /**
- * Normaliza os espaços invisíveis, quebras de linha e remove comentários iniciais
+ * Normaliza quebras de linha, remove TODOS os tipos de espaços Unicode fantasmas
+ * e elimina comentários/linhas vazias do topo antes do tipo de diagrama.
  * @param {string} code 
  * @returns {string}
  */
 function cleanDiagramCode(code) {
-  // 1. Substitui espaços não-quebráveis (NBSP) por espaços normais
-  // 2. Remove possíveis retornos de carro (\r) de arquivos gerados no Windows
-  const normalizedCode = code
-    .replace(/\u00A0/g, ' ')
-    .replace(/\r/g, '');
+  // 1. Unifica todas as quebras de linha possíveis (\r\n ou \r isolado) para \n
+  const uniformLines = code.replace(/\r\n|\r/g, '\n');
 
-  const lines = normalizedCode.split('\n');
+  // 2. Divide em linhas para processar o topo do arquivo
+  const lines = uniformLines.split('\n');
   const cleanedLines = [];
   let foundTypeDeclaration = false;
 
   for (const line of lines) {
-    const trimmed = line.trim();
+    // Substitui todos os tipos conhecidos de espaços em branco Unicode invisíveis por espaços comuns
+    // (\u00A0 é o NBSP, \u2000-\u200A são variantes de espaçamento tipográfico)
+    let normalizedLine = line.replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, ' ');
     
-    // Ignora linhas vazias ou comentários iniciais até achar a declaração do tipo de diagrama
+    const trimmed = normalizedLine.trim();
+    
+    // Ignora linhas vazias ou comentários iniciais até achar a declaração do diagrama
     if (!foundTypeDeclaration && (trimmed === '' || trimmed.startsWith('%%'))) {
       continue; 
     }
     
     foundTypeDeclaration = true;
-    cleanedLines.push(line);
+    
+    // Mantém a linha com os espaços normais restaurados (importante para a indentação dos blocos do Mermaid)
+    cleanedLines.push(normalizedLine);
   }
 
   return cleanedLines.join('\n').trim();
