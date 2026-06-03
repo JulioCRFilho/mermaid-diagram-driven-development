@@ -22,7 +22,7 @@ stateDiagram-v2
         [*] --> IncrementMajor: Increment Major: Bump X in X.Y.Z
     }
 
-    IncrementVersion --> CheckDiagram: Use mmdc -i <path/to/diagram.md> --checkSyntax to validate diagram syntax
+    IncrementVersion --> CheckDiagram: Use "npx md validate <path/to/spec.md>" to validate diagram syntax
 
     state CheckDiagram {
         [*] --> TryRender

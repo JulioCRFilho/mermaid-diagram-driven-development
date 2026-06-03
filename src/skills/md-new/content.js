@@ -19,7 +19,7 @@ stateDiagram-v2
 
     EvaluateContext --> GenerateBlueprint: Create .spec.md from "src/templates/spec-template.md".
     GenerateBlueprint --> FormatSpecOutput: Format blueprint into target .spec.md structure
-    FormatSpecOutput --> CheckDiagram: Use mmdc -i <path/to/diagram.md> --checkSyntax to validate diagram syntax
+    FormatSpecOutput --> CheckDiagram: Use "npx md validate <path/to/spec.md>" to validate diagram syntax
 
     state CheckDiagram {
         [*] --> DiagramValid: Proceed to next step
