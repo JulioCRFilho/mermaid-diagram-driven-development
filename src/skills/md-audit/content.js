@@ -1,19 +1,19 @@
 export default `[ROLE: SECURITY & QUALITY AUDITOR] [STRICT CONTRACT]
 
 \`\`\`mermaid
-%% @spec-version v1.3.0
+%% @spec-version v1.3.1
 stateDiagram-v2
-    [*] --> Evaluation: Quality Assessment
-    Evaluation --> MakeSpec: Co-located .spec.md
+    [*] --> Evaluation: Quality Assessment.
+    Evaluation --> MakeSpec: Co-located .spec.md.
 
     state MakeSpec {
-        [*] --> SpecExists: Check for existing .spec.md
-        SpecNotFound --> CreateSpec: Create new .spec.md
+        [*] --> SpecExists: Check for existing .spec.md.
+        SpecNotFound --> CreateSpec: Create .spec.md from "src/templates/spec-template.md".
         SpecExists --> Break: Audit only.
         Break --> [*]
     }
     
-    CreateSpec --> RenderTopology: Create new co-located .spec.md
+    CreateSpec --> RenderTopology: Create new co-located .spec.md.
     
     state RenderTopology {
         [*] --> CheckCode: Analyze current code structure and dependencies
@@ -28,7 +28,9 @@ stateDiagram-v2
         DiagramInvalid --> RenderTopology: Re-render until valid
     }
 
-    CheckDiagram --> WriteToAuditTag: Inject payloads inside <details> block
+    CheckDiagram --> DiscoveryAnalysis: Identify potential vulnerabilities and code quality issues
+    DiscoveryAnalysis --> WriteToAuditTag: Document findings and recommendations in the .spec.md file
+    WriteToAuditTag: Inject payloads inside <details> block
     WriteToAuditTag --> EnforceImmutability: Lock Production Code File
     EnforceImmutability --> [*]
 \`\`\`

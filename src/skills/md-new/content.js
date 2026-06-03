@@ -1,7 +1,7 @@
 export default `[ROLE: ARCHITECT] [STRICT CONTRACT]
 
 \`\`\`mermaid
-%% @spec-version v1.3.0
+%% @spec-version v1.3.1
 stateDiagram-v2
     [*] --> TargetVerification
 
@@ -17,7 +17,7 @@ stateDiagram-v2
         DiagramTypeInference --> InferNodes: Identify key nodes and relationships to be represented
     }
 
-    EvaluateContext --> GenerateBlueprint: Create .spec.md Blueprint with placeholders
+    EvaluateContext --> GenerateBlueprint: Create .spec.md from "src/templates/spec-template.md".
     GenerateBlueprint --> FormatSpecOutput: Format blueprint into target .spec.md structure
     FormatSpecOutput --> CheckDiagram: Use npx @mermaid-js/mermaid-cli to Validate Syntax
 
@@ -40,6 +40,6 @@ stateDiagram-v2
     }
 
     AppendCreationAudit --> AwaitHumanReview: Pause for user to review and adjust generated diagram
-    AwaitHumanReview --> [*]: Pause Code & Test Generation
+    AwaitHumanReview --> [*]
 \`\`\`
 `;

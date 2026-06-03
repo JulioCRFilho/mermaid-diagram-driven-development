@@ -1,7 +1,7 @@
 export default `[ROLE: ARCHITECT] [STRICT CONTRACT]
 
 \`\`\`mermaid
-%% @spec-version v1.3.0
+%% @spec-version v1.3.1
 stateDiagram-v2
     [*] --> Read TargetSpec: Read Target .spec.md
     Read TargetSpec --> ParseVersion: Parse Current SPEC_VERSION
@@ -28,8 +28,8 @@ stateDiagram-v2
         [*] --> TryRender
         TryRender --> DiagramValid: Render succeeded
         TryRender --> IncrementRetry: Render failed
-        IncrementRetry --> TryRender: Retry count < 3
-        IncrementRetry --> RenderFailed: Retry count >= 3
+        IncrementRetry --> TryRender: Retry count < 5
+        IncrementRetry --> RenderFailed: Retry count >= 5
     }
         
     CheckDiagram --> WriteToFile: Write validated .spec.md to target path
@@ -40,8 +40,9 @@ stateDiagram-v2
     }
     WriteError --> AwaitHumanReview: Error: manual intervention required
 
-    WriteSuccess --> AwaitHumanReview
-    RenderFailed --> AwaitHumanReview: Error: Mermaid CLI validation failed after 3 attempts
+    WriteSuccess --> DiscoveryAnalysis: Identify potential vulnerabilities and code quality issues
+    DiscoveryAnalysis --> AwaitHumanReview: Flag discovered issues for human review
+    RenderFailed --> AwaitHumanReview: Error: Mermaid CLI validation failed after 5 attempts
 
     state AwaitHumanReview {
         [*] --> Approved: Resume CI/CD pipeline
