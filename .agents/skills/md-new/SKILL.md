@@ -19,7 +19,7 @@ stateDiagram-v2
 
     EvaluateContext --> GenerateBlueprint: Create .spec.md from "src/templates/spec-template.md".
     GenerateBlueprint --> FormatSpecOutput: Format blueprint into target .spec.md structure
-    FormatSpecOutput --> CheckDiagram: Use npx @mermaid-js/mermaid-cli to Validate Syntax
+    FormatSpecOutput --> CheckDiagram: Use npx @mermaid-js/mermaid-cli to Validate Diagrams Syntax (Mandatory)
 
     state CheckDiagram {
         [*] --> DiagramValid: Proceed to next step

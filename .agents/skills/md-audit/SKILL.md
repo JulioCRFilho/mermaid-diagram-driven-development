@@ -1,7 +1,7 @@
 [ROLE: SECURITY & QUALITY AUDITOR] [STRICT CONTRACT]
 
 ```mermaid
-%% @spec-version v1.3.1
+%% @spec-version v1.3.2
 stateDiagram-v2
     [*] --> Evaluation: Quality Assessment.
     Evaluation --> MakeSpec: Co-located .spec.md.
@@ -21,7 +21,7 @@ stateDiagram-v2
         CheckCode --> EvaluatedCodeIsChaotic: Draw BOTH current chaotic logic AND ideal target refactored graph (v1.0.0 - draft)
     }
     
-    RenderTopology --> CheckDiagram: Use npx @mermaid-js/mermaid-cli to Validate Syntax
+    RenderTopology --> CheckDiagram: Use npx @mermaid-js/mermaid-cli to Validate Diagrams Syntax (Mandatory)
 
     state CheckDiagram {
         [*] --> DiagramValid: Proceed to next step

@@ -217,6 +217,8 @@ The UNIVERSAL RULE is now integrated into the main processing diagram at the top
 
 **Before ANY action, the system MUST verify that a `.spec.md` file exists for the target domain/feature.** If no spec exists, only `md-new` and `md-audit` skills are allowed to proceed (to create or propose a spec). All other skills (`md-impl`, `md-edit`, etc.) are DENIED without an existing specification.
 
+Diagrams: Always use npx @mermaid-js/mermaid-cli to Validate Diagrams Syntax (Mandatory)
+
 ```mermaid
 %% @spec-version v2.0.0
 %% @protocol-version 1.0.0
@@ -233,3 +235,4 @@ stateDiagram-v2
     Action --> Verify: Validate output.
     Verify --> [*]: Success.
     Verify --> Action: Retry if criteria not met.
+ ```   
