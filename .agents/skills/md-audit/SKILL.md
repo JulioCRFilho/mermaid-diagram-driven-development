@@ -21,7 +21,7 @@ stateDiagram-v2
         CheckCode --> EvaluatedCodeIsChaotic: Draw BOTH current chaotic logic AND ideal target refactored graph (v1.0.0 - draft)
     }
     
-    RenderTopology --> CheckDiagram: Use npx @mermaid-js/mermaid-cli to Validate Diagrams Syntax (Mandatory)
+    RenderTopology --> CheckDiagram: Use mmdc -i <path/to/diagram.md> --checkSyntax to validate diagram syntax
 
     state CheckDiagram {
         [*] --> DiagramValid: Proceed to next step
