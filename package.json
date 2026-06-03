@@ -1,6 +1,6 @@
 {
   "name": "mddd-cli",
-  "version": "4.1.2",
+  "version": "4.2.0",
   "description": "Official CLI for modular, co-located, and versioned Mermaid Diagram Driven Development (MDDD).",
   "type": "module",
   "exports": "./bin/cli.js",
@@ -8,7 +8,6 @@
     "md": "./bin/cli.js"
   },
   "files": [
-    "bin",
     "src",
     "system_prompt.md"
   ],
@@ -23,6 +22,8 @@
     "mermaid",
     "md",
     "ai",
+    "sdd",
+    "spec-driven",
     "diagram-driven",
     "architecture",
     "cli",
@@ -39,7 +40,7 @@
   },
   "homepage": "https://github.com/JulioCRFilho/mermaid-diagram-driven-development#readme",
   "dependencies": {
-    "@mermaid-js/parser": "^1.1.1",
+    "@mermaid-js/mermaid-cli": "github:mermaid-js/mermaid-cli",
     "commander": "^12.0.0",
     "picocolors": "^1.0.0"
   }

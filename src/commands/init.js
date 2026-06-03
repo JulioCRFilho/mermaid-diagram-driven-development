@@ -5,22 +5,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import pc from 'picocolors';
 
-import mdNewContent from '../skills/md-new/content.js';
-import mdEditContent from '../skills/md-edit/content.js';
-import mdAuditContent from '../skills/md-audit/content.js';
-import mdImplContent from '../skills/md-impl/content.js';
 import { GITHUB_WORKFLOW_CONTENT } from '../workflows/mddd-preview.yml.js';
-
-/**
- * Build the SKILLS map from co-located modules.
- * @type {Record<string, string>}
- */
-const SKILLS = {
-  'md-new': mdNewContent,
-  'md-edit': mdEditContent,
-  'md-audit': mdAuditContent,
-  'md-impl': mdImplContent,
-};
 
 /**
  * Resolve and read system_prompt.md from the project root.
@@ -41,8 +26,15 @@ function readSystemPrompt() {
 export async function execute(initService) {
   const systemPrompt = readSystemPrompt();
 
+  // Descobre o caminho absoluto real da pasta interna de templates de skills da CLI
+  const currentFile = fileURLToPath(import.meta.url);
+  const cliSkillsSourceDir = path.resolve(path.dirname(currentFile), '..', 'skills');
+
   await initService.createSystemPrompt(systemPrompt);
-  await initService.createSkills(SKILLS, (msg) => console.log(msg));
+  
+  // Passa o caminho da pasta de origem em vez do mapa de strings antigas
+  await initService.createSkills(cliSkillsSourceDir, (msg) => console.log(msg));
+  
   await initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT, (msg) => console.log(msg));
 
   console.log(pc.green('\n🚀 Universal [system_prompt.md] and SKILLS generated successfully in the project root!'));

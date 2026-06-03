@@ -1,54 +1,20 @@
-import { parse } from '@mermaid-js/parser';
+import { exec } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
+import { promisify } from 'node:util';
+
+const execAsync = promisify(exec);
 
 function extractMermaidBlocks(text) {
   const regex = /```mermaid\s*([\s\S]*?)\s*```/g;
   const blocks = [];
   let match;
-  
   while ((match = regex.exec(text)) !== null) {
     if (match[1].trim()) {
       blocks.push(match[1].trim());
     }
   }
-  
   return blocks;
-}
-
-/**
- * Normaliza quebras de linha, remove TODOS os tipos de espaços Unicode fantasmas
- * e elimina comentários/linhas vazias do topo antes do tipo de diagrama.
- * @param {string} code 
- * @returns {string}
- */
-function cleanDiagramCode(code) {
-  // 1. Unifica todas as quebras de linha possíveis (\r\n ou \r isolado) para \n
-  const uniformLines = code.replace(/\r\n|\r/g, '\n');
-
-  // 2. Divide em linhas para processar o topo do arquivo
-  const lines = uniformLines.split('\n');
-  const cleanedLines = [];
-  let foundTypeDeclaration = false;
-
-  for (const line of lines) {
-    // Substitui todos os tipos conhecidos de espaços em branco Unicode invisíveis por espaços comuns
-    // (\u00A0 é o NBSP, \u2000-\u200A são variantes de espaçamento tipográfico)
-    let normalizedLine = line.replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, ' ');
-    
-    const trimmed = normalizedLine.trim();
-    
-    // Ignora linhas vazias ou comentários iniciais até achar a declaração do diagrama
-    if (!foundTypeDeclaration && (trimmed === '' || trimmed.startsWith('%%'))) {
-      continue; 
-    }
-    
-    foundTypeDeclaration = true;
-    
-    // Mantém a linha com os espaços normais restaurados (importante para a indentação dos blocos do Mermaid)
-    cleanedLines.push(normalizedLine);
-  }
-
-  return cleanedLines.join('\n').trim();
 }
 
 export async function validateMermaidSyntax(input) {
@@ -65,28 +31,49 @@ export async function validateMermaidSyntax(input) {
     if (diagramsToValidate.length === 0) {
       return {
         valid: false,
-        error: "Nenhum bloco de código '```mermaid' estruturado foi encontrado."
+        error: "Nenhum bloco '```mermaid' encontrado no arquivo."
       };
     }
   }
 
+  const tempInputPath = path.join(process.cwd(), `.temp_validate_${Date.now()}.mmd`);
+  const tempOutputPath = path.join(process.cwd(), `.temp_validate_${Date.now()}.svg`);
+
   try {
-    const cleanedDiagrams = [];
-    
+    const validatedDiagrams = [];
+
     for (const diagramCode of diagramsToValidate) {
-      const readyCode = cleanDiagramCode(diagramCode);
-      await parse(readyCode); // Se tiver espaço fantasma aqui, o parser agora aceita!
-      cleanedDiagrams.push(readyCode);
+      fs.writeFileSync(tempInputPath, diagramCode, 'utf-8');
+
+      // AJUSTE AQUI: Explicitamos o pacote (-p) e chamamos o executável real (mmdc)
+      await execAsync(`npx -p @mermaid-js/mermaid-cli mmdc -i "${tempInputPath}" -o "${tempOutputPath}"`);
+
+      if (fs.existsSync(tempOutputPath)) {
+        fs.unlinkSync(tempOutputPath);
+      }
+      
+      validatedDiagrams.push(diagramCode);
     }
-    
+
+    if (fs.existsSync(tempInputPath)) {
+      fs.unlinkSync(tempInputPath);
+    }
+
     return { 
       valid: true, 
-      diagrams: cleanedDiagrams 
+      diagrams: validatedDiagrams 
     };
+
   } catch (error) {
+    if (fs.existsSync(tempInputPath)) fs.unlinkSync(tempInputPath);
+    if (fs.existsSync(tempOutputPath)) fs.unlinkSync(tempOutputPath);
+
+    // Captura o erro real de compilação enviado pelo compilador do Mermaid
+    const errorMessage = error.stderr || error.message || 'Erro de validação desconhecido no Mermaid.';
+
     return {
       valid: false,
-      error: error.message || 'Erro de sintaxe desconhecido no Mermaid.'
+      error: errorMessage.trim()
     };
   }
 }

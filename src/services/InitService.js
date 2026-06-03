@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 /**
@@ -24,31 +25,37 @@ export class InitService {
   }
 
   /**
-   * Creates all skill folders and SKILL.md files.
-   * @param {Record<string, string>} skills - Map of skill name to skill content
+   * Copies all real skill folders and files to .agents/skills/.
+   * @param {string} sourceSkillsDir - Absolute path to the CLI source skills template folder
    * @param {(message: string) => void} logger
-   * @returns {Promise<string[]>} Array of file paths created
+   * @returns {Promise<void>}
    */
-  async createSkills(skills, logger) {
+  async createSkills(sourceSkillsDir, logger) {
     const agentsDir = '.agents';
-    const skillsDir = path.join(agentsDir, 'skills');
+    const targetSkillsDir = path.join(agentsDir, 'skills');
 
+    // Garante a existência da árvore de diretórios base no destino
     this.#fs.ensureDir(agentsDir);
-    this.#fs.ensureDir(skillsDir);
+    this.#fs.ensureDir(targetSkillsDir);
 
-    const created = [];
-
-    for (const [skillName, content] of Object.entries(skills)) {
-      const skillFolder = path.join(skillsDir, skillName);
-      this.#fs.ensureDir(skillFolder);
-
-      const skillFile = path.join(skillFolder, 'SKILL.md');
-      await this.#fs.writeFile(skillFile, content);
-      created.push(skillFile);
-      logger(`✅ Skill successfully encapsulated: ${skillFile}`);
+    if (!fs.existsSync(sourceSkillsDir)) {
+      throw new Error(`Source skills template directory not found at: ${sourceSkillsDir}`);
     }
 
-    return created;
+    // Copia de forma real, recursiva e idêntica todas as pastas de skills
+    // Mantém estruturas complexas como a da sua skill 'mermaid-diagrams' (com subpastas references/, readme.md, etc)
+    fs.cpSync(sourceSkillsDir, targetSkillsDir, {
+      recursive: true,
+      force: true
+    });
+
+    // Lista as pastas copiadas apenas para dar um feedback limpo no console
+    const copiedSkills = fs.readdirSync(targetSkillsDir);
+    for (const skillName of copiedSkills) {
+      if (fs.statSync(path.join(targetSkillsDir, skillName)).isDirectory()) {
+        logger(`✅ Skill successfully encapsulated: ${path.join(targetSkillsDir, skillName)}`);
+      }
+    }
   }
 
   /**
