@@ -26,13 +26,14 @@ function readSystemPrompt() {
 export async function execute(initService) {
   const systemPrompt = readSystemPrompt();
 
-  // Descobre o caminho absoluto real da pasta interna de templates de skills da CLI
+  // 1. Descobre o caminho absoluto real da pasta oculta interna do pacote da CLI
+  // Subindo de: src/commands/ -> src/ -> raiz do pacote CLI -> .agents/skills
   const currentFile = fileURLToPath(import.meta.url);
-  const cliSkillsSourceDir = path.resolve(path.dirname(currentFile), '..', 'skills');
+  const cliSkillsSourceDir = path.resolve(path.dirname(currentFile), '..', '..', '.agents', 'skills');
 
   await initService.createSystemPrompt(systemPrompt);
   
-  // Passa o caminho da pasta de origem em vez do mapa de strings antigas
+  // 2. Passa o caminho da pasta oculta de origem para o serviço clonar recursivamente
   await initService.createSkills(cliSkillsSourceDir, (msg) => console.log(msg));
   
   await initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT, (msg) => console.log(msg));
