@@ -16,20 +16,25 @@ function extractMermaidBlocks(text) {
 }
 
 /**
- * Limpa comentários do topo do diagrama que quebram o parser do Mermaid
+ * Normaliza os espaços invisíveis, quebras de linha e remove comentários iniciais
  * @param {string} code 
  * @returns {string}
  */
 function cleanDiagramCode(code) {
-  // Remove linhas que começam com %% no topo do arquivo antes da declaração do tipo
-  const lines = code.split('\n');
+  // 1. Substitui espaços não-quebráveis (NBSP) por espaços normais
+  // 2. Remove possíveis retornos de carro (\r) de arquivos gerados no Windows
+  const normalizedCode = code
+    .replace(/\u00A0/g, ' ')
+    .replace(/\r/g, '');
+
+  const lines = normalizedCode.split('\n');
   const cleanedLines = [];
   let foundTypeDeclaration = false;
 
   for (const line of lines) {
     const trimmed = line.trim();
     
-    // Ignora linhas vazias ou comentários iniciais até achar a declaração do diagrama
+    // Ignora linhas vazias ou comentários iniciais até achar a declaração do tipo de diagrama
     if (!foundTypeDeclaration && (trimmed === '' || trimmed.startsWith('%%'))) {
       continue; 
     }
@@ -61,12 +66,18 @@ export async function validateMermaidSyntax(input) {
   }
 
   try {
+    const cleanedDiagrams = [];
+    
     for (const diagramCode of diagramsToValidate) {
-      // Aplica a limpeza antes de mandar para o parser em memória
       const readyCode = cleanDiagramCode(diagramCode);
-      await parse(readyCode);
+      await parse(readyCode); // Se tiver espaço fantasma aqui, o parser agora aceita!
+      cleanedDiagrams.push(readyCode);
     }
-    return { valid: true };
+    
+    return { 
+      valid: true, 
+      diagrams: cleanedDiagrams 
+    };
   } catch (error) {
     return {
       valid: false,
