@@ -88,7 +88,7 @@ Brief description of the purpose and scope of this specification.
 
 src/
 └── [domain_name]/
-    ├── [domain_name].spec.md                   # 🌎 Macro Module Domain (stateDiagram-v2)
+    ├── [domain_name].spec.md                   # 🌎 Macro Module Domain
     ├── [feature_name]/
     │   ├── [feature_name].spec.md              # 🔬 Micro Flow Contract + Decision Matrix
     │   └── [feature_name].[extension]          # 💻 Target Production Code File (Any Extension)
@@ -218,7 +218,7 @@ The UNIVERSAL RULE is now integrated into the main processing diagram at the top
 
 **Before ANY action, the system MUST verify that a `.spec.md` file exists for the target domain/feature.** If no spec exists, only `md-new` and `md-audit` skills are allowed to proceed (to create or propose a spec). All other skills (`md-impl`, `md-edit`, etc.) are DENIED without an existing specification.
 
-Diagrams: Always use mmdc -i <path/to/diagram.md> --checkSyntax to validate diagram syntax (Mandatory)
+Diagrams: Always use "npx md validate <path/to/diagram.md>" to validate diagram syntax (Mandatory)
 
 ```mermaid
 %% @spec-version v2.0.0

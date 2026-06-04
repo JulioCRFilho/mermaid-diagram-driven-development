@@ -1,8 +1,3 @@
-%% @spec-version 1.0.0
-%% @domain {{domain_name}}
-%% @feature {{feature_name}}
-%% @author {{author_name}}
-
 # {{Feature Title}} — Specification
 
 **SPEC_VERSION:** v1.0.0 — draft
@@ -28,12 +23,9 @@ Describe **what** this spec governs and **why** it exists.
 
 ## 2. Behavioral Flow (Mermaid)
 
-> Pick the diagram type that best fits the topology:
-> `stateDiagram-v2` for lifecycles, `graph TD/LR` for procedural flows,
-> `sequenceDiagram` for multi-actor protocols, `flowchart` for branching logic.
+> Pick the diagram type that best fits the topology using mermaid-diagrams skill.
 
 ```mermaid
-%% @spec-version 1.0.0
 stateDiagram-v2
     [*] --> Idle: initial entry point
 
@@ -104,15 +96,7 @@ When a `HaltWithConflict` is triggered, document the resolution path here:
 
 ---
 
-## 6. Change History
-
-| Version | Date | Author | Change Description | Change Type |
-| :---: | :--- | :--- | :--- | :---: |
-| 1.0.0 | {{YYYY-MM-DD}} | {{author_name}} | Initial spec creation via `md-new` | MAJOR |
-
----
-
-## 7. Audit History
+## 6. Audit History
 
 <details>
 <summary>Click to expand</summary>
