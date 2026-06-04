@@ -64,13 +64,6 @@ diagramType
 - **Notes and comments** - Add context and explanations
 - **Alt/loop/opt blocks** - Complex flow control in sequences
 
-### Integration Support
-
-- **GitHub/GitLab** - Automatic rendering in Markdown files
-- **VS Code** - Preview with Markdown Mermaid extension
-- **Notion, Obsidian, Confluence** - Built-in support
-- **Export** - PNG, SVG, PDF via Mermaid Live or CLI
-
 ## Usage Examples
 
 ### Example 1: Document a Domain Model
@@ -233,7 +226,6 @@ For comprehensive syntax and advanced features, see:
 - **[Mermaid Live Editor](https://mermaid.live)** - Interactive editor with instant preview and export
 - **[Official Documentation](https://mermaid.js.org)** - Comprehensive syntax reference
 - **Mermaid CLI** - `npm install -g @mermaid-js/mermaid-cli` for batch exports
-- **VS Code Extension** - "Markdown Preview Mermaid Support" for live preview
 - **GitHub** - Native rendering in all `.md` files
 
 ## Support

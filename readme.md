@@ -67,8 +67,6 @@ Unlike traditional specification frameworks that generate dozens of text files a
 
 ## ✅ Mermaid Diagram Preview
 
-To preview Mermaid diagrams directly in your editor during the MDDD workflow, you can use extensions that render ````mermaid```` blocks in Markdown files:
-
 ### Architectural Diagram Example
 
 ```mermaid
@@ -127,26 +125,6 @@ sequenceDiagram
 | ✅ YES | - | - | - | - | ✅ YES | `BOOT_APP` | ❌ **DENY** | `MUTED_ISOLATION` |
 | ✅ YES | - | - | - | - | ✅ YES | `HOT_RELOAD` | ❌ **DENY** | - |
 | ❌ NO | - | - | - | - | - | `PURGE_DATA` | ❌ **DENY** | - |
-
----
-
-### VS Code and derivated
-
-* **Markdown Preview Mermaid Support** — Adds Mermaid diagram support to the native Markdown preview.
-* **Mermaid Editor** — Visual editor with side-by-side preview and export.
-* **bierner.markdown-mermaid** — Official extension that extends the Markdown preview to render Mermaid.
-
-### JetBrains (IntelliJ, WebStorm, GoLand, etc.)
-
-* Native Mermaid support starting from **2024.1** — Just open the `.spec.md` file and use the built-in Markdown preview.
-
-### Other Editors
-
-* **Neovim/Vim:** Use plugins like `iamcco/markdown-preview.nvim` (with `markdown-preview` configured for Mermaid).
-* **Sublime Text:** `Mermaid` package from Package Control that adds preview and snippets.
-* **Markdown Editors:** Tools like [Typora](https://typora.io), [Obsidian](https://obsidian.md), and [Notion](https://notion.so) already have native Mermaid support — just paste the `.spec.md` file and the diagram will render automatically.
-
-> 💡 **Tip:** The better you can visualize the diagrams, the easier it is to validate business flows before implementation.
 
 ---
 
@@ -388,26 +366,6 @@ sequenceDiagram
 | ✅ SIM | - | - | - | - | ✅ SIM | `BOOT_APP` | ❌ **DENY (Negar)** | `MUTED_ISOLATION` |
 | ✅ SIM | - | - | - | - | ✅ SIM | `HOT_RELOAD` | ❌ **DENY (Negar)** | - |
 | ❌ NÃO | - | - | - | - | - | `PURGE_DATA` | ❌ **DENY (Negar)** | - |
-
----
-
-### VS Code e derivados
-
-* **Markdown Preview Mermaid Support** — Adiciona suporte a diagramas Mermaid no preview nativo do Markdown.
-* **Mermaid Editor** — Editor visual com preview lado a lado e exportação.
-* **bierner.markdown-mermaid** — Extensão oficial que estende o preview de Markdown para renderizar Mermaid.
-
-### JetBrains (IntelliJ, WebStorm, GoLand, etc.)
-
-* Suporte nativo a Mermaid a partir do **2024.1** — Basta abrir o arquivo `.spec.md` e usar o preview de Markdown integrado.
-
-### Outros Editores
-
-* **Neovim/Vim:** Utilize plugins como `iamcco/markdown-preview.nvim` (com `markdown-preview` configurado para Mermaid).
-* **Sublime Text:** Pacote `Mermaid` no Package Control que adiciona preview e snippets.
-* **Markdown Editors:** Ferramentas como [Typora](https://typora.io), [Obsidian](https://obsidian.md) e [Notion](https://notion.so) já possuem suporte nativo a Mermaid — basta colar o arquivo `.spec.md` e o diagrama será renderizado automaticamente.
-
-> 💡 **Dica:** Quanto melhor você conseguir visualizar os diagramas, mais fácil será validar os fluxos de negócio antes da implementação.
 
 ---
 

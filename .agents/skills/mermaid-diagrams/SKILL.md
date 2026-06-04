@@ -184,7 +184,6 @@ flowchart LR
 
 **Native support in:**
 - GitHub/GitLab - Automatically renders in Markdown
-- VS Code - With Markdown Mermaid extension
 - Notion, Obsidian, Confluence - Built-in support
 
 **Export options:**
