@@ -17,7 +17,7 @@ stateDiagram-v2
     
     state RenderTopology {
         [*] --> CheckCode: Analyze current code structure and dependencies
-        CheckCode --> EvaluatedCodeIsClean: Map exact architecture as-is (v1.0.0 - stable)
+        CheckCode --> EvaluatedCodeIsClean: Map exact architecture as coese (v1.0.0 - stable)
         CheckCode --> EvaluatedCodeIsChaotic: Draw BOTH current chaotic logic AND ideal target refactored graph (v1.0.0 - draft)
     }
     

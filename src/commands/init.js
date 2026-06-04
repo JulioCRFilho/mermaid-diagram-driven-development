@@ -26,18 +26,25 @@ function readSystemPrompt() {
 export async function execute(initService) {
   const systemPrompt = readSystemPrompt();
 
-  // 1. Descobre o caminho absoluto real da pasta oculta interna do pacote da CLI
-  // Subindo de: src/commands/ -> src/ -> raiz do pacote CLI -> .agents/skills
+  // 1. Resolve o caminho absoluto da raiz do pacote CLI
   const currentFile = fileURLToPath(import.meta.url);
-  const cliSkillsSourceDir = path.resolve(path.dirname(currentFile), '..', '..', '.agents', 'skills');
+  const cliRootDir = path.resolve(path.dirname(currentFile), '..', '..');
+
+  // 2. Caminhos de origem dentro do pacote da CLI
+  const cliSkillsSourceDir = path.join(cliRootDir, '.agents', 'skills');
+  const cliSpecTemplatePath = path.join(cliRootDir, '.agents', 'templates', 'spec-template.md');
 
   await initService.createSystemPrompt(systemPrompt);
-  
-  // 2. Passa o caminho da pasta oculta de origem para o serviço clonar recursivamente
+
+  // 3. Passa o caminho da pasta oculta de origem para o serviço clonar recursivamente
   await initService.createSkills(cliSkillsSourceDir, (msg) => console.log(msg));
-  
+
+  // 4. Cria o workflow do GitHub
   await initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT, (msg) => console.log(msg));
 
-  console.log(pc.green('\n🚀 Universal [system_prompt.md] and SKILLS generated successfully in the project root!'));
+  // 5. Copia o spec template para o projeto
+  await initService.createSpecTemplate(cliSpecTemplatePath, (msg) => console.log(msg));
+
+  console.log(pc.green('\n🚀 Universal [system_prompt.md], SKILLS, and spec template generated successfully in the project root!'));
   console.log(pc.green('Run the "md init" command whenever you update the MDDD-CLI NPM package.'));
 }

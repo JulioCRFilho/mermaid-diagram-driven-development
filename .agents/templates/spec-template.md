@@ -1,6 +1,6 @@
-# {{Feature Title}} — Specification
+**SPEC_VERSION:** v1.0.0 — draft|stable
 
-**SPEC_VERSION:** v1.0.0 — draft
+# {{Feature Title}} — Specification
 
 > ⚠️ **This is a freshly generated MDDD spec template.**
 > Replace every `{{placeholder}}`, remove this banner, and refine the diagram + matrix
@@ -12,11 +12,6 @@
 
 Describe **what** this spec governs and **why** it exists.
 
-- **Domain:** `{{domain_name}}`
-- **Feature / Module:** `{{feature_name}}`
-- **Scope (in):** {{what is covered}}
-- **Scope (out):** {{what is explicitly NOT covered}}
-- **Owners:** {{team_or_person}}
 - **Related specs:** {{parent_domain_spec, sibling_features}}
 
 ---

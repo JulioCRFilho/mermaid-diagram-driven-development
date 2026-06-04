@@ -74,4 +74,25 @@ export class InitService {
 
     return workflowFile;
   }
+
+  /**
+   * Copies the spec template file from the CLI package to the project's .agents/templates/ directory.
+   * @param {string} sourceTemplatePath - Absolute path to the CLI source spec-template.md
+   * @param {(message: string) => void} logger
+   * @returns {Promise<void>}
+   */
+  async createSpecTemplate(sourceTemplatePath, logger) {
+    const templatesDir = path.join('.agents', 'templates');
+    const targetFile = path.join(templatesDir, 'spec-template.md');
+
+    if (!fs.existsSync(sourceTemplatePath)) {
+      throw new Error(`Source spec template not found at: ${sourceTemplatePath}`);
+    }
+
+    this.#fs.ensureDir(templatesDir);
+
+    const content = fs.readFileSync(sourceTemplatePath, 'utf-8');
+    await this.#fs.writeFile(targetFile, content);
+    logger(`✅ Spec template copied: ${targetFile}`);
+  }
 }

@@ -3,9 +3,9 @@
 You are a Mermaid Diagram processing system. Your cognitive processing is guided by visual topologies and truth tables, eliminating text-based specification ambiguity.
 Consume the mermaid-diagrams skill to learn how to produce it.
 
+Spec template path: .agents/templates/spec-template.md
+
 ```mermaid
-%% @spec-version v2.0.0
-%% @protocol-version 1.0.0
 stateDiagram-v2
     [*] --> CheckSpec: UNIVERSAL RULE — Check specification file
 
@@ -17,14 +17,14 @@ stateDiagram-v2
     state SkillCheck {
         MdNew --> ReadSpecification: Request Allowed.
         MdAudit --> ReadSpecification: Request Allowed.
-        MdEdit --> ReadSpecification: Request Allowed.
         Other --> Denied: Specification file required.
     }
 
     Denied --> ConflictResolution: Explain missing spec
 
     state ReadSpecification {
-        [*] --> ParseMermaidDiagrams: Extract all %% @spec-version diagrams
+        [*] --> CreateSpec: Create file from template
+        CreateSpec --> ParseMermaidDiagrams: Extract all diagrams
         ParseMermaidDiagrams --> ExtractDecisionMatrices: Map topology nodes/edges
         ExtractDecisionMatrices --> ValidatePrimitiveFactors: Check factor columns
         ValidatePrimitiveFactors --> [*]: Spec loaded into context
@@ -50,71 +50,13 @@ stateDiagram-v2
     UpdateDetailsFooter --> [*]
 ```
 
-## 0. Spec File Format (.spec.md)
-
-Every `.spec.md` file MUST follow this structure:
-
-```
-%% @spec-version 1.0.0
-%% @domain [domain_name]
-%% @feature [feature_name] (optional for domain-level specs)
-%% @author [author_name] (optional)
-
-# [Feature/Domain Name] Specification
-
-## Context
-Brief description of the purpose and scope of this specification.
-
-## Flow Diagram
-```mermaid
-[One or more Mermaid diagrams defining the topology/flow]
-```
-
-## Decision Matrix
-| Primitive Factor 1 | Primitive Factor 2 | ... | Proposed Action | Decision |
-| --- | --- | --- | --- | --- |
-| ✅ YES / ❌ NO | ✅ YES / ❌ NO | ... | `ACTION_NAME` | ✅ ALLOW / ❌ DENY |
-
-## Tasks
-- [ ] Task extracted from spec
-
-## Change History
-| Version | Date | Author | Change Description |
-| --- | --- | --- | --- |
-| 1.0.0 | YYYY-MM-DD | ... | Initial spec creation |
-```
-
-## 1. Co-location Architecture Tree
-
-src/
-└── [domain_name]/
-    ├── [domain_name].spec.md                   # 🌎 Macro Module Domain
-    ├── [feature_name]/
-    │   ├── [feature_name].spec.md              # 🔬 Micro Flow Contract + Decision Matrix
-    │   └── [feature_name].[extension]          # 💻 Target Production Code File (Any Extension)
-    └── ...                                     # Additional features per domain
-
-> **Note:** `[domain_name]` and `[feature_name]` are placeholders for your actual project names.
-> A single domain can contain multiple features, each in its own subdirectory.
-
-## 2. Parent Interaction Logic
-
-```mermaid
-graph TD
-    A[Create/Change Sub-Feature] --> B[Open Indicated Parent File]
-    B --> C[Locate Bifurcation Node in Parent Mermaid]
-    C --> D[Modify Parent Graph: Point Arrow to New State]
-    D --> E[Child File: Inherit Parent Context in Entry Node]
-    E --> F[Update Parent @spec-version: Increment PATCH]
-```
-
-### 2.1 Reverse Consistency (Parent → Child)
+### 2 Reverse Consistency (Parent → Child)
 
 When a parent domain spec is modified, the following MUST be verified:
 
-1. **Orphan Detection:** Check if any child feature references a state/transition in the parent that no longer exists.
-2. **Cascade Update:** If a parent state is renamed or removed, all child specs referencing it MUST be updated.
-3. **Version Bump:** Parent changes increment MINOR version. Child specs affected by the change increment PATCH version.
+2.1. **Orphan Detection:** Check if any child feature references a state/transition in the parent that no longer exists.
+2.2. **Cascade Update:** If a parent state is renamed or removed, all child specs referencing it MUST be updated.
+2.3. **Version Bump:** Parent changes increment MINOR version. Child specs affected by the change increment PATCH version.
 
 ## 3. Decision Matrix & Primitive Factors
 
@@ -162,23 +104,11 @@ Every `.spec.md` file carries a `%% @spec-version` header. Use **Semantic Versio
 | **MINOR** | Adding: new states/transitions, new factor columns, new features without breaking existing rows. | `1.2.3` → `1.3.0` |
 | **PATCH** | Fixing: typos, clarifying descriptions, reformatting, updating child references. | `1.2.3` → `1.2.4` |
 
-### 4.2 Version Header Format
-
-The `%% @spec-version` comment MUST be the **first line** of the `.spec.md` file:
-
-```markdown
-%% @spec-version 1.0.0
-%% @domain payment
-%% @feature refund-flow
-```
-
-### 4.3 Audit History (Change Log)
+### 4.2 Audit History (Change Log)
 
 Each change MUST append a row to the **Change History** table at the bottom of the `.spec.md` file:
 
 ```
-%% @spec-version 1.1.0
-
 ## Change History
 | Version | Date | Author | Change Description | Change Type |
 | --- | --- | --- | --- | --- |
