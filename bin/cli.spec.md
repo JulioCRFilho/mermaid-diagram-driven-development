@@ -1,29 +1,32 @@
-# CLI Module | v4.2.1 (Stable)
+# CLI Module | v4.3.0 (Stable)
 
 ## 1. Flow Contract (Mermaid)
 
 ### 1.1 Topologia Atual (As-Is)
 
 ```mermaid
-%% @spec-version v4.2.1
+%% @spec-version v4.3.0
 graph TD
     subgraph "CLI Entry (bin/cli.js)"
         A[bin/cli.js: Commander Router] --> B[delegate to ./commands/init.js]
+        A --> H[delegate to ./commands/map.js]
     end
 
     subgraph "Commands Layer"
         B --> C[InitService.createSystemPrompt]
         B --> D[InitService.createSkills]
+        H --> I[MapService.generateArchitectureMap]
     end
 
     subgraph "Shared Services"
         C --> E[FileSystemService.writeFile]
         D --> E
-        E --> F[fs/promises]
+        I --> J[node:fs.readdir recursive]
+        I --> K[node:path.relative cwd]
     end
 
     subgraph "External Dependencies"
-        F --> G["@mermaid-js/mermaid-cli"]
+        E --> F["@mermaid-js/mermaid-cli"]
     end
 ```
 
@@ -37,6 +40,8 @@ O diagrama acima reflete a arquitetura final e estável pós-refatoração: sepa
 | `src/commands/init.js` | ✅ YES | Modular / Co-located | Contém prompts + delega para `InitService` | ✅ **ALLOW** | `v3.0.0` |
 | `src/services/InitService.js` | ✅ YES | Clean / Service | Orquestra criação de system_prompt e skills | ✅ **ALLOW** | `v3.0.0` |
 | `src/services/FileSystemService.js` | ✅ YES | Clean / Service | Abstrai `fs/promises` com DI | ✅ **ALLOW** | `v3.0.0` |
+| `src/services/MapService.js` | ✅ YES | Clean / Service | Varre recursivamente o projeto em busca de `*.spec.md` e exibe relatório com caminhos relativos | ✅ **ALLOW** | `v4.3.0` |
+| `src/commands/map.js` | ✅ YES | Modular / Co-located | Handler do comando `md map` que delega para `MapService.generateArchitectureMap()` | ✅ **ALLOW** | `v4.3.0` |
 | `@mermaid-js/mermaid-cli` | N/A | External Dependency | Renderização de diagramas Mermaid via CLI | ✅ **ALLOW** | `v4.2.0` |
 
 ### Fatores Primitivos de Qualidade
@@ -64,6 +69,7 @@ O diagrama acima reflete a arquitetura final e estável pós-refatoração: sepa
 | 2026-05-28 | Cline (md-audit) | v4.1.0 | **MINOR Mutation (v4.0.0 → v4.1.0):** Criados specs faltantes `src/services/FileSystemService.spec.md` e `src/services/InitService.spec.md` via `md-audit`. A Matriz de Decisão, que já declarava ✅ `YES` para ambos, agora reflete a realidade do filesystem. Nenhuma alteração em código de produção. |
 | 2026-05-30 | Cline (Agent-Actor) | v4.2.0 | **MINOR Mutation (v4.1.0 → v4.2.0):** Adicionado `@mermaid-js/mermaid-cli@^11.15.0` como dependência no `package.json`. Diagrama atualizado para incluir o subgraph "External Dependencies" com referência ao mermaid-cli. Matriz de decisão estendida com linha para a dependência externa. |
 | 2026-05-30 | Cline (Agent-Actor) | v4.2.1 | **PATCH Mutation (v4.2.0 → v4.2.1):** Adicionado `system_prompt.md` ao campo `"files"` no `package.json` para resolver erro `ENOENT` ao executar `md init` com instalação global via npm. |
+| 2026-06-04 | Cline (md-edit) | v4.3.0 | **MINOR Mutation (v4.2.1 → v4.3.0):** Adicionado novo comando `md map` ao CLI. Criados `src/services/MapService.js` (com `async generateArchitectureMap()` recursivo, blacklist de `node_modules/.git/.agents/build/dist`, fail-safe com `try/catch` e `picocolors.yellow`, caminhos relativos via `path.relative(process.cwd(), ...)`, extração semântica de domínio com `path.basename(absolutePath, '.spec.md').toUpperCase()`) e `src/commands/map.js` (handler que delega para o serviço). Diagrama As-Is estendido com novos nós `H` (delegate to map.js), `I` (MapService.generateArchitectureMap), `J` (node:fs.readdir recursive) e `K` (node:path.relative cwd). Matriz de decisão estendida com linhas para `MapService.js` e `commands/map.js`. Spec co-localizado `src/services/MapService.spec.md` criado. `bin/cli.js` atualizado para registrar o comando `map` no Commander. Nenhuma dependência de terceiros adicionada — apenas módulos nativos `node:fs` e `node:path` + `picocolors` (já presente). |
 
 ### Análise de Qualidade
 
