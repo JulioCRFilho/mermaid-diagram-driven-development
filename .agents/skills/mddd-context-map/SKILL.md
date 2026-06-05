@@ -26,7 +26,7 @@ stateDiagram-v2
     }
 
     ComposeDiagram --> ValidateDiagram: Run `npx md validate <output>.md` until valid
-    ValidateDiagram --> WriteArtifact: Save to ARCHITECTURE.md (or similar) at project root
+    ValidateDiagram --> WriteArtifact: Save to ARCHITECTURE.spec.md (or similar) at project root
     WriteArtifact --> [*]
 ```
 
@@ -143,11 +143,11 @@ Or attach the class inline with `:::className` on each node.
 5. **Infer edges** by looking for verbs and references between specs (e.g. one MICRO mentions "calls into X" or "publishes to Y").
 6. **Compose the diagram** following the spec above.
 7. **Validate** with `npx md validate` and iterate until the diagram is valid.
-8. **Write the artifact** to `ARCHITECTURE.md` (or `CONTEXT_MAP.md`) at the project root.
+8. **Write the artifact** to `ARCHITECTURE.spec.md` (or `CONTEXT_MAP.md`) at the project root.
 
 ## Output Artifact
 
-The skill should write the result to `ARCHITECTURE.md` (or `CONTEXT_MAP.md`) at the project root, inside a `mermaid` code fence. The agent must:
+The skill should write the result to `ARCHITECTURE.spec.md` (or `CONTEXT_MAP.md`) at the project root, inside a `mermaid` code fence. The agent must:
 
 1. Use the **`npx md validate <path>`** command to ensure the diagram is syntactically valid.
 2. Include `click` directives linking each internal node to its spec file (cross-platform navigability).
@@ -193,7 +193,7 @@ The skill ships a **rigid reference template** that the agent **must** follow se
    - Main flows (auth, CRUD, payment, deploy) by reading the verbs in each spec
 3. **Substitute every placeholder** in template order.
 4. **Validate** with `npx md validate` and iterate until every diagram parses.
-5. **Write** to `ARCHITECTURE.md` at the project root.
+5. **Write** to `ARCHITECTURE.spec.md` at the project root.
 
 ## Hard Rules
 

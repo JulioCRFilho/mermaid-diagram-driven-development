@@ -142,7 +142,7 @@ MDDD Framework: v1.0.0 — stable
 Methodology: mddd-context-map skill v{{SKILL_VERSION}}
 Project: {{PROJECT_NAME}}
 Total MACRO: {{MACRO_COUNT}} · Total MICRO: {{MICRO_COUNT}} · External: {{EXTERNAL_COUNT}} · Infra: {{INFRA_COUNT}}
-Validation: ✅ npx md validate ARCHITECTURE.md
+Validation: ✅ npx md validate ARCHITECTURE.spec.md
 ```
 
 ---
