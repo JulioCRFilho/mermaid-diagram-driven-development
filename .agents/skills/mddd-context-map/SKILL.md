@@ -68,7 +68,8 @@ Users / External Systems              MACRO Domain 1               MACRO Domain 
 ### 2. Subgraphs (one per MACRO domain)
 
 - For every **MACRO spec** found, create **one `subgraph`** named after the domain.
-- Each subgraph contains the **MICRO components** that belong to that domain (use the directory ancestry to group, falling back to filename keyword matching if no MACRO is present).
+- Each subgraph contains the **MICRO components** that belong to that domain, based on explicit domain relationships and spec content rather than file path or folder depth.
+- When a MICRO spec does not explicitly name its domain, infer it from the domain language and the surrounding feature relationship, not from where the file is stored.
 - The subgraph should have a clear, domain-level label (e.g. `subgraph webApp["🌐 Web App"]`).
 
 ### 3. Nodes (components, users, external systems)
@@ -130,10 +131,11 @@ Or attach the class inline with `:::className` on each node.
 ## Self-Scan Discovery Workflow
 
 1. **Walk the project tree** from the current working directory, recursively finding every `.spec.md`. Prune `node_modules`, `.git`, `.agents`, `build`, `dist`.
-2. **Classify** each spec by its directory depth relative to the project root:
-   - depth 0 (file at root) → MACRO
-   - depth ≥ 1 (file in a subfolder) → MICRO
-3. **Read each spec** to understand its purpose, role, and relationships. Do not generate a diagram from filenames alone.
+2. **Classify** each spec by its content and role, not by directory depth or file location:
+   - specs that describe broad product domains, business capabilities, or top-level architectural scopes → **MACRO**
+   - specs that describe individual components, services, features, or implementation units → **MICRO**
+   - use explicit domain labels, architecture language, and the spec's intent to distinguish MACRO from MICRO
+3. **Read each spec** to understand its purpose, role, and relationships. Do not generate a diagram from filenames or folder structure alone.
 4. **Identify actors and external systems** by scanning the spec content for keywords:
    - `user`, `customer`, `admin`, `developer`, `operator` → **userNode**
    - `external API`, `third-party`, `partner`, `OAuth`, `Stripe`, `AWS S3` → **externalNode**
