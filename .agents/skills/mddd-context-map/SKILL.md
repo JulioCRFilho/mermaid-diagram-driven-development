@@ -171,7 +171,6 @@ The skill ships a **rigid reference template** that the agent **must** follow se
 | 4 | External Integrations (`graph LR`) | Focused diagram of every third-party system |
 | 5 | Infrastructure Topology (`graph TB`) | Stand-alone top-down diagram of infra |
 | 6 | Component Dependency Matrix | Compact truth-table: from / to / label / trigger / source spec |
-| 7 | Click-Through Map | `flowchart LR` with `click` directives for every internal node |
 | 8 | Generation Footer | Counts + validation status |
 
 ### Strict substitution rules
