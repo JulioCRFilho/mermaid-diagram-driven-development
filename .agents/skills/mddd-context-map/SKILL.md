@@ -130,7 +130,7 @@ Or attach the class inline with `:::className` on each node.
 
 ## Self-Scan Discovery Workflow
 
-1. **Walk the project tree** from the current working directory, recursively finding every `.spec.md`. Prune `node_modules`, `.git`, `.agents`, `build`, `dist`.
+1. **Walk the project tree** from the current working directory, recursively finding every `.spec.md`. You MUST use the CLI command `npx md list-specs` to obtain the authoritative list. Prune `node_modules`, `.git`, `.agents`, `build`, `dist`.
 2. **Classify** each spec by its content and role, not by directory depth or file location:
    - specs that describe broad product domains, business capabilities, or top-level architectural scopes → **MACRO**
    - specs that describe individual components, services, features, or implementation units → **MICRO**
@@ -206,6 +206,7 @@ The skill ships a **rigid reference template** that the agent **must** follow se
 - **Always** preserve `click` directives for internal nodes pointing to their spec files.
 - **Always** validate the resulting Mermaid diagram with `npx md validate` before declaring success.
 - **Always** perform the file discovery yourself with `node:fs` (or any recursive walker) — do not assume the existence of a `md map` CLI command, which has been removed.
+- **Always** use the `md list-specs` command as the authoritative source of all `.spec.md` files in the project before building the architecture map.
 
 ## References
 

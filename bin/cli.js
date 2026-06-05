@@ -4,12 +4,15 @@ import { Command } from 'commander';
 import pc from 'picocolors';
 import { FileSystemService } from '../src/services/FileSystemService.js';
 import { InitService } from '../src/services/InitService.js';
+import { SpecFinderService } from '../src/services/SpecFinderService.js';
 import { validateMermaidSyntax } from '../src/commands/validator.js';
 import * as initCmd from '../src/commands/init.js';
+import * as listSpecsCmd from '../src/commands/listSpecs.js';
 
-// ─── Services ────────────────────────────────────────────────────────────────
+// ─── Services ───────────────────────────────────────────────────────────────
 const fs = new FileSystemService();
 const initService = new InitService(fs);
+const specFinderService = new SpecFinderService();
 
 // ─── CLI Setup ───────────────────────────────────────────────────────────────
 const program = new Command();
@@ -49,6 +52,19 @@ program
       process.exit(1);
     }
     process.exit(0);
+  });
+
+program
+  .command('list-specs')
+  .description('List all .spec.md files in the project tree (returns JSON)')
+  .action(async () => {
+    try {
+      await listSpecsCmd.execute(specFinderService);
+      process.exit(0);
+    } catch (err) {
+      console.error(pc.red(`❌ ${err.message}`));
+      process.exit(1);
+    }
   });
 
 // ─── Parse ─────────────────────────────────────────────────────────────────

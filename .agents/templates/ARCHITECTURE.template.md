@@ -134,23 +134,7 @@ Compact truth-table of every inter-component edge found in the project. One row 
 
 ---
 
-## 7. Click-Through Map
-
-For every internal node in section 1, declare its `click` directive so the diagram is navigable on GitHub, GitLab, and VS Code.
-
-```mermaid
-flowchart LR
-    {{CLICK_NODES}}
-    {{CLICK_DIRECTIVES}}
-    classDef systemNode   fill:#1e3a8a,stroke:#1e40af,stroke-width:2px,color:#fff;
-    classDef userNode     fill:#fef3c7,stroke:#b45309,stroke-width:2px,color:#1f2937;
-    classDef externalNode fill:#7c2d12,stroke:#9a3412,stroke-width:2px,color:#fff;
-    classDef infraNode    fill:#374151,stroke:#4b5563,stroke-width:1px,color:#fff,font-style:italic;
-```
-
----
-
-## 8. Generation Footer
+## 7. Generation Footer
 
 ```
 Generated: {{GENERATION_DATE}}
