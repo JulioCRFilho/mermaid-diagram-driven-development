@@ -6,7 +6,6 @@ import { FileSystemService } from '../src/services/FileSystemService.js';
 import { InitService } from '../src/services/InitService.js';
 import { validateMermaidSyntax } from '../src/commands/validator.js';
 import * as initCmd from '../src/commands/init.js';
-import * as mapCmd from '../src/commands/map.js';
 
 // ─── Services ────────────────────────────────────────────────────────────────
 const fs = new FileSystemService();
@@ -18,7 +17,7 @@ const program = new Command();
 program
   .name('md')
   .description('Manager for co-located specifications for Mermaid Diagram Driven Development (MDDD)')
-  .version('4.5.0');
+  .version('6.2.0');
 
 // ==========================================
 // COMMAND: md init
@@ -50,21 +49,6 @@ program
       process.exit(1);
     }
     process.exit(0);
-  });
-
-// ==========================================
-// COMMAND: md map
-// ==========================================
-program
-  .command('map')
-  .description('Recursively scans the project for co-located .spec.md files and prints an architecture map of all mapped domains')
-  .action(async () => {
-    try {
-      await mapCmd.execute();
-    } catch (err) {
-      console.error(pc.red(`❌ ${err.message}`));
-      process.exit(1);
-    }
   });
 
 // ─── Parse ─────────────────────────────────────────────────────────────────

@@ -33,6 +33,7 @@ export async function execute(initService) {
   // 2. Caminhos de origem dentro do pacote da CLI
   const cliSkillsSourceDir = path.join(cliRootDir, '.agents', 'skills');
   const cliSpecTemplatePath = path.join(cliRootDir, '.agents', 'templates', 'spec-template.md');
+  const cliArchitectureTemplatePath = path.join(cliRootDir, '.agents', 'templates', 'ARCHITECTURE.template.md');
 
   await initService.createSystemPrompt(systemPrompt);
 
@@ -45,6 +46,9 @@ export async function execute(initService) {
   // 5. Copia o spec template para o projeto
   await initService.createSpecTemplate(cliSpecTemplatePath, (msg) => console.log(msg));
 
-  console.log(pc.green('\n🚀 Universal [system_prompt.md], SKILLS, and spec template generated successfully in the project root!'));
+  // 6. Copia o ARCHITECTURE template (usado pela skill mddd-context-map)
+  await initService.createArchitectureTemplate(cliArchitectureTemplatePath, (msg) => console.log(msg));
+
+  console.log(pc.green('\n🚀 Universal [system_prompt.md], SKILLS, spec template, and architecture template generated successfully in the project root!'));
   console.log(pc.green('Run the "md init" command whenever you update the MDDD-CLI NPM package.'));
 }

@@ -95,4 +95,26 @@ export class InitService {
     await this.#fs.writeFile(targetFile, content);
     logger(`✅ Spec template copied: ${targetFile}`);
   }
+
+  /**
+   * Copies the ARCHITECTURE template (used by the `mddd-context-map` skill)
+   * to the project's .agents/templates/ directory.
+   * @param {string} sourceTemplatePath - Absolute path to the CLI source ARCHITECTURE.template.md
+   * @param {(message: string) => void} logger
+   * @returns {Promise<void>}
+   */
+  async createArchitectureTemplate(sourceTemplatePath, logger) {
+    const templatesDir = path.join('.agents', 'templates');
+    const targetFile = path.join(templatesDir, 'ARCHITECTURE.template.md');
+
+    if (!fs.existsSync(sourceTemplatePath)) {
+      throw new Error(`Source architecture template not found at: ${sourceTemplatePath}`);
+    }
+
+    this.#fs.ensureDir(templatesDir);
+
+    const content = fs.readFileSync(sourceTemplatePath, 'utf-8');
+    await this.#fs.writeFile(targetFile, content);
+    logger(`✅ Architecture template copied: ${targetFile}`);
+  }
 }
