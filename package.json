@@ -9,7 +9,7 @@
   },
   "files": [
     "src",
-    "system_prompt.md",
+    "AGENTS.md",
     ".agents/skills",
     ".agents/templates"
   ],

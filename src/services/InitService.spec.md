@@ -16,7 +16,7 @@ Co-located with `src/services/InitService.js`.
 %% @spec-version v1.2.0
 stateDiagram-v2
     [*] --> createSystemPrompt: initService.createSystemPrompt(promptContent)
-    createSystemPrompt --> writeFile: this.#fs.writeFile('system_prompt.md', content)
+    createSystemPrompt --> writeFile: this.#fs.writeFile('AGENTS.md', content)
     writeFile --> createSkills: initService.createSkills(sourceSkillsDir, logger)
 
     createSkills --> ensureAgentsDir: this.#fs.ensureDir('.agents')
@@ -42,7 +42,7 @@ stateDiagram-v2
 
 | Step | Method | I/O | Conditional Branch? | Error Handling | FS Side Effect |
 | :--- | :--- | :--- | :---: | :--- | :--- |
-| 1 | `createSystemPrompt(promptContent)` | Input: `string`<br>Output: `Promise<void>` | ❌ No | Delegated to `#fs.writeFile` | ✅ Writes `system_prompt.md` |
+| 1 | `createSystemPrompt(promptContent)` | Input: `string`<br>Output: `Promise<void>` | ❌ No | Delegated to `#fs.writeFile` | ✅ Writes `AGENTS.md` |
 | 2 | `createSkills(sourceSkillsDir, logger)` | Input: `string` (source dir) + logger fn<br>Output: `Promise<void>` | ✅ Checks `fs.existsSync(sourceSkillsDir)` | Throws `Error` if source dir not found | ✅ Creates `.agents/`, `.agents/skills/`, copies all skill folders recursively |
 | 3 | `createGitHubWorkflow(workflowYaml, logger)` | Input: `string` + logger fn<br>Output: `Promise<string>` | ❌ No | Delegated to `#fs` methods | ✅ Creates `.github/workflows/mddd-preview.yml` |
 | 4 | `createSpecTemplate(sourceTemplatePath, logger)` | Input: `string` (source path) + logger fn<br>Output: `Promise<void>` | ✅ Checks `fs.existsSync(sourceTemplatePath)` | Throws `Error` if source file not found | ✅ Creates `.agents/templates/`, writes `spec-template.md` |

@@ -21,7 +21,7 @@ export class InitService {
    * @returns {Promise<void>}
    */
   async createSystemPrompt(promptContent) {
-    await this.#fs.writeFile('system_prompt.md', promptContent);
+    await this.#fs.writeFile('AGENTS.md', promptContent);
   }
 
   /**

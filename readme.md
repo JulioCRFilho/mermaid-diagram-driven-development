@@ -155,7 +155,7 @@ md init
 
 ```
 
-This will create the `system_prompt.md` and `SKILL.md` files in the root directory, containing the global instructions that will guide the AI in understanding the MDDD methodology and interacting with Git logs. You can rename `system_prompt.md` to any .rules file you need (.cursorrules, .clinerules, etc.).
+This will create the `AGENTS.md` and `SKILL.md` files in the root directory, containing the global instructions that will guide the AI in understanding the MDDD methodology and interacting with Git logs. You can rename `AGENTS.md` to any .rules file you need (.cursorrules, .clinerules, etc.).
 
 ### 2. Audit legacy files or make new ones.
 
@@ -209,7 +209,7 @@ src/
 
 | Command | Description |
 | --- | --- |
-| `md init` | Configures the `system_prompt.md` file and the SKILL.md files which instructs the AI how to behave. Run this everytime you update MDDD-CLI NPM Package. |
+| `md init` | Configures the `AGENTS.md` file and the SKILL.md files which instructs the AI how to behave. Run this everytime you update MDDD-CLI NPM Package. |
 
 ### Project Architecture
 
@@ -396,7 +396,7 @@ md init
 
 ```
 
-Isso criará os arquivos `system_prompt.md` e `SKILL.md` no diretório raiz, contendo as instruções globais que guiarão a IA na compreensão da metodologia MDDD e na interação com os logs do Git. Você pode renomear `system_prompt.md` para qualquer arquivo .rules que precisar (.cursorrules, .clinerules, etc.).
+Isso criará os arquivos `AGENTS.md` e `SKILL.md` no diretório raiz, contendo as instruções globais que guiarão a IA na compreensão da metodologia MDDD e na interação com os logs do Git. Você pode renomear `AGENTS.md` para qualquer arquivo .rules que precisar (.cursorrules, .clinerules, etc.).
 
 ### 2. Auditar arquivos legados ou criar novos.
 
@@ -449,7 +449,7 @@ src/
 
 | Comando | Descrição |
 | --- | --- |
-| `md init` | Configura os arquivos `system_prompt.md` e `SKILL.md` que instruem a IA sobre como se comportar. Execute isto sempre que atualizar o pacote NPM do MDDD-CLI. |
+| `md init` | Configura os arquivos `AGENTS.md` e `SKILL.md` que instruem a IA sobre como se comportar. Execute isto sempre que atualizar o pacote NPM do MDDD-CLI. |
 
 ### Arquitetura do Projeto
 

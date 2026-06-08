@@ -12,7 +12,7 @@ import { GITHUB_WORKFLOW_CONTENT } from '../../src/workflows/mddd-preview.yml.js
 // ---------------------------------------------------------------------------
 const currentFile = fileURLToPath(import.meta.url);
 const rootDir = path.resolve(currentFile, '..', '..', '..');
-const systemPromptContent = readFileSync(path.join(rootDir, 'system_prompt.md'), 'utf-8');
+const systemPromptContent = readFileSync(path.join(rootDir, 'AGENTS.md'), 'utf-8');
 const specTemplatePath = path.join(rootDir, '.agents', 'templates', 'spec-template.md');
 const cliSkillsSourceDir = path.join(rootDir, '.agents', 'skills');
 
@@ -20,7 +20,7 @@ const cliSkillsSourceDir = path.join(rootDir, '.agents', 'skills');
 // Mock InitService
 // ---------------------------------------------------------------------------
 function createMockInitService() {
-  const calls = { createSystemPrompt: [], createSkills: [], createGitHubWorkflow: [], createSpecTemplate: [] };
+  const calls = { createSystemPrompt: [], createSkills: [], createGitHubWorkflow: [], createSpecTemplate: [], createArchitectureTemplate: [] };
 
   const service = {
     createSystemPrompt: mock.fn(async (content) => {
@@ -39,6 +39,10 @@ function createMockInitService() {
       calls.createSpecTemplate.push({ sourceTemplatePath, logger });
       logger('✅ Spec template copied: .agents/templates/spec-template.md');
     }),
+    createArchitectureTemplate: mock.fn(async (sourceTemplatePath, logger) => {
+      calls.createArchitectureTemplate.push({ sourceTemplatePath, logger });
+      logger('✅ Architecture template copied: .agents/templates/ARCHITECTURE.template.md');
+    }),
   };
 
   return { service, calls };
@@ -46,16 +50,16 @@ function createMockInitService() {
 
 // ---------------------------------------------------------------------------
 // Tests — Decision Matrix coverage
-// - Step 0a: Read system_prompt.md from disk
+// - Step 0a: Read AGENTS.md from disk
 // - Step 0b: Import workflow YAML
-// - Step 1: createSystemPrompt writes system_prompt.md
+// - Step 1: createSystemPrompt writes AGENTS.md
 // - Step 2: createSkills receives source dir path + logger
 // - Step 3: createGitHubWorkflow writes .github/workflows/mddd-preview.yml
 // - Step 4: createSpecTemplate copies spec-template.md
 // - Step 5: console.log success report
 // ---------------------------------------------------------------------------
 describe('execute() — md init command (v1.6.0)', () => {
-  it('Step 0a: system_prompt.md is readable and contains MDDD protocol', () => {
+  it('Step 0a: AGENTS.md is readable and contains MDDD protocol', () => {
     assert.ok(systemPromptContent.length > 0);
     assert.ok(systemPromptContent.includes('Mermaid Diagram Driven Development'));
     assert.ok(systemPromptContent.includes('UNIVERSAL RULE'));
@@ -69,7 +73,7 @@ describe('execute() — md init command (v1.6.0)', () => {
     assert.ok(GITHUB_WORKFLOW_CONTENT.includes('actions/checkout@v4'));
   });
 
-  it('Step 1: calls initService.createSystemPrompt with system_prompt.md content', async () => {
+  it('Step 1: calls initService.createSystemPrompt with AGENTS.md content', async () => {
     const { service, calls } = createMockInitService();
 
     await execute(service);
@@ -78,7 +82,7 @@ describe('execute() — md init command (v1.6.0)', () => {
     assert.equal(
       calls.createSystemPrompt[0],
       systemPromptContent,
-      'Should pass system_prompt.md content to createSystemPrompt',
+      'Should pass AGENTS.md content to createSystemPrompt',
     );
   });
 
@@ -190,9 +194,9 @@ describe('execute() — md init command (v1.6.0)', () => {
       console.log = originalLog;
     }
 
-    // console.log calls: 1 (skill logger) + 1 (workflow logger) + 1 (spec template logger) + 2 (success report)
-    assert.equal(logs.length, 5);
-    assert.ok(logs[3].includes('generated successfully'));
-    assert.ok(logs[4].includes('Run the "md init" command'));
+    // console.log calls: 1 (skill logger) + 1 (workflow logger) + 1 (spec template logger) + 1 (architecture template logger) + 2 (success report)
+    assert.equal(logs.length, 6);
+    assert.ok(logs[4].includes('generated successfully'));
+    assert.ok(logs[5].includes('Run the "md init" command'));
   });
 });

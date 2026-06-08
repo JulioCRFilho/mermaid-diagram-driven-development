@@ -8,13 +8,13 @@ import pc from 'picocolors';
 import { GITHUB_WORKFLOW_CONTENT } from '../workflows/mddd-preview.yml.js';
 
 /**
- * Resolve and read system_prompt.md from the project root.
+ * Resolve and read AGENTS.md from the project root.
  * @returns {string}
  */
 function readSystemPrompt() {
   const currentFile = fileURLToPath(import.meta.url);
   const rootDir = path.resolve(path.dirname(currentFile), '..', '..');
-  const promptPath = path.join(rootDir, 'system_prompt.md');
+  const promptPath = path.join(rootDir, 'AGENTS.md');
   return readFileSync(promptPath, 'utf-8');
 }
 
@@ -49,6 +49,6 @@ export async function execute(initService) {
   // 6. Copia o ARCHITECTURE template (usado pela skill mddd-context-map)
   await initService.createArchitectureTemplate(cliArchitectureTemplatePath, (msg) => console.log(msg));
 
-  console.log(pc.green('\n🚀 Universal [system_prompt.md], SKILLS, spec template, and architecture template generated successfully in the project root!'));
+  console.log(pc.green('\n🚀 Universal [AGENTS.md], SKILLS, spec template, and architecture template generated successfully in the project root!'));
   console.log(pc.green('Run the "md init" command whenever you update the MDDD-CLI NPM package.'));
 }
