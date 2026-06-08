@@ -8,6 +8,7 @@ import { SpecFinderService } from '../src/services/SpecFinderService.js';
 import { validateMermaidSyntax } from '../src/commands/validator.js';
 import * as initCmd from '../src/commands/init.js';
 import * as listSpecsCmd from '../src/commands/listSpecs.js';
+import * as statusCmd from '../src/commands/status.js';
 
 // ─── Services ───────────────────────────────────────────────────────────────
 const fs = new FileSystemService();
@@ -52,6 +53,19 @@ program
       process.exit(1);
     }
     process.exit(0);
+  });
+
+program
+  .command('status')
+  .description('Generate a beautiful MDDD coverage report with metrics from all .spec.md files')
+  .action(async () => {
+    try {
+      await statusCmd.execute(specFinderService);
+      process.exit(0);
+    } catch (err) {
+      console.error(pc.red(`❌ ${err.message}`));
+      process.exit(1);
+    }
   });
 
 program
