@@ -1,6 +1,7 @@
 # status — Specification
 
-**SPEC_VERSION: v1.0.0 — stable**
+**SPEC_VERSION:** v1.0.0 — stable
+**Classification:** Coeso
 
 ## Overview
 
@@ -124,6 +125,7 @@ Atomic checklist derived from the spec above:
 
 | Date | Agent | Version | Change Summary |
 | :--- | :--- | :---: | :--- |
+| 2026-06-09 | Cline (md-edit) | v1.0.1 | **Fixed SPEC_VERSION header format** (added colon separator per template spec) and **added Classification: Coeso** field — resolves validation error where spec lacked required Coeso/Caótico classification that its own diagram and decision matrix reference. PATCH bump. |
 | 2026-06-08 | Cline (md-edit) | v1.0.0 | **Spec created from template.** Behavioral flow covers the full pipeline: FindSpecs → AnalyzeLoop → Aggregate → PrintDashboard. Decision Matrix covers 5 primitive factors with 6 resolution rows. Tasks checklist mirrors implementation order. All 7 tasks completed and verified — 5/5 tests passing on `node --test tests/commands/status.spec.js`. Validated against 71-spec project (Appfy). Status promoted to **stable**. |
 
 </details>

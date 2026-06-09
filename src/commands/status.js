@@ -113,14 +113,14 @@ function analyzeSpec(relativePath) {
   //   "**SPEC_VERSION: v1.0.0** (draft|stable)"
   let status = 'draft';
   const statusPatterns = [
-    // Pattern 1: SPEC_VERSION: vX.Y.Z — stable|draft  (standard)
-    /SPEC_VERSION:\s*v?\d+\.\d+\.\d+\s*[—–-]\s*(draft|stable)/i,
+    // Pattern 1: **SPEC_VERSION:** vX.Y.Z — stable|draft  (bold label format)
+    /\*{0,2}SPEC_VERSION\*{0,2}:?\*{0,2}\s+v?\d+\.\d+\.\d+\s*[—–-]?\s*(draft|stable)/i,
     // Pattern 2: *SPEC_VERSION:** vX.Y.Z  stable  (Appfy/legacy — bold before and after)
     /\*{0,2}SPEC_VERSION\*{0,2}:?\*{1,2}\s+v?\d+\.\d+\.\d+\s+(draft|stable)/i,
-    // Pattern 3: **SPEC_VERSION: vX.Y.Z** (draft|stable)  (parenthesized)
-    /SPEC_VERSION:\s*v?\d+\.\d+\.\d+\s*\*{0,2}\s*[—–-]?\s*\(?(draft|stable)\)?/i,
-    // Pattern 4: Title line: "# CLI Module | v6.3.0 (Stable)" or "(Draft)"
+    // Pattern 3: Title line: "# CLI Module | v6.3.0 (Stable)" or "(Draft)"
     /^#\s+.*?\(?(Stable|Draft)\)?/im,
+    // Pattern 4: SPEC_VERSION: vX.Y.Z — stable|draft  (plain label, no bold)
+    /SPEC_VERSION:\s*v?\d+\.\d+\.\d+\s*[—–-]\s*(draft|stable)/i,
   ];
   for (const pattern of statusPatterns) {
     const match = content.match(pattern);
@@ -132,16 +132,20 @@ function analyzeSpec(relativePath) {
 
   // Extract classification (Coeso / Caótico)
   // Common patterns in specs:
-  //   "Classificação: **Coeso**"
-  //   "classificado como **Caótico/Acoplado**"
-  //   "Código classificado como **Caótico/Acoplado**"
+  //   "**Classification:** Coeso"                       (English, bold label)
+  //   "Classificação: **Coeso**"                         (Portuguese, bold value)
+  //   "classificado como **Caótico/Acoplado**"            (Portuguese, full sentence)
+  //   "Código classificado como **Caótico/Acoplado**"     (Portuguese variant)
   let classification;
   const classificationPatterns = [
-    // Pattern 1: "Classificação: **Coeso**" or "Classificação: **Caótico**"
-    /classificaç[ãa]o:\s*\*\*(Coeso|Caótico)\s*\*\*/i,
-    // Pattern 2: "classificado como **Caótico/Acoplado**" or "Código classificado como **Coeso**"
+    // Pattern 1: "**Classification:** Coeso" or "**Classification:** Caótico"  (English)
+    /Classification:\s*\*{0,2}\s*(Coeso|Caótico)\s*\*{0,2}/i,
+    // Pattern 2: "Classificação: Coeso" or "Classificação: **Coeso**" or "Classificação: **Caótico**"
+    // (title line or body, with or without bold markers around the value)
+    /classificaç[ãa]o:\s*\*{0,2}\s*(Coeso|Caótico)\s*\*{0,2}/i,
+    // Pattern 3: "classificado como **Caótico/Acoplado**" or "Código classificado como **Coeso**"
     /classificado\s+como\s*\*\*(Caótico|Coeso)/i,
-    // Pattern 3: "classificado com 'Caótico'" or "classificado com "Caótico""
+    // Pattern 4: "classificado com 'Caótico'" or "classificado com "Caótico""
     /classificado\s+com\s*['"](Caótico|Coeso)['"]/i,
   ];
 
@@ -296,8 +300,8 @@ function printDashboard(summary) {
   var caoticoC = summary.caoticoCount > 0 ? pc.red : pc.gray;
   var unaudC = summary.unclassifiedCount > 0 ? pc.yellow : pc.gray;
 
-  console.log(boxLine('    ' + pc.bold(coesoC('COESO'))     + '     ' + pc.bold(coesoC(String(summary.coesoCount).padStart(4)))));
-  console.log(boxLine('    ' + pc.bold(caoticoC('CAOTICO'))  + '   ' + pc.bold(caoticoC(String(summary.caoticoCount).padStart(4)))));
+  console.log(boxLine('    ' + pc.bold(coesoC('COHESIVE'))   + '  ' + pc.bold(coesoC(String(summary.coesoCount).padStart(4)))));
+  console.log(boxLine('    ' + pc.bold(caoticoC('CHAOTIC'))  + '   ' + pc.bold(caoticoC(String(summary.caoticoCount).padStart(4)))));
   console.log(boxLine('    ' + pc.bold(unaudC('UNAUDITED')) + ' ' + pc.bold(unaudC(String(summary.unclassifiedCount).padStart(4)))));
   console.log(boxMid());
   console.log(boxLine(pc.bold('    TOTAL: ' + String(summary.totalSpecs) + ' specs')));

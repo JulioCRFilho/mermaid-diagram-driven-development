@@ -1,11 +1,11 @@
-# CLI Module | v6.3.0 (Stable)
+# CLI Module | v6.5.0 (Stable) | Classificação: Coeso
 
 ## 1. Flow Contract (Mermaid)
 
 ### 1.1 Topologia Atual (As-Is)
 
 ```mermaid
-%% @spec-version v6.3.0
+%% @spec-version v6.5.0
 graph TD
     subgraph "CLI Entry (bin/cli.js)"
         A[bin/cli.js: Commander Router] --> B[delegate to ./commands/init.js]
@@ -49,7 +49,7 @@ O CLI atual é minimalista com 4 comandos bem definidos: `init` (setup do projet
 | Código Atual | Co-located `.spec.md` Exists? | Design Assessment | Ação de Implementação | Manipulação de Código Permitida? | Versão Inicial |
 | :--- | :---: | :---: | :--- | :---: | :---: |
 | `bin/cli.js` (71 linhas) | ✅ YES | Clean / CLI Entry | Delega para commands layer | ✅ **ALLOW** | `v1.0.0` |
-| `src/commands/init.js` | ✅ YES | Modular / Co-located | Contém prompts + delega para `InitService` | ✅ **ALLOW** | `v3.0.0` |
+| `src/commands/init.js` | ❌ NO spec | Modular / Co-located | Contém prompts + delega para `InitService` | ✅ **ALLOW** | `v3.0.0` |
 | `src/commands/validator.js` | ❌ NO spec | Modular / Co-located | Valida diagramas Mermaid via CLI | ✅ **ALLOW** | `v4.x` |
 | `src/commands/listSpecs.js` | ❌ NO spec | Modular / Co-located | Lista specs via `SpecFinderService` | ✅ **ALLOW** | `v6.x` |
 | `src/commands/status.js` | ✅ YES (v1.0.0) | Modular / Co-located | Gera dashboard de cobertura MDDD | ✅ **ALLOW** | `v1.0.0` |
@@ -92,6 +92,7 @@ O CLI atual é minimalista com 4 comandos bem definidos: `init` (setup do projet
 | 2026-06-05 | Cline (md-edit) | v6.2.0 | **MINOR Mutation (v6.1.0 → v6.2.0):** Template `ARCHITECTURE.template.md` + `createArchitectureTemplate` no `InitService`. Skill `mddd-context-map` v2.1.0. |
 | 2026-06-05 | Cline (md-edit) | v6.3.0 | **MINOR Mutation (v6.2.0 → v6.3.0):** Template diagram-first com 8 seções rígidas. Skill `mddd-context-map` v2.2.0. |
 | 2026-06-08 | Cline (md-edit) | v6.4.0 | **MINOR Mutation (v6.3.0 → v6.4.0):** Adicionado comando `md status`. Criado `src/commands/status.js` com análise de métricas de specs (tasks, audit history, versões, classificações) e dashboard colorido via `picocolors`. Spec co-localizado `src/commands/status.spec.md` v1.0.0 (stable) — todos os 7 tasks completados e 5/5 testes passando. Diagrama de topologia atualizado com novos nós para `status.js` e dependências. Matriz de decisão estendida com linha para `status.js`. Bump MINOR: novo comando adicionado sem breaking change. |
+| 2026-06-09 | Cline (md-audit) | v6.5.0 | **MINOR Mutation (v6.4.0 → v6.5.0):** Auditoria revelou 2 inconsistências: (1) versão do cabeçalho (`%% @spec-version v6.3.0`) defasada em relação ao histórico (já registrava v6.4.0); (2) matriz de decisão declarava `✅ YES` para co-located spec de `src/commands/init.js`, mas não existe `init.spec.md` no filesystem — corrigido para `❌ NO spec`. Bump MINOR: correção de matriz + alinhamento de versão sem breaking change. |
 
 ### Análise de Qualidade
 

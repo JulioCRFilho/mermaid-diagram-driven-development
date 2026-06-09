@@ -90,10 +90,11 @@ function createSpecContent(options = {}) {
     auditSection = `## Audit History\n\n| Date | Agent | Version | Change Summary | Change Type |\n| :--- | :--- | :---: | :--- | :---: |\n${rows.join('\n')}\n`;
   }
 
-  // Build classification line
+  // Build classification line — support both English and Portuguese formats
   let classificationLine = '';
   if (classification) {
-    classificationLine = `Classificado como **${classification}**`;
+    // Use the English format by default to match updated spec standard
+    classificationLine = `**Classification:** ${classification}`;
   }
 
   return `# Test Spec
