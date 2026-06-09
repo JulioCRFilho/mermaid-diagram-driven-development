@@ -1,6 +1,7 @@
 # InitService — Specification
 
-**SPEC_VERSION: v1.2.0 — stable**
+**SPEC_VERSION:** v1.2.0 — stable
+**Classification:** Coeso
 
 ## Overview
 
@@ -77,8 +78,9 @@ stateDiagram-v2
 
 | Date | Agent | Version | Change Summary |
 | :--- | :--- | :---: | :--- |
-| 2026-05-28 | Cline (md-audit) | v1.0.0 | **Spec created by md-audit.** Reverse-engineered from `src/services/InitService.js` (52 lines). Code classified as **Clean / Service with DI**. All orchestration steps documented with primitive factor analysis. No modifications to production code. |
-| 2026-05-28 | Cline (md-edit) | v1.1.0 | **New method `createGitHubWorkflow`.** Added to support `md init` creating `.github/workflows/mddd-preview.yml`. Updated behavioral flow diagram with new states. Updated Decision Matrix with steps 3, 7, 8. SPEC_VERSION bumped from v1.0.0 to v1.1.0 (minor — new method). Status promoted from **draft** to **stable** — implementation and tests verified. |
+| 2026-06-09 | Cline (md-audit) | v1.2.1 | **Fixed SPEC_VERSION header format** (added colon separator per template spec) and **added Classification: Coeso** — aligns with the existing code quality (DI, modular, well-structured orchestration). PATCH bump. |
 | 2026-06-04 | Cline (md-edit) | v1.2.0 | **New method `createSpecTemplate`.** Added to support `md init` copying `.agents/templates/spec-template.md` from the CLI package to the project. Reads the template file content via `fs.readFileSync`, ensures `.agents/templates/` dir exists, then writes `spec-template.md` via `#fs.writeFile`. Updated behavioral flow diagram with new states (`createSpecTemplate → ensureTemplatesDir → writeTemplateFile → logTemplate`). Updated Decision Matrix with steps 4, 8. SPEC_VERSION bumped from v1.1.0 to v1.2.0 (minor — new method). |
+| 2026-05-28 | Cline (md-edit) | v1.1.0 | **New method `createGitHubWorkflow`.** Added to support `md init` creating `.github/workflows/mddd-preview.yml`. Updated behavioral flow diagram with new states. Updated Decision Matrix with steps 3, 7, 8. SPEC_VERSION bumped from v1.0.0 to v1.1.0 (minor — new method). Status promoted from **draft** to **stable** — implementation and tests verified. |
+| 2026-05-28 | Cline (md-audit) | v1.0.0 | **Spec created by md-audit.** Reverse-engineered from `src/services/InitService.js` (52 lines). Code classified as **Clean / Service with DI**. All orchestration steps documented with primitive factor analysis. No modifications to production code. |
 
 </details>

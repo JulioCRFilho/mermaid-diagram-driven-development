@@ -1,6 +1,7 @@
 # FileSystemService — Specification
 
-**SPEC_VERSION: v1.0.0 — stable**
+**SPEC_VERSION:** v1.0.0 — stable
+**Classification:** Coeso
 
 ## Overview
 
@@ -95,6 +96,7 @@ stateDiagram-v2
 
 | Date | Agent | Version | Change Summary |
 | :--- | :--- | :---: | :--- |
+| 2026-06-09 | Cline (md-audit) | v1.0.1 | **Fixed SPEC_VERSION header format** (added colon separator per template spec) and **added Classification: Coeso** — aligns with the existing code quality (DI-ready, modular, testable). PATCH bump. |
 | 2026-05-28 | Cline (md-audit) | v1.0.0 | **Spec created by md-audit.** Reverse-engineered from `src/services/FileSystemService.js` (38 lines). Code classified as **Clean / DI-ready**. All 7 methods documented with primitive factor analysis. No modifications to production code. |
 
 </details>
