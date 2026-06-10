@@ -1,8 +1,8 @@
 # Mermaid Diagram Driven Development (MDDD) CLI 🚀
 
-![npm](https://img.shields.io/npm/v/mddd-cli)
-![npm](https://img.shields.io/npm/l/mddd-cli)
-![Node](https://img.shields.io/node/v/mddd-cli)
+![npm](https://img.shields.io/npm/v/mddd-cli?style=flat-square&logo=npm&color=CB3837)
+![npm](https://img.shields.io/npm/l/mddd-cli?style=flat-square)
+![Node](https://img.shields.io/node/v/mddd-cli?style=flat-square&logo=node.js&color=339933)
 
 ---
 
@@ -184,6 +184,33 @@ After running `md init`, your AI will understand these shortcuts when you type t
 | `md-edit` | Requests changes to an existing `.spec.md` file (increments semantic version). |
 | `md-audit` | Analyzes legacy code and proposes visual refactoring (Mermaid). |
 | `md-impl` | Generates code and tests strictly based on the `.spec.md` layout, managing version history. |
+| `mddd-context-map` | Generates a multi-level product architecture diagram (flowchart LR) from all `.spec.md` files. Classifies specs as MACRO/MICRO, maps data flows, and produces an `ARCHITECTURE.spec.md` with styled nodes and labeled edges. |
+
+---
+
+## 🗺️ Architecture Context Map
+
+The `mddd-context-map` skill teaches the AI agent to produce a **product architecture diagram** that visualizes your system at **multiple levels**:
+
+- **Macro areas (domains)** — each MACRO spec represents a high-level domain or business capability.
+- **Micro components/services** — MICRO specs are the building blocks inside each domain.
+- **Data flows** — connections between users, UI, backend, serverless functions, and external infrastructure.
+
+The output is a stylized **`flowchart LR`** that combines domain grouping with internal components and external integrations, using `classDef` styling to differentiate node types:
+
+| Node Class | Purpose | Visual |
+| :--- | :--- | :--- |
+| `userNode` | People, personas, roles | Warm yellow |
+| `systemNode` | Internal services/components | Professional blue |
+| `externalNode` | Third-party APIs, partner systems | Stand-out red-orange |
+| `infraNode` | Databases, queues, caches | Subdued italic gray |
+
+### How to use
+
+1. Initialize your project with `md init` (this copies the architecture template to `.agents/templates/`).
+2. Ask the AI to generate the context map — it will scan all `.spec.md` files, classify them as MACRO/MICRO, and compose the diagram.
+3. The output is saved to `ARCHITECTURE.spec.md` at the project root.
+4. Every diagram is validated with `npx md validate` before being written.
 
 ---
 
@@ -208,8 +235,9 @@ src/
 ## 📦 CLI Commands
 
 | Command | Description |
-| --- | --- |
+| :--- | :--- |
 | `md init` | Configures the `AGENTS.md` file and the SKILL.md files which instructs the AI how to behave. Run this everytime you update MDDD-CLI NPM Package. |
+| `md status` | Generates a beautiful MDDD coverage report with metrics from all `.spec.md` files. Shows specs classification (Cohesive/Chaotic), task progress, version changes, and impact metrics. |
 
 ### Project Architecture
 
@@ -222,10 +250,25 @@ bin/
 
 src/
 ├── commands/                  # Command layer
-│   └── init.js
-└── services/                  # Shared services with DI
-    ├── FileSystemService.js
-    └── InitService.js
+│   ├── init.js                # Init command
+│   ├── listSpecs.js           # List specs command
+│   ├── status.js              # Status command
+│   ├── status.spec.md         # Status spec
+│   └── validator.js           # Validator utility
+├── services/                  # Shared services with DI
+│   ├── FileSystemService.js
+│   ├── FileSystemService.spec.md
+│   ├── InitService.js
+│   ├── InitService.spec.md
+│   └── SpecFinderService.js
+└── workflows/
+    └── mddd-preview.yml.js   # GitHub Actions workflow
+
+tests/
+├── commands/
+│   ├── init.spec.js
+│   ├── listSpecs.spec.js
+│   └── status.spec.js
 ```
 
 ---
@@ -248,7 +291,7 @@ If you encounter any issues, open a [GitHub Issue](https://github.com/JulioCRFil
 
 ## 📄 License
 
-Distributed under the MIT license. See the [LICENSE](https://www.google.com/search?q=LICENSE) file for more information.
+Distributed under the MIT license. See the [LICENSE](./LICENSE) file for more information.
 
 ---
 <a id="portuguese"></a>
@@ -424,6 +467,33 @@ Após rodar o `md init`, a sua IA passará a entender estes atalhos quando você
 | `md-edit` | Solicita alterações em um arquivo `.spec.md` existente (incrementa a versão semântica). |
 | `md-audit` | Analisa código legado e propõe refatoração visual (Mermaid). |
 | `md-impl` | Gera código e testes baseando-se estritamente na estrutura do `.spec.md`, gerenciando o histórico de versões. |
+| `mddd-context-map` | Gera um diagrama de arquitetura do produto em múltiplos níveis (flowchart LR) a partir de todos os arquivos `.spec.md`. Classifica specs como MACRO/MICRO, mapeia fluxos de dados e produz um `ARCHITECTURE.spec.md` com nós estilizados e arestas rotuladas. |
+
+---
+
+## 🗺️ Mapa de Contexto da Arquitetura
+
+A skill `mddd-context-map` ensina o agente de IA a produzir um **diagrama de arquitetura do produto** que visualiza o sistema em **múltiplos níveis**:
+
+- **Áreas Macro (domínios)** — cada spec MACRO representa um domínio ou capacidade de negócio de alto nível.
+- **Micro componentes/serviços** — specs MICRO são os blocos construtivos dentro de cada domínio.
+- **Fluxos de dados** — conexões entre usuários, UI, backend, funções serverless e infraestrutura externa.
+
+O output é um **`flowchart LR`** estilizado que combina agrupamento por domínio com componentes internos e integrações externas, usando `classDef` para diferenciar os tipos de nós:
+
+| Classe de Nó | Propósito | Visual |
+| :--- | :--- | :--- |
+| `userNode` | Pessoas, personas, perfis | Amarelo quente |
+| `systemNode` | Serviços/componentes internos | Azul profissional |
+| `externalNode` | APIs de terceiros, sistemas parceiros | Vermelho-alaranjado |
+| `infraNode` | Bancos de dados, filas, caches | Cinza itálico sutil |
+
+### Como usar
+
+1. Inicialize seu projeto com `md init` (isso copia o template de arquitetura para `.agents/templates/`).
+2. Peça à IA para gerar o mapa de contexto — ela escaneará todos os arquivos `.spec.md`, classificará como MACRO/MICRO e comporá o diagrama.
+3. O output é salvo em `ARCHITECTURE.spec.md` na raiz do projeto.
+4. Cada diagrama é validado com `npx md validate` antes de ser escrito.
 
 ---
 
@@ -448,8 +518,9 @@ src/
 ## 📦 Comandos da CLI
 
 | Comando | Descrição |
-| --- | --- |
+| :--- | :--- |
 | `md init` | Configura os arquivos `AGENTS.md` e `SKILL.md` que instruem a IA sobre como se comportar. Execute isto sempre que atualizar o pacote NPM do MDDD-CLI. |
+| `md status` | Gera um relatório bonito de cobertura MDDD com métricas de todos os arquivos `.spec.md`. Mostra classificação dos specs (Coeso/Caótico), progresso de tarefas, mudanças de versão e métricas de impacto. |
 
 ### Arquitetura do Projeto
 
@@ -462,10 +533,25 @@ bin/
 
 src/
 ├── commands/                  # Camada de comandos
-│   └── init.js
-└── services/                  # Serviços compartilhados com DI
-    ├── FileSystemService.js
-    └── InitService.js
+│   ├── init.js                # Comando init
+│   ├── listSpecs.js           # Comando listSpecs
+│   ├── status.js              # Comando status
+│   ├── status.spec.md         # Spec do status
+│   └── validator.js           # Utilitário de validação
+├── services/                  # Serviços compartilhados com DI
+│   ├── FileSystemService.js
+│   ├── FileSystemService.spec.md
+│   ├── InitService.js
+│   ├── InitService.spec.md
+│   └── SpecFinderService.js
+└── workflows/
+    └── mddd-preview.yml.js   # Workflow do GitHub Actions
+
+tests/
+├── commands/
+│   ├── init.spec.js
+│   ├── listSpecs.spec.js
+│   └── status.spec.js
 ```
 
 ---
@@ -488,4 +574,4 @@ Se encontrar qualquer problema, abra uma [Issue no GitHub](https://github.com/Ju
 
 ## 📄 Licença
 
-Distribuído sob a licença MIT. Veja o arquivo [LICENSE](https://www.google.com/search?q=LICENSE) para mais informações.
+Distribuído sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais informações.
