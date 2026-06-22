@@ -6,15 +6,6 @@
 
 ---
 
-<p align="center">
-  <a href="#english">🇺🇸 English</a> •
-  <a href="#portuguese">🇧🇷 Português</a>
-</p>
-
----
-
-<a id="english"></a>
-
 # 🇺🇸 English
 
 An agnostic, ultra-lightweight, and surgical CLI for implementing **MDDD (Mermaid Diagram Driven Development)** in a modular, co-located, and strictly versioned way.
@@ -144,7 +135,7 @@ npm install -g mddd-cli
 
 ## 🚀 Quick Start Guide
 
-The MDDD workflow is based on skills to orchestrate the AI in the chat.
+The MDDD protocol is based on skills to orchestrate AI agents development.
 
 ### 1. Initialize your project
 
@@ -155,13 +146,13 @@ md init
 
 ```
 
-This will create the `AGENTS.md` and `SKILL.md` files in the root directory, containing the global instructions that will guide the AI in understanding the MDDD methodology and interacting with Git logs. You can rename `AGENTS.md` to any .rules file you need (.cursorrules, .clinerules, etc.).
+This will create the `AGENTS.md` and `SKILL.md` files in the root directory, containing the global instructions that will guide the AI in understanding the MDDD methodology and interacting with Git logs.
 
 ### 2. Audit legacy files or make new ones.
 
  - Tell AI to `md-audit` the file you want to review. If it's clean and concise, AI will create the spec based on it. If it's not, then AI will propose a refactoring with the "to-be" spec.
 
- - Tell AI to `md-new` a specification you need, connect to a Jira/Task, to a Figma/Design or simple tell AI what you need.
+ - Tell AI to `md-new` a specification you need, connect to a Jira/Task, to a Figma/Design or simple tell AI what to do.
 
 ### 3. Implement the specification.
 
@@ -237,7 +228,7 @@ src/
 | Command | Description |
 | :--- | :--- |
 | `md init` | Configures the `AGENTS.md` file and the SKILL.md files which instructs the AI how to behave. Run this everytime you update MDDD-CLI NPM Package. |
-| `md status` | Generates a beautiful MDDD coverage report with metrics from all `.spec.md` files. Shows specs classification (Cohesive/Chaotic), task progress, version changes, and impact metrics. |
+| `md status` | Generates a beautiful MDDD coverage report with metrics from all `.spec.md` files. Shows specs classification (Cohesive/Chaotic), discovery tasks progress, version changes, and impact metrics. |
 
 ### Project Architecture
 
@@ -261,8 +252,6 @@ src/
 │   ├── InitService.js
 │   ├── InitService.spec.md
 │   └── SpecFinderService.js
-└── workflows/
-    └── mddd-preview.yml.js   # GitHub Actions workflow
 
 tests/
 ├── commands/
@@ -292,286 +281,3 @@ If you encounter any issues, open a [GitHub Issue](https://github.com/JulioCRFil
 ## 📄 License
 
 Distributed under the MIT license. See the [LICENSE](./LICENSE) file for more information.
-
----
-<a id="portuguese"></a>
-
-# 🇧🇷 Português
-
-Uma CLI agnóstica, ultra-leve e cirúrgica para implementar **MDDD (Mermaid Diagram Driven Development)** de forma modular, colocalizada e estritamente versionada.
-
-Esta ferramenta automatiza a criação e a conexão de arquivos de especificação visual (Markdown + Mermaid + Matrizes de Decisão) através do comando `md init`. O objetivo é envelopar as regras de negócio em arquivos `.spec.md` para que qualquer ferramenta de IA (**Cursor, Windsurf, Claude Code, GitHub Copilot**, etc.) use esses assets como a **Fonte Única da Verdade** antes de tocar no código produtivo.
-
----
-
-## 📌 O Conceito: MDDD vs. Especificações em Texto
-
-Ao contrário de frameworks tradicionais de especificação que geram dezenas de arquivos de texto e "deltas" que poluem o seu repositório, o MDDD introduz um paradigma **Visual-First & Focado em Fluxo**:
-
-1. **Um Mapa Real da Arquitetura:** Em vez de mapas em formato de texto chapado, o MDDD permite conectar micro-especificações em uma visão macro do sistema. Ele se comporta como um mapa geográfico real de toda a sua arquitetura de software.
-2. **Projetado para Alta Complexidade e CRUDs Gigantes:** Estados complexos, validações de múltiplos perfis e regras de negócio densas são estruturadas dentro de **Matrizes de Decisão** em tabelas markdown. Isso elimina a saturação visual dos layouts e resolve comportamentos complexos com precisão matemática.
-3. **Poluição Zero de Arquivos (Nativo do Git):** Os requisitos mudam e são versionados diretamente no próprio local original. As IAs que utilizam recursos de terminal ou **MCP (Model Context Protocol)** podem consultar o histórico do Git instantaneamente para entender as mudanças evolutivas, significando zero arquivos temporários ou lixo arquitetural.
-
----
-
-## ⚖️ MDDD vs. OpenSpec (SDD)
-
-| Funcionalidade / Paradigma | OpenSpec (Specification Driven Development) | MDDD (Mermaid Diagram Driven Development) |
-| --- | --- | --- |
-| **Estrutura Lógica** | Parágrafos textuais, regras verbosas e cenários conversacionais. | Matrizes de Decisão Binárias/Factuais + Topologias Estruturais Estritas. |
-| **Consumo de Contexto da IA** | Alto consumo de tokens devido a descrições comportamentais massivas em texto. | Consumo ultra-baixo de tokens através de tabelas de verdade concisas em matrizes. |
-| **Estimativa de Tokens (10 regras)** | **~8.000 – 12.000 tokens** (parágrafos + descrições de cenário + casos de borda) | **~800 – 1.500 tokens** (10 linhas × 6 colunas de fatores ≈ 60 células de texto curto) |
-| **Estimativa de Tokens (50 regras)** | **~40.000 – 60.000 tokens** (janela de contexto inteira pode ser consumida) | **~4.000 – 7.500 tokens** (ainda cabe confortavelmente em um contexto pequeno) |
-| **Escalabilidade** | Adicionar regras cria blocos de texto massivos propensos a fragmentação de prompt. | Adicionar regras escala horizontalmente anexando colunas precisas de fatores. |
-| **Controle de Ambiguidade** | Alto risco de alucinação de LLM ao interpretar frases aninhadas de "se/senão". | Precisão matemática pura; processamento determinístico via linhas de matriz. |
-| **Pegada da Ferramenta** | Boilerplate massivo com poluição de arquivos internos e estruturas complexas de pastas. | Ultra-leve e modular: um router enxuto + módulos de comando e serviço claramente separados, cada um facilmente auditável. |
-
-### 🚀 Por que as Matrizes de Decisão MDDD Superam o OpenSpec:
-
-* **Tokens Previsíveis:** Para uma LLM, ler essa tabela é idêntico a processar uma matriz binária de verdade. Ela bate o olho nas colunas de fatores primitivos (`Tenant Ativo?`, `Kill Switch Global Ativo?`) e sabe exatamente se a combinação resulta em `ALLOW` ou `DENY` sem gastar processamento léxico ou tokens desnecessários.
-* **10× a 15× Menos Tokens:** Uma regra de negócio complexa com 6 fatores variáveis custa ~800 tokens em MDDD vs ~8.000+ tokens em OpenSpec (parágrafos + descrições de casos de borda). Conforme as regras crescem, MDDD se mantém linear enquanto OpenSpec cresce exponencialmente em verborragia.
-* **Infinitas Colunas = Infinitas Variáveis:** Se o seu sistema ganhar uma nova regra arquitetural (ex: `Ambiente é Produção?` ou `IP em White-list?`), basta adicionar uma nova coluna na matriz. A lógica de negócio expande horizontalmente sem poluir ou quebrar os fluxos visuais do Mermaid.
-* **Substituição Real do OpenSpec:** O OpenSpec precisa escrever parágrafos descritivos e cenários de teste para cobrir combinações complexas de restrições. O MDDD resolve isso em uma única linha de tabela determinística, economizando o contexto do prompt e eliminando completamente alucinações da IA.
-
----
-
-## 🛠️ O Pipeline MDDD
-
-| Etapa | Ator | Ação / Gatilho | O que acontece |
-| --- | --- | --- | --- |
-| **1. Entrada** | Humano | Solicitação de Funcionalidade | O usuário propõe uma funcionalidade em linguagem natural, aponta a IA diretamente para uma Issue/Task do Jira ou GitHub, ou pede para a IA auditar um arquivo legado. |
-| **2. Concepção** | IA | Autogeração | A IA avalia o escopo e constrói o arquivo `.spec.md` completo com diagramas de fluxo, ciclos de vida e as **Matrizes de Decisão** necessárias. |
-| **3. Alinhamento** | Humano | Revisão Interativa | O usuário revisa a especificação dentro do editor. Os refinamentos são feitos de forma iterativa conversando com a IA. |
-| **4. Planning** | IA | Quebra de Tarefas | Com a spec aprovada, a IA extrai um checklist granular e atômico dos passos de desenvolvimento diretamente dentro do arquivo. |
-| **5. Execução** | IA | Geração de Código | A IA implementa o código produtivo e os testes baseando-se estritamente nas specs, atualizando o versionamento semântico ao concluir. |
-
----
-
-## ✅ Pré-visualização dos Diagramas Mermaid
-
-Para visualizar diagramas Mermaid diretamente no seu editor durante o fluxo MDDD, você pode usar extensões que renderizam blocos `mermaid` em arquivos Markdown:
-
-### Exemplo de Diagrama Arquitetural
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor U as Usuário Merchant (Lojista)
-    actor A as Admin da Plataforma
-    participant Core as Core da Plataforma (Orquestrador)
-    participant Registry as Registro de Micro-Apps
-    participant Sandbox as Sandbox de Execução (Contexto Isolado)
-    participant TenantDB as Multi-Banco do Tenant
-    participant Billing as Motor de Tarifação (Uso Medido)
-
-    Note over U, Core: Cenário: Lojista tenta executar um micro-app customizado premium.
-
-    U->>Core: Requisita Execução do App (TenantID, AppID)
-    Core->>Registry: Busca Manifesto do Micro-App & Permissões de Escopo
-    Registry-->>Core: Retorna Manifesto (Escopos de API Requeridos, Nível de Tier)
-    
-    Note over Core, TenantDB: Validação Dinâmica de Segurança & Multitenancy
-    Core->>TenantDB: Checa Assinatura do Tenant & Feature Flags
-    TenantDB-->>Core: Tenant Autorizado (Licença Ativa)
-    
-    Core->>Billing: Rastreia Evento de Execução (API de Uso Medido)
-    activate Billing
-    Billing->>Billing: Registra Consumo de Tokens/Processamento
-    deactivate Billing
-
-    Note over Core, Sandbox: Initializing Sandbox em Container
-    Core->>Sandbox: Injeta Token de Segurança & Proxies de SDK Restritos
-    Core->>Sandbox: Inicializa o Bundle Frontend/Backend do Micro-App
-    
-    activate Sandbox
-    Sandbox->>Sandbox: Executa Ciclo de Vida do Micro-App (onInit)
-    Sandbox->>Core: Chamada de API Restrita (Escrita de Dados do Tenant)
-    Core->>TenantDB: Persiste Mudanças com Segurança no Isolamento do Tenant
-    Sandbox-->>U: Renderiza Fragmento de UI Isolado / Micro-Frontend
-    deactivate Sandbox
-
-    Note over A, Core: Admin da Plataforma pode substituir a quente ou depreciar apps globalmente.
-    A->>Core: Deprecia Versão do App (Flag Global)
-    Core->>Registry: Atualiza Status para "DEPRECATED"
-
-```
-
-### Exemplo de Matriz de Decisão de Ciclo de Vida & Runtime de Micro-Apps
-
-| Tenant Ativo? | App Premium? | Tier de Faturamento Ativo? | Usuário é Admin? | App em White-list? | Kill Switch Global Ativo? | Ação Proposta | Decisão (Resultado) | Estado de Transição (Novo Status) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ❌ NÃO | - | - | - | - | - | `BOOT_APP` | ❌ **DENY (Negar)** | - |
-| ✅ SIM | ❌ NÃO | **FREE** | ❌ NÃO | ✅ SIM | ❌ NÃO | `BOOT_APP` | ✅ **ALLOW (Permitir)** | `ACTIVE_RUNTIME` |
-| ✅ SIM | ✅ SIM | **FREE** | - | - | ❌ NÃO | `INSTALL_APP` | ❌ **DENY (Negar)** | - (Dispara Upsell) |
-| ✅ SIM | ✅ SIM | **ENTERPRISE** | ✅ SIM | ✅ SIM | ❌ NÃO | `INSTALL_APP` | ✅ **ALLOW (Permitir)** | `INSTALLED` |
-| ✅ SIM | - | - | ❌ NÃO | - | ❌ NÃO | `CONFIG_API` | ❌ **DENY (Negar)** | - |
-| ✅ SIM | - | - | ✅ SIM | - | ❌ NÃO | `CONFIG_API` | ✅ **ALLOW (Permitir)** | `CONFIGURED` |
-| ✅ SIM | - | - | - | - | ✅ SIM | `BOOT_APP` | ❌ **DENY (Negar)** | `MUTED_ISOLATION` |
-| ✅ SIM | - | - | - | - | ✅ SIM | `HOT_RELOAD` | ❌ **DENY (Negar)** | - |
-| ❌ NÃO | - | - | - | - | - | `PURGE_DATA` | ❌ **DENY (Negar)** | - |
-
----
-
-## 📥 Instalação
-
-Como o pacote está publicado no NPM, a instalação é global e simples:
-
-```bash
-# Instalação global
-npm install -g mddd-cli
-
-```
-
-> **Note:** Certifique-se de ter o **Node.js v18 ou superior** instalado em sua máquina.
-
----
-
-## 🚀 Guia de Uso Rápido
-
-O fluxo MDDD é baseado em skills para orquestrar a IA no chat.
-
-### 1. Inicialize seu projeto
-
-Na raiz do seu projeto, execute:
-
-```bash
-md init
-
-```
-
-Isso criará os arquivos `AGENTS.md` e `SKILL.md` no diretório raiz, contendo as instruções globais que guiarão a IA na compreensão da metodologia MDDD e na interação com os logs do Git. Você pode renomear `AGENTS.md` para qualquer arquivo .rules que precisar (.cursorrules, .clinerules, etc.).
-
-### 2. Auditar arquivos legados ou criar novos.
-
-* Diga à IA para executar `md-audit` no arquivo que você deseja revisar. Se ele estiver limpo e conciso, a IA criará a especificação com base nele. Caso contrário, a IA proporá uma refatoração com a especificação ideal ("to-be").
-* Diga à IA para executar `md-new` para uma especificação que você precisa, conectar a um Jira/Tarefa, a um Figma/Design ou simplesmente diga à IA o que você precisa.
-
-### 3. Implementar a especificação.
-
-Diga à IA para executar `md-impl` apontando para um arquivo .spec. Ela lerá toda a especificação, criará a lista de tarefas e começará a trabalhar nela.
-
-### 4. Editar especificações existentes.
-
-Se você precisar adicionar uma nova funcionalidade ou modificar uma existente, basta dizer à IA para executar `md-edit` no arquivo .spec com as modificações desejadas.
-Revise até obter exatamente a especificação de que precisa e, em seguida, diga à IA para executá-lo com `md-impl`.
-
----
-
-## 🤖 SKILLS (Gatilhos para IA)
-
-Após rodar o `md init`, a sua IA passará a entender estes atalhos quando você os digitar no chat:
-
-| Skill | Descrição |
-| --- | --- |
-| `md-new` | Inicia o modo de desenho para uma nova feature a partir de texto ou link de issue (gera diagramas/matrizes). |
-| `md-edit` | Solicita alterações em um arquivo `.spec.md` existente (incrementa a versão semântica). |
-| `md-audit` | Analisa código legado e propõe refatoração visual (Mermaid). |
-| `md-impl` | Gera código e testes baseando-se estritamente na estrutura do `.spec.md`, gerenciando o histórico de versões. |
-| `mddd-context-map` | Gera um diagrama de arquitetura do produto em múltiplos níveis (flowchart LR) a partir de todos os arquivos `.spec.md`. Classifica specs como MACRO/MICRO, mapeia fluxos de dados e produz um `ARCHITECTURE.spec.md` com nós estilizados e arestas rotuladas. |
-
----
-
-## 🗺️ Mapa de Contexto da Arquitetura
-
-A skill `mddd-context-map` ensina o agente de IA a produzir um **diagrama de arquitetura do produto** que visualiza o sistema em **múltiplos níveis**:
-
-- **Áreas Macro (domínios)** — cada spec MACRO representa um domínio ou capacidade de negócio de alto nível.
-- **Micro componentes/serviços** — specs MICRO são os blocos construtivos dentro de cada domínio.
-- **Fluxos de dados** — conexões entre usuários, UI, backend, funções serverless e infraestrutura externa.
-
-O output é um **`flowchart LR`** estilizado que combina agrupamento por domínio com componentes internos e integrações externas, usando `classDef` para diferenciar os tipos de nós:
-
-| Classe de Nó | Propósito | Visual |
-| :--- | :--- | :--- |
-| `userNode` | Pessoas, personas, perfis | Amarelo quente |
-| `systemNode` | Serviços/componentes internos | Azul profissional |
-| `externalNode` | APIs de terceiros, sistemas parceiros | Vermelho-alaranjado |
-| `infraNode` | Bancos de dados, filas, caches | Cinza itálico sutil |
-
-### Como usar
-
-1. Inicialize seu projeto com `md init` (isso copia o template de arquitetura para `.agents/templates/`).
-2. Peça à IA para gerar o mapa de contexto — ela escaneará todos os arquivos `.spec.md`, classificará como MACRO/MICRO e comporá o diagrama.
-3. O output é salvo em `ARCHITECTURE.spec.md` na raiz do projeto.
-4. Cada diagrama é validado com `npx md validate` antes de ser escrito.
-
----
-
-## 🏗️ Arquitetura de Especificação Colocalizada (Co-location)
-
-As especificações visuais não ficam centralizadas em pastas distantes. Elas vivem no **mesmo diretório** do componente, tela ou feature que descrevem, mapeando o software de forma nativa.
-
-```
-src/
-└── home/
-    ├── home.spec.md          # 🌎 Mapa global do módulo
-    ├── guest/
-    │   ├── guest.spec.md     # 🔬 Fluxo de tela com Matriz de Decisão
-    │   └── guest_page.dart   # 💻 Código produtivo gerado pela IA
-    └── consumer/
-        └── consumer.spec.md  # 🔬 Fluxo de tela com Matriz de Decisão
-
-```
-
----
-
-## 📦 Comandos da CLI
-
-| Comando | Descrição |
-| :--- | :--- |
-| `md init` | Configura os arquivos `AGENTS.md` e `SKILL.md` que instruem a IA sobre como se comportar. Execute isto sempre que atualizar o pacote NPM do MDDD-CLI. |
-| `md status` | Gera um relatório bonito de cobertura MDDD com métricas de todos os arquivos `.spec.md`. Mostra classificação dos specs (Coeso/Caótico), progresso de tarefas, mudanças de versão e métricas de impacto. |
-
-### Arquitetura do Projeto
-
-O código-fonte da CLI segue uma arquitetura modular limpa, conforme documentado em `bin/cli.spec.md`:
-
-```
-bin/
-├── cli.js                     # Router Commander enxuto (< 30 linhas)
-└── cli.spec.md                # Spec colocalizada (v3.0.0)
-
-src/
-├── commands/                  # Camada de comandos
-│   ├── init.js                # Comando init
-│   ├── listSpecs.js           # Comando listSpecs
-│   ├── status.js              # Comando status
-│   ├── status.spec.md         # Spec do status
-│   └── validator.js           # Utilitário de validação
-├── services/                  # Serviços compartilhados com DI
-│   ├── FileSystemService.js
-│   ├── FileSystemService.spec.md
-│   ├── InitService.js
-│   ├── InitService.spec.md
-│   └── SpecFinderService.js
-└── workflows/
-    └── mddd-preview.yml.js   # Workflow do GitHub Actions
-
-tests/
-├── commands/
-│   ├── init.spec.js
-│   ├── listSpecs.spec.js
-│   └── status.spec.js
-```
-
----
-
-## 🧪 Tecnologias
-
-* **Node.js** >= 18
-* **Commander.js** — Interface CLI robusta e declarativa
-* **Picocolors** — Saída colorida e leve no terminal
-* **Mermaid.js** — Diagramação visual como fonte da verdade
-* **Test Runner Nativo** (`node:test`) — Testes unitários sem dependências externas
-
----
-
-## 💬 Precisa de ajuda?
-
-Se encontrar qualquer problema, abra uma [Issue no GitHub](https://github.com/JulioCRFilho/mermaid-diagram-driven-development/issues).
-
----
-
-## 📄 Licença
-
-Distribuído sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais informações.

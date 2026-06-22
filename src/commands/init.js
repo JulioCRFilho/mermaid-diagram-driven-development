@@ -5,8 +5,6 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import pc from 'picocolors';
 
-import { GITHUB_WORKFLOW_CONTENT } from '../workflows/mddd-preview.yml.js';
-
 /**
  * Resolve and read AGENTS.md from the project root.
  * @returns {string}
@@ -39,9 +37,6 @@ export async function execute(initService) {
 
   // 3. Passa o caminho da pasta oculta de origem para o serviço clonar recursivamente
   await initService.createSkills(cliSkillsSourceDir, (msg) => console.log(msg));
-
-  // 4. Cria o workflow do GitHub
-  await initService.createGitHubWorkflow(GITHUB_WORKFLOW_CONTENT, (msg) => console.log(msg));
 
   // 5. Copia o spec template para o projeto
   await initService.createSpecTemplate(cliSpecTemplatePath, (msg) => console.log(msg));

@@ -59,23 +59,6 @@ export class InitService {
   }
 
   /**
-   * Creates (or overwrites) the GitHub Actions workflow for Mermaid diagram preview on PRs.
-   * @param {string} workflowYaml - The YAML content for the GitHub workflow
-   * @param {(message: string) => void} logger
-   * @returns {Promise<string>} Path to the created workflow file
-   */
-  async createGitHubWorkflow(workflowYaml, logger) {
-    const workflowsDir = path.join('.github', 'workflows');
-    const workflowFile = path.join(workflowsDir, 'mddd-preview.yml');
-
-    this.#fs.ensureDir(workflowsDir);
-    await this.#fs.writeFile(workflowFile, workflowYaml);
-    logger(`✅ GitHub workflow created: ${workflowFile}`);
-
-    return workflowFile;
-  }
-
-  /**
    * Copies the spec template file from the CLI package to the project's .agents/templates/ directory.
    * @param {string} sourceTemplatePath - Absolute path to the CLI source spec-template.md
    * @param {(message: string) => void} logger

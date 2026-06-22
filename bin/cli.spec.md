@@ -1,11 +1,11 @@
-# CLI Module | v7.1.0 (Stable) | Classificação: Coeso
+# CLI Module | v7.1.1 (Stable) | Classificação: Coeso
 
 ## 1. Flow Contract (Mermaid)
 
 ### 1.1 Topologia Atual (As-Is)
 
 ```mermaid
-%% @spec-version v7.1.0
+%% @spec-version v7.1.1
 graph TD
     subgraph "CLI Entry (bin/cli.js)"
         A[bin/cli.js: Commander Router] --> B[delegate to ./commands/init.js]
