@@ -91,8 +91,8 @@ stateDiagram-v2
             SpecModification --> [*]: Skill ended
         }
 
-        MdImpl --> ValideChanges: Validate code changes!
-        MdEdit --> ValideChanges: Validate spec changes!
+        MdImpl --> ValidateChanges: Validate code changes!
+        MdEdit --> ValidateChanges: Validate spec changes!
 
         ValidateChanges --> UpdateSpec: Update spec status (draft|stable)
         UpdateSpec --> [*]: Modification completed
@@ -109,15 +109,15 @@ stateDiagram-v2
         UserDecision --> HaltProcess: User cancels
     }
 
-    HaltProcess --> [*]: End of proccess
+    HaltProcess --> [*]: End of process
     
     NewSpecification --> Conclude: Specification created
     CodeAuditory --> Conclude: Auditory completed
     ExistingSpec --> Conclude: Modification|Implementation finished
 
     Conclude --> ValidateSpec: Use `npx md validate <relative_path/to/spec>` to check if spec is valid
-    ValidateSpec --> RevereseConsistency: Note parent's states/transitions
-    RevereseConsistency --> [*]: End of process
+    ValidateSpec --> ReverseConsistency: Note parent's states/transitions
+    ReverseConsistency --> [*]: End of process
 ```
 
 ### 2 Reverse Consistency
