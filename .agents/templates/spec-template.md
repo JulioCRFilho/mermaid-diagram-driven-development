@@ -3,20 +3,11 @@
 # {{Feature Title}} — Specification
 
 > ⚠️ **This is a freshly generated MDDD spec template.**
-> Replace every `{{placeholder}}`, remove this banner, and refine the diagram + matrix
-> with the real business context before marking the spec as `stable`.
+> Replace every `{{placeholder}}`, remove this banner, and refine the diagram + matrix with the real business context. Only mark the spec as `stable` if it's coese and reflecting the real code.
 
 ---
 
-## 1. Context
-
-Describe **what** this spec governs and **why** it exists.
-
-- **Related specs:** {{parent_domain_spec, sibling_features}}
-
----
-
-## 2. Behavioral Flow (Mermaid)
+## 1. Behavioral Flow (Mermaid)
 
 > Pick the diagram type that best fits the topology using mermaid-diagrams skill.
 
@@ -40,44 +31,35 @@ Every node MUST correspond to a concrete state, action, or decision found in the
 
 ---
 
-## 3. Decision Matrix
+## 2. Decision Matrix
 
 The matrix below is the **deterministic truth table** that resolves the flow above.
-Each row maps a combination of **Primitive Factors** → a `Proposed Action` → a `Decision` (`✅ ALLOW` / `❌ DENY`) → an optional `Transition State`.
+Each row maps a combination of **Primitive Factors** → a `Action` → `States/Validations(✅|❌)` → `Result`.
 
-### 3.1 Primitive Factors
+**Resolution rules** (per MDDD protocol):
 
-| Factor | Type | Allowed Values | Default |
-| :--- | :--- | :--- | :--- |
-| `{{Factor 1 (e.g. Active Tenant?)}}` | Binary | `✅ YES` / `❌ NO` | — |
-| `{{Factor 2 (e.g. Active Billing Tier?)}}` | Categorical | `FREE`, `PRO`, `ENTERPRISE` | — |
-| `{{Factor N}}` | Binary / Categorical | … | — |
-
-> Use `-` (dash) as a wildcard when a column does not affect the decision.
-
-### 3.2 Resolution Table
-
-| {{Factor 1}} | {{Factor 2}} | … | Proposed Action | Decision | Transition State |
-| :---: | :---: | :---: | :--- | :---: | :--- |
-| ❌ NO | - | - | `{{ACTION_NAME}}` | ❌ DENY | - |
-| ✅ YES | - | - | `{{ACTION_NAME}}` | ✅ ALLOW | `{{NEW_STATE}}` |
-
-**Resolution rules** (per MDDD protocol, section 3.3):
-
-1. ALL columns must match the current system state.
-2. If no row fully matches → `HaltWithConflict` (section 5).
-3. If multiple rows match → `HaltWithConflict` (ambiguous).
+1. ALL columns must match a system state.
+2. If no row fully matches → `HaltWithConflict`.
+3. If multiple rows match → `HaltWithConflict`.
 
 ---
 
-## 4. Tasks
+## 3. Tasks
 
-Atomic, executable checklist extracted from the spec. Each item MUST be traceable
+Atomic, executable checklist. Each item MUST be traceable
 back to a node in the Behavioral Flow or a row in the Decision Matrix.
 
-- [ ] {{Task 1 — derived from flow node / matrix row}}
-- [ ] {{Task 2 — derived from flow node / matrix row}}
-- [ ] {{Task N — derived from flow node / matrix row}}
+- [ ] {{Task X — derived from flow node / matrix row}}
+- [ ] {{Task X+1 — derived from flow node / matrix row}}
+
+---
+
+## 4 Test plan
+
+Atomic, executable test checklist to be implemented covering edge-cases.
+
+- [ ] {{Test X — Use case/Scenario covered}}
+- [ ] {{Test X+1 — Use case/Scenario covered}}
 
 ---
 
@@ -89,15 +71,15 @@ When a `HaltWithConflict` is triggered, document the resolution path here:
 | :--- | :--- | :---: |
 | {{Primitive Factor that caused the halt}} | {{new row / new column / renamed state}} | `OPEN` / `RESOLVED` |
 
----
+___
 
 ## 6. Audit History
 
 <details>
 <summary>Click to expand</summary>
 
-| Date | Agent | Version | Change Summary |
-| :--- | :--- | :---: | :--- |
-| {{YYYY-MM-DD}} | Cline (`md-new`) | v1.0.0 | **Spec created from template.** All placeholders pending replacement. Mermaid diagram uses a generic state lifecycle as a structural seed. Decision Matrix seeded with one wildcard row — must be expanded to cover the real primitive factors before `md-impl` is invoked. Status: **draft**. |
+| Date | Version | Change Short Tech-Summary |
+| :--- | :---: | :--- |
+| {{YYYY-MM-DD}} | v1.0.0 | Short tech explain of what changed. Status: `draft\|stable`. |
 
 </details>

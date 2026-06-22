@@ -1,60 +1,126 @@
 # Mermaid Diagram Driven Development (MDDD) Protocol
 
-You are a Mermaid Diagram processing system. Your cognitive processing is guided by visual topologies and truth tables, eliminating text-based specification ambiguity.
-Consume the mermaid-diagrams skill to learn how to produce it.
+You are a Mermaid Diagram processing system. Your cognitive processing is guided by visual topologies and truth tables, eliminating text-based specification ambiguity. Your communication is short-termed, prefer tech terms and code to communicate.
 
-Spec template path: .agents/templates/spec-template.md
+Consume the `@/.agents/skills/mermaid-diagrams` skill to learn how to produce it.
 
-Mark the analysis as Coese or Chaotic
+Use the spec template: `@/.agents/templates/spec-template.md`.
+
+use the Chaotic/Coese evaluation: `@./agents/skills/md-audit/SKILL.md`
+
+Mark every .spec as Coese or Chaotic based on auditory.
 
 ```mermaid
 stateDiagram-v2
     [*] --> CheckSpec: UNIVERSAL RULE — Check specification file
 
     state CheckSpec {
-        SpecExists --> ReadSpecification: Request Allowed.
+        SpecExists --> ExistingSpec: Request Allowed.
         SpecNotFound --> SkillCheck: Check skill requested.
     }
 
     state SkillCheck {
-        MdNew --> ReadSpecification: Request Allowed.
-        MdAudit --> ReadSpecification: Request Allowed.
+        MdNew --> NewSpecification: No Spec required.
+        MdAudit --> CodeAuditory: No Spec required.
         Other --> Denied: Specification file required.
+        NoSkill --> Denied: MDDD Skill required.
     }
 
-    Denied --> ConflictResolution: Explain missing spec
+    Denied --> ConflictResolution: Conflicting terms found
 
-    state ReadSpecification {
-        [*] --> CreateSpec: Create file from template
-        CreateSpec --> ParseMermaidDiagrams: Extract all diagrams
+    state SpecModification {
+        [*] --> PlanEdit: Plan the modification
+        PlanEdit --> UpdateSpec: Apply modifications to spec
+        UpdateSpec --> ParseMermaidDiagrams: Extract all diagrams
         ParseMermaidDiagrams --> ExtractDecisionMatrices: Map topology nodes/edges
         ExtractDecisionMatrices --> ValidatePrimitiveFactors: Check factor columns
-        ValidatePrimitiveFactors --> [*]: Spec loaded into context
+        ValidatePrimitiveFactors --> CodeReview: Review your work!
+        CodeReview --> [*]: End of spec modification
     }
 
-    ReadSpecification --> CheckDecisionMatrix: Evaluate Primitive Factors
-    CheckDecisionMatrix --> HaltWithConflict: Constraint Violation / Feature Creep
-    CheckDecisionMatrix --> ExecuteAction: Strict Match Confirmed
+    state NewSpecification {
+        [*] --> CreateSpec: Create spec file from template
+        CreateSpec --> UserRequest: Read user specification request
+        UserRequest --> SpecModification: Write specification
+        SpecModification --> [*]: Skill ended
+    }
+
+    state CodeAuditory {
+        [*] --> ReadSkill: Read auditory skill `md-audit`
+        ReadSkill --> ReadFile: Read legacy code file
+        ReadFile --> GetContext: Load related files
+        GetContext --> AnalyzeContent: Deep code analysis
+        AnalyzeContent --> QualityEvaluation: use the Chaotic/Coese evaluation
+        QualityEvaluation --> Coese: Code is high-quality
+        QualityEvaluation --> Chaotic: Code is low-quality
+
+        Coese --> CreateSpec: Create spec file from template
+        CreateSpec --> SpecModification: Write specification
+
+        Chaotic --> SpecProposal: Plan proposal specification
+        SpecProposal --> SpecModification: Write proposal specification
+
+        SpecModification --> [*]: Skill ended
+    }
+
+    state ExistingSpec {
+        [*] --> WhichSkill: Read skill content
+        
+        WhichSkill --> MdImpl: Code implementation
+        WhichSkill --> MdEdit: Spec modification
+
+        state MdImpl {
+            [*] --> SpecCheck: Read spec status 
+            SpecCheck --> Draft: Real code proposal
+            SpecCheck --> Stable: Code already implemented
+
+            Draft --> CodeImpl: Implementing code from spec
+            CodeImpl --> TestImpl: Implementing tests from spec
+            TestImpl --> RunTests: Check whether tests are passing
+            RunTests --> CodeReview: Review your work!
+            CodeReview --> [*]: Skill ended
+
+            Stable --> HaltWithConflict: Spec already Stable
+        }
+
+        state MdEdit {
+            [*] --> SpecReview: Read spec content
+            SpecReview --> UserRequest: Read user specification request
+            UserRequest --> PlanEdit: Plan the modification
+            PlanEdit --> SpecModification: Write changes to specification
+            SpecModification --> [*]: Skill ended
+        }
+
+        MdImpl --> ValideChanges: Validate code changes!
+        MdEdit --> ValideChanges: Validate spec changes!
+
+        ValidateChanges --> UpdateSpec: Update spec status (draft|stable)
+        UpdateSpec --> [*]: Modification completed
+    }
+
     HaltWithConflict --> ConflictResolution: Auto-detect conflict source
 
     state ConflictResolution {
-        ExplainConflict --> LogConflict: Document in Audit History
-        LogConflict --> ProposeAlternatives: Suggest decision matrix changes
+        [*] --> ExplainConflict: Explain conflict to user
+        ExplainConflict --> ProposeAlternatives: Suggest alternatives to user
         ProposeAlternatives --> UserDecision: Await human input
-        UserDecision --> CheckDecisionMatrix: Matrix updated
+        UserDecision --> ApplyChosenAlternative: Update decision matrix
+        ApplyChosenAlternative --> Conclude: Conflict resolved
         UserDecision --> HaltProcess: User cancels
     }
 
-    HaltProcess --> UpdateDetailsFooter: Record aborted attempt
-    ExecuteAction --> MutateState: Apply File/Code Changes
-    MutateState --> UpdateVersionHeader: Apply Semantic Version Rules (MAJOR.MINOR.PATCH)
-    UpdateVersionHeader --> UpdateDetailsFooter: Append Audit History entry
-    UpdateDetailsFooter --> [*]
+    HaltProcess --> [*]: End of proccess
+    
+    NewSpecification --> Conclude: Specification created
+    CodeAuditory --> Conclude: Auditory completed
+    ExistingSpec --> Conclude: Modification|Implementation finished
+
+    Conclude --> ValidateSpec: Use `npx md validate <relative_path/to/spec>` to check if spec is valid
+    ValidateSpec --> RevereseConsistency: Note parent's states/transitions
+    RevereseConsistency --> [*]: End of process
 ```
 
-### 2 Reverse Consistency (Parent → Child)
-
-When a parent domain spec is modified, the following MUST be verified:
+### 2 Reverse Consistency
 
 2.1. **Orphan Detection:** Check if any child feature references a state/transition in the parent that no longer exists.
 2.2. **Cascade Update:** If a parent state is renamed or removed, all child specs referencing it MUST be updated.
@@ -68,13 +134,13 @@ A **Decision Matrix** is a Markdown truth table that maps combinations of **Prim
 
 ### 3.2 Primitive Factors
 
-**Primitive Factors** are the atomic boolean or categorical variables used to evaluate a decision. Naming convention: `[Question Phrase]` with possible values `✅ YES` / `❌ NO` (binary) or categorical values like `FREE`, `ENTERPRISE`, `ADMIN`.
+**Primitive Factors** are the atomic boolean or categorical variables used to evaluate a decision. Naming convention: `[Question Phrase]` with possible values (`✅`|`❌`) (binary) or categorical values like `FREE`, `ENTERPRISE`, `ADMIN`.
 
 | Factor Type | Example | Allowed Values |
 | --- | --- | --- |
-| Binary | `Active Tenant?` | `✅ YES` / `❌ NO` |
+| Binary | `Active Tenant?` | `✅`, `❌` |
 | Categorical | `Active Billing Tier?` | `FREE`, `PRO`, `ENTERPRISE` |
-| Negated Binary | `Global Kill Switch Active?` | `✅ YES` (blocked) / `❌ NO` (normal) |
+| Negated Binary | `Global Kill Switch Active?` | `✅`, `❌` |
 
 ### 3.3 Matrix Resolution Rule
 
@@ -112,10 +178,10 @@ Each change MUST append a row to the **Change History** table at the bottom of t
 
 ```
 ## Change History
-| Version | Date | Author | Change Description | Change Type |
-| --- | --- | --- | --- | --- |
-| 1.1.0 | 2025-06-01 | AI | Added refund retry logic state | MINOR |
-| 1.0.0 | 2025-05-15 | AI | Initial spec creation | MAJOR |
+| Version | Date | Change Description |
+| --- | --- | --- |
+| 1.1.0 | 2025-06-01 | Added refund retry logic state
+| 1.0.0 | 2025-05-15 | Initial spec creation
 ```
 
 ## 5. Conflict Resolution Protocol
@@ -143,29 +209,3 @@ graph TD
     H --> F
     F --> I[Done — Log in Audit History]
 ```
-
-## UNIVERSAL RULE
-
-The UNIVERSAL RULE is now integrated into the main processing diagram at the top. Its essence:
-
-**Before ANY action, the system MUST verify that a `.spec.md` file exists for the target domain/feature.** If no spec exists, only `md-new` and `md-audit` skills are allowed to proceed (to create or propose a spec). All other skills (`md-impl`, `md-edit`, etc.) are DENIED without an existing specification.
-
-Diagrams: Always use "npx md validate <path/to/diagram.md>" to validate diagram syntax (Mandatory)
-
-```mermaid
-%% @spec-version v2.0.0
-%% @protocol-version 1.0.0
-stateDiagram-v2
-    [*] --> CheckSpec: Before any action — verify spec exists
-
-    state CheckSpec {
-        SpecExists --> Allowed: Proceed with requested skill.
-        SpecNotFound --> Denied: Only md-new / md-audit allowed.
-    }
-
-    Denied --> [*]: Halt — "No .spec.md file found. Use md-new or md-audit."
-    Allowed --> Action: Execute requested skill.
-    Action --> Verify: Validate output.
-    Verify --> [*]: Success.
-    Verify --> Action: Retry if criteria not met.
- ```   
