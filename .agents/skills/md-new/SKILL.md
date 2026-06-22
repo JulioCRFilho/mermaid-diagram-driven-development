@@ -1,44 +1,33 @@
 [ROLE: ARCHITECT] [STRICT CONTRACT]
 
 ```mermaid
-%% @spec-version v1.3.1
-stateDiagram-v2
-    [*] --> TargetVerification
+%% @spec-version v1.3.2
+graph TD
+    Start((Start)) --> CheckTarget{Target .spec.md exists?}
 
-    state TargetVerification {
-        [*] --> CheckFileExistence: Does .spec.md already exist at target path?
-        FileExists --> Break: Existing .specs are immutable. Switch to edit mode.
-        FileNotFound --> EvaluateContext: File Does Not Exist
-    }
+    CheckTarget -->|Yes| Break([Break — existing specs are immutable. Use md-edit])
+    CheckTarget -->|No| Evaluate
 
-    state EvaluateContext {
-        [*] --> DeepAnalysis: Evaluate target context and goal
-        DeepAnalysis --> DiagramTypeInference: Infer appropriate diagram type and template
-        DiagramTypeInference --> InferNodes: Identify key nodes and relationships to be represented
-    }
+    subgraph Evaluate[Evaluate Context]
+        direction TB
+        E1[Analyze target context and goal]
+        E1 --> E2[Infer diagram type and template]
+        E2 --> E3[Identify key nodes and relationships]
+    end
 
-    EvaluateContext --> GenerateBlueprint: Create .spec.md from "src/templates/spec-template.md".
-    GenerateBlueprint --> FormatSpecOutput: Format blueprint into target .spec.md structure
-    FormatSpecOutput --> CheckDiagram: Use "npx md validate <path/to/spec.md>" to validate diagram syntax
+    Evaluate --> Blueprint[Create .spec.md from .agents/templates/spec-template.md]
+    Blueprint --> Format[Format into target .spec.md structure]
+    Format --> CheckDiagram
 
-    state CheckDiagram {
-        [*] --> DiagramValid: Proceed to next step
-        DiagramInvalid --> GenerateBlueprint: Re-generate blueprint with adjustments until valid
-    }
-        
-    CheckDiagram --> WriteToFile: Write validated .spec.md to target path
-    WriteToFile --> InitializeVersion: Set initial SPEC_VERSION
+    subgraph CheckDiagram[Validate Syntax]
+        direction TB
+        C1{Diagram valid?}
+        C1 -->|Yes| C2[Proceed]
+        C1 -->|No| Blueprint
+    end
 
-    state InitializeVersion {
-        [*] --> SetDraftVersion: Set SPEC_VERSION to v1.0.0-draft
-    }
-
-    InitializeVersion --> AppendCreationAudit: Record creation metadata
-
-    state AppendCreationAudit {
-        [*] --> LogCreation: Append audit entry: "Created via md-new" with timestamp
-    }
-
-    AppendCreationAudit --> AwaitHumanReview: Pause for user to review and adjust generated diagram
-    AwaitHumanReview --> [*]
+    CheckDiagram --> Write[Write validated .spec.md to path]
+    Write --> Init[Set SPEC_VERSION to v1.0.0-draft]
+    Init --> Audit[Append audit entry: 'Created via md-new' with timestamp]
+    Audit --> Review([Pause for user review])
 ```

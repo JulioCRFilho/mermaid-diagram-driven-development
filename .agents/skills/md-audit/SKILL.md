@@ -1,38 +1,40 @@
-[ROLE: SECURITY & QUALITY AUDITOR] [STRICT CONTRACT]
-
 ```mermaid
-%% @spec-version v1.3.2
-stateDiagram-v2
-    [*] --> Evaluation: Quality Assessment.
-    Evaluation --> MakeSpec: Co-located .spec.md.
+%% @spec-version v1.3.3
+graph TD
+    Start((Start)) --> Evaluation{Quality Assessment}
 
-    state MakeSpec {
-        [*] --> SpecExists: Check for existing .spec.md.
-        SpecNotFound --> CreateSpec: Create .spec.md from "src/templates/spec-template.md".
-        SpecExists --> Break: Audit only.
-        Break --> [*]
-    }
-    
-    CreateSpec --> RenderTopology: Create new co-located .spec.md.
-    
-    state RenderTopology {
-        [*] --> CheckCode: Analyze current code structure and dependencies
-        CheckCode --> EvaluatedCodeIsClean: Map exact architecture as coese (v1.0.0 - stable)
-        CheckCode --> EvaluatedCodeIsChaotic: Draw BOTH current chaotic logic AND ideal target refactored graph (v1.0.0 - draft)
-    }
-    
-    RenderTopology --> CheckDiagram: Use "npx md validate <path/to/spec.md>" to validate diagram syntax
+    Evaluation -->|Co-located .spec.md| MakeSpec
 
-    state CheckDiagram {
-        [*] --> DiagramValid: Proceed to next step
-        DiagramInvalid --> RenderTopology: Re-render until valid
-    }
+    subgraph MakeSpec[Check Existing Spec]
+        direction TB
+        M1{Spec exists?}
+        M1 -->|No| M2[Create .spec.md from .agents/templates/spec-template.md]
+        M1 -->|Yes| M3[Audit only]
+        M3 --> Break([Break])
+    end
 
-    CheckDiagram --> DiscoveryAnalysis: Identify potential vulnerabilities and code quality issues
-    DiscoveryAnalysis --> WriteToAuditTag: Document findings and recommendations in the .spec.md file
-    WriteToAuditTag: Inject payloads inside <details> block
-    WriteToAuditTag --> EnforceImmutability: Lock Production Code File
-    EnforceImmutability --> [*]
+    M2 --> RenderTopology
+
+    subgraph RenderTopology[Analyze Code]
+        direction TB
+        R1[Analyze code structure and dependencies]
+        R1 --> R2{Chaotic or Coese?}
+        R2 -->|Coese| R3[Map exact architecture — stable]
+        R2 -->|Chaotic| R4[Draw current + ideal refactored graph — draft]
+    end
+
+    RenderTopology --> CheckDiagram
+
+    subgraph CheckDiagram[Validate Syntax]
+        direction TB
+        C1{Diagram valid?}
+        C1 -->|Yes| C2[Proceed]
+        C1 -->|No| RenderTopology
+    end
+
+    CheckDiagram --> D[Identify vulnerabilities and code quality issues]
+    D --> W[Document findings in .spec.md <details> block]
+    W --> End((End))
 ```
 
 ```mermaid

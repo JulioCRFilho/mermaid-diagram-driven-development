@@ -11,120 +11,102 @@ use the Chaotic/Coese evaluation: `@./agents/skills/md-audit/SKILL.md`
 Mark every .spec as Coese or Chaotic based on auditory.
 
 ```mermaid
-stateDiagram-v2
-    [*] --> CheckSpec: UNIVERSAL RULE — Check specification file
+graph TD
+    Start((Start)) --> CheckSpec{Spec exists?}
 
-    state CheckSpec {
-        SpecExists --> ExistingSpec: Request Allowed.
-        SpecNotFound --> SkillCheck: Check skill requested.
-    }
+    CheckSpec -->|Yes| ExistingSpec
+    CheckSpec -->|No| SkillCheck{Check requested skill}
 
-    state SkillCheck {
-        MdNew --> NewSpecification: No Spec required.
-        MdAudit --> CodeAuditory: No Spec required.
-        Other --> Denied: Specification file required.
-        NoSkill --> Denied: MDDD Skill required.
-    }
+    SkillCheck -->|md-new| NewSpec[New Specification]
+    SkillCheck -->|md-audit| AuditCode[Audit Legacy Code]
+    SkillCheck -->|other skill| DENIED[[DENIED]]
+    SkillCheck -->|unknown| DENIED
 
-    Denied --> ConflictResolution: Conflicting terms found
+    subgraph NewSpec[New Specification]
+        direction TB
+        NS1[Fill spec-template] --> NS2[Read user request]
+        NS2 --> NS3[Write specification]
+    end
 
-    state SpecModification {
-        [*] --> PlanEdit: Plan the modification
-        PlanEdit --> UpdateSpec: Apply modifications to spec
-        UpdateSpec --> ParseMermaidDiagrams: Extract all diagrams
-        ParseMermaidDiagrams --> ExtractDecisionMatrices: Map topology nodes/edges
-        ExtractDecisionMatrices --> ValidatePrimitiveFactors: Check factor columns
-        ValidatePrimitiveFactors --> CodeReview: Review your work!
-        CodeReview --> [*]: End of spec modification
-    }
+    subgraph AuditCode[Audit Legacy Code]
+        direction TB
+        A1[Consume md-audit SKILL.md] --> A2[Read legacy code file]
+        A2 --> A3[Load related files]
+        A3 --> A4[Deep code analysis]
+        A4 --> A5{Chaotic or Coese?}
+        A5 -->|Coese — high quality| A6[Write spec from template]
+        A5 -->|Chaotic — low quality| A7[Draft proposal spec]
+        A6 --> A8[Enter SpecMod]
+        A7 --> A8
+    end
 
-    state NewSpecification {
-        [*] --> CreateSpec: Create spec file from template
-        CreateSpec --> UserRequest: Read user specification request
-        UserRequest --> SpecModification: Write specification
-        SpecModification --> [*]: Skill ended
-    }
+    subgraph SpecMod[Spec Modification]
+        direction TB
+        S1[Plan the edit] --> S2[Apply changes to spec]
+        S2 --> S3[Extract all mermaid diagrams]
+        S3 --> S4[Map topology → decision matrix]
+        S4 --> S5[Validate primitive factors]
+        S5 --> S6[Code review]
+    end
 
-    state CodeAuditory {
-        [*] --> ReadSkill: Read auditory skill `md-audit`
-        ReadSkill --> ReadFile: Read legacy code file
-        ReadFile --> GetContext: Load related files
-        GetContext --> AnalyzeContent: Deep code analysis
-        AnalyzeContent --> QualityEvaluation: use the Chaotic/Coese evaluation
-        QualityEvaluation --> Coese: Code is high-quality
-        QualityEvaluation --> Chaotic: Code is low-quality
+    subgraph ExistingSpec[Existing Spec Flow]
+        direction TB
+        E1[Read skill content] --> E2{Which skill?}
+        E2 -->|md-impl| MdImpl
+        E2 -->|md-edit| MdEdit
 
-        Coese --> CreateSpec: Create spec file from template
-        CreateSpec --> SpecModification: Write specification
+        subgraph MdImpl[Implementation]
+            direction TB
+            I1[Read spec status] --> I2{Draft or Stable?}
+            I2 -->|Draft| I3[Implement code]
+            I3 --> I4[Implement tests]
+            I4 --> I5[Run tests]
+            I5 --> I6[Code review]
+            I2 -->|Stable| ConflictTrigger{Halt — spec is stable}
+        end
 
-        Chaotic --> SpecProposal: Plan proposal specification
-        SpecProposal --> SpecModification: Write proposal specification
+        subgraph MdEdit[Edit Spec]
+            direction TB
+            Ed1[Read spec content] --> Ed2[Read user request]
+            Ed2 --> Ed3[Enter SpecMod]
+        end
 
-        SpecModification --> [*]: Skill ended
-    }
+        MdImpl --> ValidateChanges[Validate changes]
+        MdEdit --> ValidateChanges
+        ValidateChanges --> UpdateSpec[Update spec status draft/stable]
+    end
 
-    state ExistingSpec {
-        [*] --> WhichSkill: Read skill content
-        
-        WhichSkill --> MdImpl: Code implementation
-        WhichSkill --> MdEdit: Spec modification
+    NewSpec --> SpecMod
+    AuditCode --> SpecMod
+    ExistingSpec -.-> SpecMod
+    ConflictTrigger --> ConflictRes
 
-        state MdImpl {
-            [*] --> SpecCheck: Read spec status 
-            SpecCheck --> Draft: Real code proposal
-            SpecCheck --> Stable: Code already implemented
+    subgraph ConflictRes[Conflict Resolution]
+        direction TB
+        C1[Explain conflict to user] --> C2[Propose alternatives]
+        C2 --> C3{Await human decision}
+        C3 -->|Accept proposal| C4[Update decision matrix]
+        C3 -->|Cancel| Cancelled([Cancelled])
+    end
 
-            Draft --> CodeImpl: Implementing code from spec
-            CodeImpl --> TestImpl: Implementing tests from spec
-            TestImpl --> RunTests: Check whether tests are passing
-            RunTests --> CodeReview: Review your work!
-            CodeReview --> [*]: Skill ended
+    NS3 --> Conclude
+    A8 --> Conclude
+    UpdateSpec --> Conclude
+    C4 --> Conclude
 
-            Stable --> HaltWithConflict: Spec already Stable
-        }
+    subgraph Conclude[Finalize]
+        direction TB
+        Co1[Validate with npx md validate] --> Co2[Check parent/child consistency]
+    end
 
-        state MdEdit {
-            [*] --> SpecReview: Read spec content
-            SpecReview --> UserRequest: Read user specification request
-            UserRequest --> PlanEdit: Plan the modification
-            PlanEdit --> SpecModification: Write changes to specification
-            SpecModification --> [*]: Skill ended
-        }
-
-        MdImpl --> ValidateChanges: Validate code changes!
-        MdEdit --> ValidateChanges: Validate spec changes!
-
-        ValidateChanges --> UpdateSpec: Update spec status (draft|stable)
-        UpdateSpec --> [*]: Modification completed
-    }
-
-    HaltWithConflict --> ConflictResolution: Auto-detect conflict source
-
-    state ConflictResolution {
-        [*] --> ExplainConflict: Explain conflict to user
-        ExplainConflict --> ProposeAlternatives: Suggest alternatives to user
-        ProposeAlternatives --> UserDecision: Await human input
-        UserDecision --> ApplyChosenAlternative: Update decision matrix
-        ApplyChosenAlternative --> Conclude: Conflict resolved
-        UserDecision --> HaltProcess: User cancels
-    }
-
-    HaltProcess --> [*]: End of process
-    
-    NewSpecification --> Conclude: Specification created
-    CodeAuditory --> Conclude: Auditory completed
-    ExistingSpec --> Conclude: Modification|Implementation finished
-
-    Conclude --> ValidateSpec: Use `npx md validate <relative_path/to/spec>` to check if spec is valid
-    ValidateSpec --> ReverseConsistency: Note parent's states/transitions
-    ReverseConsistency --> [*]: End of process
+    Conclude --> End([End])
 ```
 
-### 2 Reverse Consistency
+## 2. Reverse Consistency
 
-2.1. **Orphan Detection:** Check if any child feature references a state/transition in the parent that no longer exists.
-2.2. **Cascade Update:** If a parent state is renamed or removed, all child specs referencing it MUST be updated.
-2.3. **Version Bump:** Parent changes increment MINOR version. Child specs affected by the change increment PATCH version.
+### 2.1. **Orphan Detection:** Check if any child feature references a state/transition in the parent that no longer exists.
+### 2.2. **Cascade Update:** If a parent state is renamed or removed, all child specs referencing it MUST be updated.
+### 2.3. **Version Bump:** Parent changes increment MINOR version. Child specs affected by the change increment PATCH version.
 
 ## 3. Decision Matrix & Primitive Factors
 
@@ -154,9 +136,9 @@ For each row:
 
 | Active Tenant? | Premium App? | Active Billing Tier? | User Has Role Admin? | App Whitelisted? | Global Kill Switch? | Proposed Action | Decision | Transition State |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ❌ NO | - | - | - | - | - | `BOOT_APP` | ❌ DENY | - |
-| ✅ YES | ✅ YES | **ENTERPRISE** | ✅ YES | ✅ YES | ❌ NO | `INSTALL_APP` | ✅ ALLOW | `INSTALLED` |
-| ✅ YES | - | - | - | - | ✅ YES | `BOOT_APP` | ❌ DENY | `MUTED_ISOLATION` |
+| ❌ | - | - | - | - | - | `BOOT_APP` | ❌ | - |
+| ✅ | ✅ | **ENTERPRISE** | ✅ | ✅ | ❌ | `INSTALL_APP` | ✅ | `INSTALLED` |
+| ✅ | - | - | - | - | ✅ | `BOOT_APP` | ❌ | `MUTED_ISOLATION` |
 
 > `-` = wildcard / any value matches.
 
@@ -208,4 +190,3 @@ graph TD
     G --> H[Update Child Spec]
     H --> F
     F --> I[Done — Log in Audit History]
-```

@@ -1,56 +1,44 @@
 [ROLE: ARCHITECT] [STRICT CONTRACT]
 
 ```mermaid
-%% @spec-version v1.3.1
-stateDiagram-v2
-    [*] --> Read TargetSpec: Read Target .spec.md
-    Read TargetSpec --> ParseVersion: Parse Current SPEC_VERSION
-    ParseVersion --> ApplyAdjustments: Apply requested Mermaid/Matrix Adjustments
-    ApplyAdjustments --> EvaluateScope: Evaluate Mutation Scope
+%% @spec-version v1.3.2
+graph TD
+    Start((Start)) --> Read[Read target .spec.md]
+    Read --> Parse[Parse SPEC_VERSION]
+    Parse --> Apply[Apply requested diagram/matrix adjustments]
+    Apply --> Scope{Evaluate mutation scope}
 
-    state EvaluateScope {
-        [*] --> TypoFix: Typo / Label Fix
-        [*] --> NewNode: New Node / Flow Path / Factor
-        [*] --> BreakingChange: Breaking Overhaul / Restructure
-    }
-    
-    EvaluateScope --> IncrementVersion: Increment Version Based on Scope
+    Scope -->|Typo / label fix| PatchBump[Increment PATCH]
+    Scope -->|New node / flow / factor| MinorBump[Increment MINOR]
+    Scope -->|Breaking restructure| MajorBump[Increment MAJOR]
 
-    state IncrementVersion {
-        [*] --> IncrementPatch: Increment Patch: Bump Z in X.Y.Z
-        [*] --> IncrementMinor: Increment Minor: Bump Y in X.Y.Z
-        [*] --> IncrementMajor: Increment Major: Bump X in X.Y.Z
-    }
+    PatchBump --> Validate
+    MinorBump --> Validate
+    MajorBump --> Validate
 
-    IncrementVersion --> CheckDiagram: Use "npx md validate <path/to/spec.md>" to validate diagram syntax
+    subgraph Validate[Validate & Write]
+        direction TB
+        V1[Try render with npx md validate] --> V2{Render result?}
+        V2 -->|Success| V3[Write to target path]
+        V2 -->|Failed, retries < 5| V1
+        V2 -->|Failed, retries >= 5| V4[[RENDER_FAILED]]
+        V3 --> V5{Write result?}
+        V5 -->|Success| V6[Proceed]
+        V5 -->|Error| V7[[WRITE_ERROR]]
+    end
 
-    state CheckDiagram {
-        [*] --> TryRender
-        TryRender --> DiagramValid: Render succeeded
-        TryRender --> IncrementRetry: Render failed
-        IncrementRetry --> TryRender: Retry count < 5
-        IncrementRetry --> RenderFailed: Retry count >= 5
-    }
-        
-    CheckDiagram --> WriteToFile: Write validated .spec.md to target path
-    WriteToFile --> VerifyWrite
-    state VerifyWrite {
-        [*] --> WriteSuccess: File written successfully
-        [*] --> WriteError: File write failed (permissions / disk / path)
-    }
-    WriteError --> AwaitHumanReview: Error: manual intervention required
+    V6 --> Audit[Identify vulnerabilities and issues]
+    Audit --> Review
+    V4 --> Review
+    V7 --> Review
 
-    WriteSuccess --> DiscoveryAnalysis: Identify potential vulnerabilities and code quality issues
-    DiscoveryAnalysis --> AwaitHumanReview: Flag discovered issues for human review
-    RenderFailed --> AwaitHumanReview: Error: Mermaid CLI validation failed after 5 attempts
-
-    state AwaitHumanReview {
-        [*] --> Approved: Resume CI/CD pipeline
-        [*] --> ChangesRequested: Loop back to ApplyAdjustments
-        [*] --> Aborted: Terminate session
-    }
-    
-    AwaitHumanReview --> [*]: Pause Code & Test Generation
+    subgraph Review[Await Human Review]
+        direction TB
+        R1{Await decision}
+        R1 -->|Approved| R2([End])
+        R1 -->|Changes requested| Apply
+        R1 -->|Aborted| R3([End])
+    end
 ```
 
 ```mermaid
