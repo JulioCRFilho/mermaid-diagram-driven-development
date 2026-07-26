@@ -1,3 +1,6 @@
+Outdated: Abandoned for MAD (Mermaid Auto-doccing) protocol \
+Repository: [MAD](https://github.com/JulioCRFilho/mad)
+
 # Mermaid Diagram Driven Development (MDDD) CLI 🚀
 
 ![npm](https://img.shields.io/npm/v/mddd-cli?style=flat-square&logo=npm&color=CB3837)
